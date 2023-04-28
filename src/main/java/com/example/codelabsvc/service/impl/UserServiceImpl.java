@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public User findByUsername(String username) throws CustomException {
         Optional<User> optionalUser = userRepository.findByUsername(username);
         if (optionalUser.isEmpty()) {
-            throw new CustomException(ErrorCode.User_NOT_EXIST);
+            throw new CustomException(ErrorCode.USER_NOT_EXIST);
         }
         return optionalUser.get();
     }
@@ -94,7 +94,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public User findById(String UserId) throws CustomException {
         var user = this.userRepository.findById(UserId);
         if (user.isEmpty()) {
-            throw new CustomException(ErrorCode.User_NOT_EXIST);
+            throw new CustomException(ErrorCode.USER_NOT_EXIST);
         }
 
         return user.get();
