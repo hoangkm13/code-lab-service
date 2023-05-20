@@ -4,22 +4,25 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Document(collection = "discussion")
+@Document(collection = "testCase")
+public class TestCase {
 
-public class Discussion extends EntityBase {
     @Id
     private String id;
 
-    private String name;
+    private String compilerMessage;
 
-    private String challengeId;
+    private String input;
 
-    private List<Comment> commentList;
+    private String output;
+
+    private String expectedOutput;
+
+    private String complicationDuration;
+
 }

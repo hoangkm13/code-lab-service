@@ -6,6 +6,7 @@ import com.example.codelabsvc.constant.Status;
 import com.example.codelabsvc.constant.Subdomain;
 import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Document(collection = "challenge")
 
 public class Challenge extends EntityBase {
     @Id
@@ -33,10 +35,13 @@ public class Challenge extends EntityBase {
 
     private Integer points;
 
+    private String preScript;
+
     private String script;
 
     private String issue;
 
-    private List<Bonus> bonuses;
+    private List<TestCase> testCases;
 
+    private List<Bonus> bonuses;
 }

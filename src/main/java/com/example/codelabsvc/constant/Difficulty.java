@@ -21,18 +21,6 @@ public enum Difficulty {
         this.reasonPhrase = reasonPhrase;
     }
 
-    public String value() {
-        return this.value;
-    }
-
-    public String getReasonPhrase() {
-        return this.reasonPhrase;
-    }
-
-    public String toString() {
-        return this.value + " " + this.name();
-    }
-
     @Nullable
     public static Difficulty resolve(String status) {
         Difficulty[] var1 = values();
@@ -45,4 +33,16 @@ public enum Difficulty {
 
         return null;
     }
+
+    public String value() {
+        return this.value;
     }
+
+    public String getReasonPhrase() {
+        return this.reasonPhrase;
+    }
+
+    public String toString() {
+        return this.value + " " + this.name();
+    }
+}

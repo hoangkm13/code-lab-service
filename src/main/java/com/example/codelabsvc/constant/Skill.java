@@ -42,4 +42,4 @@ public enum Skill {
 
         return null;
     }
-    }
+}
