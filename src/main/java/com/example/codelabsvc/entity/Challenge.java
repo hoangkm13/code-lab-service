@@ -39,4 +39,5 @@ public class Challenge extends EntityBase {
 
     private List<Bonus> bonuses;
 
+
 }
