@@ -18,6 +18,4 @@ public class Comment extends EntityBase {
     private User user;
 
     private String commentText;
-
-    private String createdAt;
 }

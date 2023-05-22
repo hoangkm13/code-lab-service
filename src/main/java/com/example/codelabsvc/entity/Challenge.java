@@ -35,10 +35,6 @@ public class Challenge extends EntityBase {
 
     private Integer points;
 
-    private String preScript;
-
-    private String script;
-
     private String issue;
 
     private List<TestCase> testCases;

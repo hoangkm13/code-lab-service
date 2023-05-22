@@ -1,4 +1,4 @@
-package com.example.codelabsvc.service;
+package com.example.codelabsvc.repository;
 
 import com.example.codelabsvc.entity.TestCase;
 import org.springframework.data.mongodb.repository.MongoRepository;

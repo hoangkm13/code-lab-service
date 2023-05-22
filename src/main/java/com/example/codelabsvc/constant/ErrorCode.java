@@ -9,7 +9,8 @@ public enum ErrorCode {
     USER_NOT_EXIST("USER_NOT_EXIST", "Khách hàng không tồn tại"),
     USERNAME_NOT_EXIST("USERNAME_NOT_EXIST", "Tên người dùng không tồn tại"),
     USERNAME_EXIST("USERNAME_EXIST", "Tên người dùng tồn tại"),
-    EMAIL_EXIST("EMAIL_EXIST", "Email người dùng tồn tại");
+    EMAIL_EXIST("EMAIL_EXIST", "Email người dùng tồn tại"),
+    CHALLENGE_NOT_EXIST("CHALLENGE_NOT_EXIST", "Challenge không tồn tại");
 
     private final String message;
     private final String code;
