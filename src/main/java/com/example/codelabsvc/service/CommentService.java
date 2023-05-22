@@ -1,5 +1,7 @@
 package com.example.codelabsvc.service;
 
+import com.example.codelabsvc.dto.CommentResponseDTO;
+import com.example.codelabsvc.dto.SaveChildCommentRequestDTO;
 import com.example.codelabsvc.dto.SaveCommentRequestDTO;
 import com.example.codelabsvc.dto.UpdateCommentDTO;
 import com.example.codelabsvc.entity.Comment;
@@ -9,8 +11,9 @@ import org.springframework.data.domain.Page;
 
 
 public interface CommentService {
-     Comment saveComment(SaveCommentRequestDTO dto) throws CustomException;
-     Comment updateComment(UpdateCommentDTO dto);
+     CommentResponseDTO saveComment(SaveCommentRequestDTO dto) throws CustomException;
+     CommentResponseDTO updateComment(UpdateCommentDTO dto);
      void deleteComment(String id);
-     Page<Comment> getAllByChallengeId(String id , int page,int size);
+     Page<CommentResponseDTO> getAllByChallengeId(String id , int page, int size);
+     CommentResponseDTO replyComment(SaveChildCommentRequestDTO dto) throws CustomException;
 }

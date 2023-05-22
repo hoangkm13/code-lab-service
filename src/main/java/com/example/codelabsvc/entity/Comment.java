@@ -1,10 +1,12 @@
 package com.example.codelabsvc.entity;
 
 import lombok.*;
-import org.springframework.data.annotation.Id;
+
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
+import java.util.List;
+
 
 
 @EqualsAndHashCode(callSuper = true)
@@ -12,19 +14,25 @@ import java.util.Date;
 @NoArgsConstructor
 @Document(collection = "comment")
 public class Comment extends EntityBase {
-    @Id
-    private String id;
+
+    private String id ;
     private String challengeId;
-    private User user;
+    private String userName;
     private String text;
     private String code;
+    public Boolean isParent;
+    public List<String> childCommentId;
 
-
-    public Comment( String challengeId, User user, String text, String code) {
-        super(new Date().toString(),"" ,user.getUsername(),user.getUsername());
+    public Comment( String challengeId, String username, String text, String code,Boolean isParent,List<String> childCommentId) {
+        super(new Date().toString(),"" ,username,username);
         this.challengeId = challengeId;
-        this.user = user;
+        this.userName = username;
         this.text = text;
         this.code = code;
+        this.isParent = isParent;
+        this.childCommentId = childCommentId;
+
     }
+
+
 }

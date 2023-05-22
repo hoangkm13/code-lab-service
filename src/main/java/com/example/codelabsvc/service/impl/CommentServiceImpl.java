@@ -1,5 +1,7 @@
 package com.example.codelabsvc.service.impl;
 
+import com.example.codelabsvc.dto.CommentResponseDTO;
+import com.example.codelabsvc.dto.SaveChildCommentRequestDTO;
 import com.example.codelabsvc.dto.SaveCommentRequestDTO;
 import com.example.codelabsvc.dto.UpdateCommentDTO;
 import com.example.codelabsvc.entity.Comment;
@@ -16,7 +18,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -31,19 +36,32 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Comment saveComment(SaveCommentRequestDTO dto) throws CustomException {
+    public CommentResponseDTO saveComment(SaveCommentRequestDTO dto) throws CustomException {
         User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
         User user = userService.findByUsername(authentication.getUsername());
-        return commentRepository.save(new Comment(dto.getChallengeId(), user, dto.getText(), dto.getCode()));
+        Comment comment = new Comment(dto.getChallengeId(), user.getUsername(), dto.getText(), dto.getCode(), true, null);
+        comment.setId(UUID.randomUUID().toString());
+        commentRepository.save(comment);
+        return new CommentResponseDTO(comment.getId(),
+                comment.getUserName(),
+                comment.getCreatedAt(),
+                comment.getText(),
+                comment.getCode());
+
     }
 
     @Override
-    public Comment updateComment(UpdateCommentDTO dto) {
+    public CommentResponseDTO updateComment(UpdateCommentDTO dto) {
         Comment comment = commentRepository.findCommentById(dto.getId());
         comment.setText(dto.getText());
         comment.setCode(dto.getCode());
         comment.setUpdatedAt(new Date().toString());
-        return commentRepository.save(comment);
+        commentRepository.save(comment);
+        return new CommentResponseDTO(comment.getId(),
+                comment.getUserName(),
+                comment.getCreatedAt(),
+                comment.getText(),
+                comment.getCode());
 
     }
 
@@ -53,9 +71,45 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Page<Comment> getAllByChallengeId(String id, int page, int size) {
+    public Page<CommentResponseDTO> getAllByChallengeId(String id, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return commentRepository.getAllByChallengeId(id, pageable);
+        Page<Comment> comments = commentRepository.getAllByChallengeId(id, pageable);
+        return comments.map(comment -> {
+            CommentResponseDTO dto = new CommentResponseDTO();
+            dto.setId(comment.getId());
+            dto.setUsername(comment.getUserName());
+            dto.setCreatedAt(comment.getCreatedAt());
+            dto.setText(comment.getText());
+            dto.setCode(comment.getCode());
+            return dto;
+        });
+    }
+
+    @Override
+    public CommentResponseDTO replyComment(SaveChildCommentRequestDTO dto) throws CustomException {
+        User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+        User user = userService.findByUsername(authentication.getUsername());
+        Comment comment = commentRepository.findCommentById(dto.getParentId());
+        if (!comment.isParent) {
+            return null;
+        } else {
+            Comment childComment = new Comment(dto.getChallengeId(), user.getUsername(), dto.getText(), "", false, null);
+            childComment.setId(UUID.randomUUID().toString());
+            commentRepository.save(childComment);
+            if (comment.getChildCommentId() == null) {
+                List<String> idList = new ArrayList<>();
+                idList.add(childComment.getId());
+                comment.setChildCommentId(idList);
+            } else {
+                comment.getChildCommentId().add(childComment.getId());
+            }
+            commentRepository.save(comment);
+            return new CommentResponseDTO(childComment.getId(),
+                    childComment.getUserName(),
+                    childComment.getCreatedAt(),
+                    childComment.getText(),
+                    childComment.getCode());
+        }
     }
 
 
