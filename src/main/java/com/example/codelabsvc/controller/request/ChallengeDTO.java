@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -38,7 +39,7 @@ public class ChallengeDTO {
 
     private List<Bonus> bonuses;
     public Challenge toChallenge(Challenge challenge){
-
+        challenge.setId(UUID.randomUUID().toString());
         challenge.setName(this.getName()) ;
         challenge.setIssue(this.getIssue());
         challenge.setSkill(this.getSkill());

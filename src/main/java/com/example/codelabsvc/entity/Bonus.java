@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "bonus")
 
 public class Bonus extends EntityBase {
-    @Id
+
     private String id;
 
     private Integer point;

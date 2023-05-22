@@ -18,7 +18,7 @@ import java.util.List;
 @Document(collection = "challenge")
 
 public class Challenge extends EntityBase {
-    @Id
+
     private String id;
 
     private String name;

@@ -11,12 +11,13 @@ import com.example.codelabsvc.multithread.ExecutionFactory;
 import com.example.codelabsvc.repository.ChallengeRepository;
 import com.example.codelabsvc.repository.TopicRepository;
 import com.example.codelabsvc.service.ChallengeService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.*;
 
 @Service
@@ -28,11 +29,13 @@ public class ChallengeServiceImpl implements ChallengeService {
     @Autowired
     private ChallengeRepository challengeRepository;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
 
     @Override
-    public Challenge addChallenge(ChallengeDTO challengeDTO) {
-        Challenge challenge = new Challenge();
-        return challengeRepository.save(challengeDTO.toChallenge(challenge));
+    public Challenge createChallenge(ChallengeDTO challengeDTO) {
+        return challengeRepository.save(challengeDTO.toChallenge(new Challenge()));
     }
 
     @Override
@@ -51,71 +54,36 @@ public class ChallengeServiceImpl implements ChallengeService {
 
     @Override
     public List<TestCase> submitCode(PreScript preScript, String challengeId) {
-//        Optional<Challenge> challenge = challengeRepository.findById(challengeId);
-//        List<Future<TestCase>> futureList = new ArrayList<>();
-//
-//        if (challenge.isPresent()) {
-//
-//            File folder = new File(challenge
-//                    .get()
-//                    .getName()
-//                    .replace(" ", "-")
-//                    .toLowerCase()
-//                    + "-test-case");
-//
-//            if (!folder.exists()) {
-//                folder.mkdir();
-//            }
-//
-//            List<TestCase> testCases = challenge.get().getTestCases();
-//            ExecutorService executorService = Executors.newFixedThreadPool(testCases.size());
-//
-//            Callable<TestCase> callable;
-//            Future<TestCase> future;
-//
-//            for (int i = 0; i < testCases.size(); i++) {
-//                callable = new ExecutionFactory(i, preScript, testCases.get(i), challenge.get().getName());
-//                future = executorService.submit(callable);
-//
-//                futureList.add(future);
-//            }
-//
-//            executorService.shutdown();
-//
-//            for (Future<TestCase> f : futureList) {
-//                try {
-//                    System.out.println(f.get());
-//                } catch (InterruptedException | ExecutionException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-        return null;
-    }
-
-    @Override
-    public List<TestCase> submitCode(MultipartFile inputFile, MultipartFile output, MultipartFile sourceCode) {
+        Optional<Challenge> challenge = challengeRepository.findById(challengeId);
         List<Future<TestCase>> futureList = new ArrayList<>();
+        List<TestCase> testCasesResult = new ArrayList<>();
 
-        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        if (challenge.isPresent()) {
 
-        Callable<TestCase> callable;
-        Future<TestCase> future;
+            List<TestCase> testCases = challenge.get().getTestCases();
+            ExecutorService executorService = Executors.newFixedThreadPool(testCases.size());
 
-        callable = new ExecutionFactory(inputFile, output, sourceCode);
-        future = executorService.submit(callable);
+            Callable<TestCase> callable;
+            Future<TestCase> future;
 
-        futureList.add(future);
+            for (TestCase testCase : testCases) {
+                callable = new ExecutionFactory(preScript, testCase);
+                future = executorService.submit(callable);
 
-        executorService.shutdown();
+                futureList.add(future);
+            }
 
-        for (Future<TestCase> f : futureList) {
-            try {
-                System.out.println(f.get());
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+            executorService.shutdown();
+
+            for (Future<TestCase> f : futureList) {
+                try {
+                    testCasesResult.add(f.get());
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
             }
         }
-        return null;
+        return testCasesResult;
     }
+
 }

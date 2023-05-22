@@ -14,7 +14,7 @@ import java.util.List;
 @Document(collection = "discussion")
 
 public class Discussion extends EntityBase {
-    @Id
+
     private String id;
 
     private String name;

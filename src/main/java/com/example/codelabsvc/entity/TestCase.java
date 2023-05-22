@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Document(collection = "testCase")
+@Document(collection = "test-case")
 public class TestCase {
 
     @Id
@@ -24,5 +24,9 @@ public class TestCase {
     private String expectedOutput;
 
     private String complicationDuration;
+
+    private int timeLimit;
+
+    private int memoryLimit;
 
 }
