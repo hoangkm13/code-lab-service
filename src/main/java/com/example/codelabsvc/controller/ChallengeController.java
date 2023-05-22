@@ -15,14 +15,14 @@ import java.util.List;
 
 @RestController
 @CrossOrigin("*")
-@RequestMapping("/api/v1")
+@RequestMapping("/v1/challenges")
 public class ChallengeController {
 
     @Autowired
     private ChallengeServiceImpl challengeService;
 
-    @PostMapping(value = "/challenge", produces = "application/json")
-    public ApiResponse<Challenge> createChallenge(@RequestBody ChallengeDTO challengeDTO){
+    @PostMapping(value = "/", produces = "application/json")
+    public ApiResponse<Challenge> createChallenge(@RequestBody ChallengeDTO challengeDTO) throws CustomException {
         Challenge challenge = challengeService.createChallenge(challengeDTO);
         return ApiResponse.successWithResult(challenge);
     }

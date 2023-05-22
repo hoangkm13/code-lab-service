@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.*;
 
 @Service
@@ -34,8 +35,25 @@ public class ChallengeServiceImpl implements ChallengeService {
 
 
     @Override
-    public Challenge createChallenge(ChallengeDTO challengeDTO) {
-        return challengeRepository.save(challengeDTO.toChallenge(new Challenge()));
+    public Challenge createChallenge(ChallengeDTO challengeDTO) throws CustomException {
+        Challenge challenge = new Challenge();
+
+        if(challengeRepository.existsByName(challengeDTO.getName())){
+            throw new CustomException(ErrorCode.CHALLENGE_EXIST);
+        }
+
+        challenge.setId(UUID.randomUUID().toString());
+        challenge.setName(challengeDTO.getName());
+        challenge.setIssue(challengeDTO.getIssue());
+        challenge.setSkill(challengeDTO.getSkill());
+        challenge.setPoints(challengeDTO.getPoints());
+        challenge.setStar(challengeDTO.getStar());
+        challenge.setDifficulty(challengeDTO.getDifficulty());
+        challenge.setSubDomain(challengeDTO.getSubDomain());
+        challenge.setStatus(challengeDTO.getStatus());
+        challenge.setTestCases(challengeDTO.getTestCases());
+
+        return challengeRepository.save(challenge);
     }
 
     @Override

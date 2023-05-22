@@ -5,5 +5,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface ChallengeRepository extends MongoRepository<Challenge, String> {
 
+    boolean existsByName(String name);
 
 }

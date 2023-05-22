@@ -12,7 +12,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "test-case")
 public class TestCase {
 
-    @Id
     private String id;
 
     private String compilerMessage;

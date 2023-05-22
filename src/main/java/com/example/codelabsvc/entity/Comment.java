@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "comment")
 
 public class Comment extends EntityBase {
-    @Id
+
     private String id;
 
     private User user;

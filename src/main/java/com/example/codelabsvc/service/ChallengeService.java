@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface ChallengeService {
 
-    Challenge createChallenge(ChallengeDTO challengeDTO);
+    Challenge createChallenge(ChallengeDTO challengeDTO) throws CustomException;
 
     List<Challenge> getAllChallengesByTopic(String topicId);
 

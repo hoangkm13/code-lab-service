@@ -38,18 +38,4 @@ public class ChallengeDTO {
     private List<TestCase> testCases;
 
     private List<Bonus> bonuses;
-    public Challenge toChallenge(Challenge challenge){
-        challenge.setId(UUID.randomUUID().toString());
-        challenge.setName(this.getName()) ;
-        challenge.setIssue(this.getIssue());
-        challenge.setSkill(this.getSkill());
-        challenge.setPoints(this.getPoints());
-        challenge.setStar(this.getStar());
-        challenge.setDifficulty(this.getDifficulty());
-        challenge.setSubDomain(this.getSubDomain());
-        challenge.setStatus(this.getStatus());
-        challenge.setTestCases(this.getTestCases());
-
-        return challenge;
-    }
 }
