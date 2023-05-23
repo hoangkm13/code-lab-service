@@ -6,10 +6,10 @@ import com.example.codelabsvc.dto.SaveCommentRequestDTO;
 import com.example.codelabsvc.dto.UpdateCommentDTO;
 import com.example.codelabsvc.entity.Comment;
 import com.example.codelabsvc.entity.User;
-import com.example.codelabsvc.exception.CustomException;
+
 import com.example.codelabsvc.repository.CommentRepository;
 import com.example.codelabsvc.service.CommentService;
-import com.example.codelabsvc.service.UserService;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,19 +27,18 @@ import java.util.UUID;
 public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
-    private final UserService userService;
+
 
     @Autowired
-    public CommentServiceImpl(CommentRepository commentRepository, UserService userService) {
+    public CommentServiceImpl(CommentRepository commentRepository) {
         this.commentRepository = commentRepository;
-        this.userService = userService;
+
     }
 
     @Override
-    public CommentResponseDTO saveComment(SaveCommentRequestDTO dto) throws CustomException {
+    public CommentResponseDTO saveComment(SaveCommentRequestDTO dto) {
         User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
-        User user = userService.findByUsername(authentication.getUsername());
-        Comment comment = new Comment(dto.getChallengeId(), user.getUsername(), dto.getText(), dto.getCode(), true, null);
+        Comment comment = new Comment(dto.getChallengeId(), authentication.getUsername(), dto.getText(), dto.getCode(), true, null);
         comment.setId(UUID.randomUUID().toString());
         commentRepository.save(comment);
         return new CommentResponseDTO(comment.getId(),
@@ -86,14 +85,13 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentResponseDTO replyComment(SaveChildCommentRequestDTO dto) throws CustomException {
+    public CommentResponseDTO replyComment(SaveChildCommentRequestDTO dto) {
         User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
-        User user = userService.findByUsername(authentication.getUsername());
         Comment comment = commentRepository.findCommentById(dto.getParentId());
         if (!comment.isParent) {
             return null;
         } else {
-            Comment childComment = new Comment(dto.getChallengeId(), user.getUsername(), dto.getText(), "", false, null);
+            Comment childComment = new Comment(dto.getChallengeId(), authentication.getUsername(), dto.getText(), "", false, null);
             childComment.setId(UUID.randomUUID().toString());
             commentRepository.save(childComment);
             if (comment.getChildCommentId() == null) {

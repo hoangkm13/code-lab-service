@@ -4,7 +4,6 @@ import com.example.codelabsvc.dto.CommentResponseDTO;
 import com.example.codelabsvc.dto.SaveChildCommentRequestDTO;
 import com.example.codelabsvc.dto.SaveCommentRequestDTO;
 import com.example.codelabsvc.dto.UpdateCommentDTO;
-import com.example.codelabsvc.exception.CustomException;
 import com.example.codelabsvc.model.ApiResponse;
 import com.example.codelabsvc.service.CommentService;
 
@@ -31,7 +30,7 @@ public class CommentController {
     }
 
     @PostMapping
-    public ApiResponse<CommentResponseDTO> saveComment(@RequestBody @Valid SaveCommentRequestDTO dto) throws CustomException {
+    public ApiResponse<CommentResponseDTO> saveComment(@RequestBody @Valid SaveCommentRequestDTO dto) {
         CommentResponseDTO comment = commentService.saveComment(dto);
         return ApiResponse.successWithResult(comment);
     }
@@ -48,7 +47,7 @@ public class CommentController {
     }
 
     @PostMapping("reply-comment")
-    public ApiResponse<CommentResponseDTO> replyComment(@RequestBody @Valid SaveChildCommentRequestDTO dto) throws CustomException {
+    public ApiResponse<CommentResponseDTO> replyComment(@RequestBody @Valid SaveChildCommentRequestDTO dto) {
         CommentResponseDTO comment = commentService.replyComment(dto);
         return ApiResponse.successWithResult(comment);
     }
