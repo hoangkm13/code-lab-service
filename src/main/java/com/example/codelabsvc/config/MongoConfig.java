@@ -20,10 +20,11 @@ public class MongoConfig extends AbstractReactiveMongoConfiguration {
 
     @Value("${spring.data.mongodb.uri}")
     private String mongoUri;
-
+    @Value("${mongo.db}")
+    private String dbName;
     @Override
     protected String getDatabaseName() {
-        return "code-lab-svc";
+        return dbName;
     }
 
     @Override
