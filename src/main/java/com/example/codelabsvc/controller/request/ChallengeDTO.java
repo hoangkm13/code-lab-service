@@ -33,6 +33,8 @@ public class ChallengeDTO {
 
     private Integer points;
 
+    private boolean isBookmark;
+
     private String issue;
 
     private List<TestCase> testCases;

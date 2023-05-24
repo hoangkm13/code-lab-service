@@ -22,7 +22,7 @@ public class TestCase {
 
     private String expectedOutput;
 
-    private String complicationDuration;
+    private int complicationDuration;
 
     private int timeLimit;
 

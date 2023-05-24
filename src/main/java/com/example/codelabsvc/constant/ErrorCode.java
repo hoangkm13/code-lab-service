@@ -11,7 +11,9 @@ public enum ErrorCode {
     USERNAME_EXIST("USERNAME_EXIST", "Tên người dùng tồn tại"),
     EMAIL_EXIST("EMAIL_EXIST", "Email người dùng tồn tại"),
     CHALLENGE_NOT_EXIST("CHALLENGE_NOT_EXIST", "Challenge không tồn tại"),
-    CHALLENGE_EXIST("CHALLENGE_EXIST", "Challenge đã tồn tại");
+    CHALLENGE_EXIST("CHALLENGE_EXIST", "Challenge đã tồn tại"),
+    TOPIC_NOT_EXIST("TOPIC_NOT_EXIST", "Chủ đề không tồn tại"),
+    PRESCRIPT_NOT_EXIST("PRESCRIPT_NOT_EXIST", "Prescript không tồn tại");
 
     private final String message;
     private final String code;

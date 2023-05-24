@@ -31,11 +31,11 @@ public class Challenge extends EntityBase {
 
     private Subdomain subDomain;
 
-    private Integer star;
-
     private Integer points;
 
     private String issue;
+
+    private boolean isBookmark;
 
     private List<TestCase> testCases;
 

@@ -25,5 +25,5 @@ public class Topic extends EntityBase {
 
     private Integer totalPoints;
 
-    private Integer presentPoints;
+    private List<Star> stars;
 }

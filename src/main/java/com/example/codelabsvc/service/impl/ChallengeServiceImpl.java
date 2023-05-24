@@ -1,6 +1,6 @@
 package com.example.codelabsvc.service.impl;
 
-import com.example.codelabsvc.constant.ErrorCode;
+import com.example.codelabsvc.constant.*;
 import com.example.codelabsvc.controller.request.ChallengeDTO;
 import com.example.codelabsvc.entity.Challenge;
 import com.example.codelabsvc.entity.PreScript;
@@ -13,6 +13,9 @@ import com.example.codelabsvc.repository.TopicRepository;
 import com.example.codelabsvc.service.ChallengeService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -33,6 +36,9 @@ public class ChallengeServiceImpl implements ChallengeService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
 
     @Override
     public Challenge createChallenge(ChallengeDTO challengeDTO) throws CustomException {
@@ -47,7 +53,6 @@ public class ChallengeServiceImpl implements ChallengeService {
         challenge.setIssue(challengeDTO.getIssue());
         challenge.setSkill(challengeDTO.getSkill());
         challenge.setPoints(challengeDTO.getPoints());
-        challenge.setStar(challengeDTO.getStar());
         challenge.setDifficulty(challengeDTO.getDifficulty());
         challenge.setSubDomain(challengeDTO.getSubDomain());
         challenge.setStatus(challengeDTO.getStatus());
@@ -57,10 +62,10 @@ public class ChallengeServiceImpl implements ChallengeService {
     }
 
     @Override
-    public List<Challenge> getAllChallengesByTopic(String topicId) {
+    public List<Challenge> getAllChallengesByTopic(String topicId) throws CustomException {
         var topic = topicRepository.findById(topicId);
 
-        return topic.map(Topic::getChallenges).orElse(null);
+        return topic.map(Topic::getChallenges).orElseThrow(() -> new CustomException(ErrorCode.TOPIC_NOT_EXIST));
     }
 
     @Override
@@ -104,4 +109,46 @@ public class ChallengeServiceImpl implements ChallengeService {
         return testCasesResult;
     }
 
+    @Override
+    public Challenge updateChallenge(String id, ChallengeDTO challengeDTO) throws CustomException {
+        Challenge challenge = getChallengeById(id);
+
+        challenge.setName(challengeDTO.getName() != null ? challengeDTO.getName() : challenge.getName());
+        challenge.setIssue(challengeDTO.getName() != null ? challengeDTO.getName() : challenge.getName());
+        challenge.setSkill(challengeDTO.getSkill() != null ? challengeDTO.getSkill() : challenge.getSkill());
+        challenge.setPoints(challengeDTO.getPoints() != null ? challengeDTO.getPoints() : challenge.getPoints());
+        challenge.setDifficulty(challengeDTO.getDifficulty() != null ? challengeDTO.getDifficulty() : challenge.getDifficulty());
+        challenge.setSubDomain(challengeDTO.getSubDomain() != null ? challengeDTO.getSubDomain() : challenge.getSubDomain());
+        challenge.setStatus(challengeDTO.getStatus() != null ? challengeDTO.getStatus() : challenge.getStatus());
+        challenge.setTestCases(challengeDTO.getTestCases() != null ? challengeDTO.getTestCases() : challenge.getTestCases());
+        challenge.setBookmark(challengeDTO.isBookmark());
+
+        return challengeRepository.save(challenge);
+    }
+
+    @Override
+    public Challenge bookmarkChallenge(String id, boolean bookmarkStatus) throws CustomException {
+        Challenge challenge = getChallengeById(id);
+        challenge.setBookmark(bookmarkStatus);
+        return challengeRepository.save(challenge);
+    }
+
+    @Override
+    public List<Challenge> listAllBookmarkChallenge() {
+        return challengeRepository.findAllByBookmark(true);
+    }
+
+    @Override
+    public List<Challenge> filterChallenge(Status status, Skill skill, Difficulty difficulty, Subdomain subdomain) {
+        Criteria criteria = new Criteria();
+
+        if(status != null) criteria.and("status").is(status);
+        if(skill != null) criteria.and("skill").is(skill);
+        if(difficulty != null) criteria.and("difficulty").is(difficulty);
+        if(subdomain != null) criteria.and("subDomain").is(subdomain);
+
+        Query query = new Query(criteria);
+
+        return mongoTemplate.findAll(Challenge.class, query.toString());
+    }
 }
