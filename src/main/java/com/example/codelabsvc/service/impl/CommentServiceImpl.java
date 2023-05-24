@@ -13,6 +13,7 @@ import com.example.codelabsvc.repository.CommentRepository;
 import com.example.codelabsvc.service.CommentService;
 
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,10 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -69,12 +67,14 @@ public class CommentServiceImpl implements CommentService {
                 comment.getCreatedAt(),
                 comment.getText(),
                 comment.getCode());
-
-
     }
 
     @Override
-    public void deleteComment(String id) {
+    public void deleteComment(String id) throws CustomException {
+        Comment comment = commentRepository.findCommentById(id);
+        if (comment == null) {
+            throw new CustomException(ErrorCode.COMMENT_NOT_EXIST);
+        }
         commentRepository.deleteCommentById(id);
     }
 
@@ -94,9 +94,14 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentResponseDTO replyComment(SaveChildCommentRequestDTO dto) {
+    public CommentResponseDTO replyComment(SaveChildCommentRequestDTO dto) throws CustomException {
         User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
         Comment comment = commentRepository.findCommentById(dto.getParentId());
+
+        if (comment == null) {
+            throw new CustomException(ErrorCode.COMMENT_NOT_EXIST);
+        }
+
         if (!comment.isParent) {
             return null;
         } else {
@@ -117,6 +122,26 @@ public class CommentServiceImpl implements CommentService {
                     childComment.getText(),
                     childComment.getCode());
         }
+    }
+
+    @Override
+    public List<Comment> getListReplies(String parentCommentId) throws CustomException {
+        Comment comment = commentRepository.findCommentById(parentCommentId);
+
+        if (comment == null) {
+            throw new CustomException(ErrorCode.COMMENT_NOT_EXIST);
+        }
+
+        if (CollectionUtils.isEmpty(comment.getChildCommentId())) {
+            throw new CustomException(ErrorCode.CHILD_COMMENT_NOT_EXIST);
+        }
+        var childComments = commentRepository.findCommentsByChildCommentIds(comment.getChildCommentId());
+
+        Comparator<Comment> comparatorAsc = Comparator.comparing(comment2 -> comment2.getCreatedAt());
+
+        childComments.sort(comparatorAsc);
+
+        return childComments;
     }
 
 
