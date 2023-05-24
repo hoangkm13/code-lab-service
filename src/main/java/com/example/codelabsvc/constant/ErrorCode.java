@@ -14,6 +14,8 @@ public enum ErrorCode {
     CHALLENGE_EXIST("CHALLENGE_EXIST", "Challenge đã tồn tại"),
     TOPIC_NOT_EXIST("TOPIC_NOT_EXIST", "Chủ đề không tồn tại"),
     PRESCRIPT_NOT_EXIST("PRESCRIPT_NOT_EXIST", "Prescript không tồn tại");
+    CHILD_COMMENT_NOT_EXIST("CHILD_COMMENT_NOT_EXIST", "Comment level 2 không tồn tại"),
+    COMMENT_NOT_EXIST("COMMENT_NOT_EXIST", "Comment không tồn tai");
 
     private final String message;
     private final String code;
