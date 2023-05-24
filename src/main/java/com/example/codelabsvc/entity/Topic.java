@@ -2,6 +2,7 @@ package com.example.codelabsvc.entity;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
@@ -10,9 +11,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Document(collection = "topic")
 
 public class Topic extends EntityBase {
-    @Id
+
     private String id;
 
     private String name;
@@ -23,7 +25,5 @@ public class Topic extends EntityBase {
 
     private Integer totalPoints;
 
-    private Integer presentPoints;
-
-
+    private List<Star> stars;
 }

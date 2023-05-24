@@ -6,14 +6,18 @@ import org.springframework.lang.Nullable;
 import java.util.Objects;
 
 @Getter
-public enum Skill {
-    BASIC("BASIC", "Cơ bản"),
-    INTERMEDIATE("INTERMEDIATE", "Thành thục");
+public enum Language {
+    JAVA("java", "Ngôn ngữ java"),
+    PYTHON("py", "Ngôn ngữ python"),
+    CPP("cpp", "Ngôn ngữ cpp"),
+    CS("cs", "Ngôn ngữ cs"),
+    C("c", "Ngôn ngữ c"),
+    RUBY("ruby", "Ngôn ngữ ruby");
 
     private final String value;
     private final String reasonPhrase;
 
-    Skill(String value, String reasonPhrase) {
+    Language(String value, String reasonPhrase) {
         this.value = value;
         this.reasonPhrase = reasonPhrase;
     }
@@ -31,10 +35,10 @@ public enum Skill {
     }
 
     @Nullable
-    public static Skill resolve(String status) {
-        Skill[] var1 = values();
+    public static Language resolve(String status) {
+        Language[] var1 = values();
 
-        for (Skill repaymentStatus : var1) {
+        for (Language repaymentStatus : var1) {
             if (Objects.equals(repaymentStatus.value, status)) {
                 return repaymentStatus;
             }

@@ -1,7 +1,8 @@
 package com.example.codelabsvc.entity;
 
 import lombok.*;
-
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -9,11 +10,13 @@ import java.util.Date;
 import java.util.List;
 
 
-
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Document(collection = "comment")
+
 public class Comment extends EntityBase {
 
     private String id ;
@@ -35,5 +38,5 @@ public class Comment extends EntityBase {
 
     }
 
-
+    private String commentText;
 }

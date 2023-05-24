@@ -9,6 +9,7 @@ public class CodeLabSvcApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(CodeLabSvcApplication.class, args);
+
 	}
 
 }
