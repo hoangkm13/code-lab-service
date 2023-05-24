@@ -4,6 +4,7 @@ import lombok.*;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -24,7 +25,7 @@ public class Comment extends EntityBase {
     public List<String> childCommentId;
 
     public Comment( String challengeId, String username, String text, String code,Boolean isParent,List<String> childCommentId) {
-        super(new Date().toString(),"" ,username,username);
+        super(LocalDateTime.now().toString(),"" ,username,username);
         this.challengeId = challengeId;
         this.userName = username;
         this.text = text;
