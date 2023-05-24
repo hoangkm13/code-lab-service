@@ -52,15 +52,20 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentResponseDTO updateComment(UpdateCommentDTO dto) {
         Comment comment = commentRepository.findCommentById(dto.getId());
-        comment.setText(dto.getText());
-        comment.setCode(dto.getCode());
-        comment.setUpdatedAt(new Date().toString());
-        commentRepository.save(comment);
-        return new CommentResponseDTO(comment.getId(),
-                comment.getUserName(),
-                comment.getCreatedAt(),
-                comment.getText(),
-                comment.getCode());
+        CommentResponseDTO commentResponseDTO = null;
+        if(comment != null) {
+            comment.setText(dto.getText());
+            comment.setCode(dto.getCode());
+            comment.setUpdatedAt(new Date().toString());
+            commentRepository.save(comment);
+            commentResponseDTO = new CommentResponseDTO(comment.getId(),
+                    comment.getUserName(),
+                    comment.getCreatedAt(),
+                    comment.getText(),
+                    comment.getCode());
+        }
+        return commentResponseDTO;
+
 
     }
 
