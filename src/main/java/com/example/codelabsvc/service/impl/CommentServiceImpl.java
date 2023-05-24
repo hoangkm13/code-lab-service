@@ -1,5 +1,6 @@
 package com.example.codelabsvc.service.impl;
 
+import com.example.codelabsvc.constant.ErrorCode;
 import com.example.codelabsvc.dto.CommentResponseDTO;
 import com.example.codelabsvc.dto.SaveChildCommentRequestDTO;
 import com.example.codelabsvc.dto.SaveCommentRequestDTO;
@@ -7,6 +8,7 @@ import com.example.codelabsvc.dto.UpdateCommentDTO;
 import com.example.codelabsvc.entity.Comment;
 import com.example.codelabsvc.entity.User;
 
+import com.example.codelabsvc.exception.CustomException;
 import com.example.codelabsvc.repository.CommentRepository;
 import com.example.codelabsvc.service.CommentService;
 
@@ -18,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -50,21 +53,22 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentResponseDTO updateComment(UpdateCommentDTO dto) {
+    public CommentResponseDTO updateComment(UpdateCommentDTO dto) throws CustomException {
         Comment comment = commentRepository.findCommentById(dto.getId());
-        CommentResponseDTO commentResponseDTO = null;
-        if(comment != null) {
-            comment.setText(dto.getText());
-            comment.setCode(dto.getCode());
-            comment.setUpdatedAt(new Date().toString());
-            commentRepository.save(comment);
-            commentResponseDTO = new CommentResponseDTO(comment.getId(),
-                    comment.getUserName(),
-                    comment.getCreatedAt(),
-                    comment.getText(),
-                    comment.getCode());
+        if (comment == null) {
+            throw new CustomException(ErrorCode.COMMENT_NOT_EXIST);
         }
-        return commentResponseDTO;
+
+        comment.setText(dto.getText());
+        comment.setCode(dto.getCode());
+        comment.setUpdatedAt(LocalDateTime.now().toString());
+        commentRepository.save(comment);
+
+        return new CommentResponseDTO(comment.getId(),
+                comment.getUserName(),
+                comment.getCreatedAt(),
+                comment.getText(),
+                comment.getCode());
 
 
     }
