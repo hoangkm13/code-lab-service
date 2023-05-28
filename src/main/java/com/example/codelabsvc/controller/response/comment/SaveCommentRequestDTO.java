@@ -1,4 +1,4 @@
-package com.example.codelabsvc.dto;
+package com.example.codelabsvc.controller.response.comment;
 
 
 import lombok.Data;

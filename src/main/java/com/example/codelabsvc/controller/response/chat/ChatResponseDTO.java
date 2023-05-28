@@ -1,4 +1,4 @@
-package com.example.codelabsvc.dto;
+package com.example.codelabsvc.controller.response.chat;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

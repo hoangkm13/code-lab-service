@@ -1,9 +1,9 @@
 package com.example.codelabsvc.service;
 
-import com.example.codelabsvc.dto.CommentResponseDTO;
-import com.example.codelabsvc.dto.SaveChildCommentRequestDTO;
-import com.example.codelabsvc.dto.SaveCommentRequestDTO;
-import com.example.codelabsvc.dto.UpdateCommentDTO;
+import com.example.codelabsvc.controller.response.comment.CommentResponseDTO;
+import com.example.codelabsvc.controller.response.comment.SaveChildCommentRequestDTO;
+import com.example.codelabsvc.controller.response.comment.SaveCommentRequestDTO;
+import com.example.codelabsvc.controller.response.comment.UpdateCommentDTO;
 
 import com.example.codelabsvc.entity.Comment;
 import com.example.codelabsvc.exception.CustomException;

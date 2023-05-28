@@ -1,7 +1,6 @@
 package com.example.codelabsvc.entity;
 
 import lombok.*;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 
@@ -14,13 +13,15 @@ public class TestCase {
 
     private String id;
 
-    private String compilerMessage;
+    private String name;
 
-    private String input;
+    private String compilerMessage;
 
     private String output;
 
-    private String expectedOutput;
+    private String inputFilePath;
+
+    private String expectedOutputFilePath;
 
     private int complicationDuration;
 
