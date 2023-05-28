@@ -23,7 +23,7 @@ public class ChallengeController {
     @Autowired
     private ChallengeService challengeService;
 
-    @PostMapping(value = "/", produces = "application/json")
+    @PostMapping(value = "", produces = "application/json")
     public ApiResponse<Challenge> createChallenge(@Valid @RequestBody ChallengeDTO challengeDTO) throws CustomException {
         Challenge challenge = challengeService.createChallenge(challengeDTO);
         return ApiResponse.successWithResult(challenge);
