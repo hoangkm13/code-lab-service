@@ -29,7 +29,7 @@ public class ChallengeController {
         return ApiResponse.successWithResult(challenge);
     }
 
-    @PostMapping(value = "/submitCode/{challengeId}", produces = "application/json")
+    @PostMapping(value = "/submit-code/{challengeId}", produces = "application/json")
     public ApiResponse<List<TestCase>> submitCode(@RequestParam String language,
                                                   @PathVariable("challengeId") String challengeId,
                                                   @RequestParam(value = WellKnownParam.SOURCE_CODE) MultipartFile sourceCode) throws CustomException {
