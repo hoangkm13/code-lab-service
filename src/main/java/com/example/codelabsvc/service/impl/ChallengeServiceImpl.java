@@ -1,50 +1,60 @@
 package com.example.codelabsvc.service.impl;
 
 import com.example.codelabsvc.constant.*;
-import com.example.codelabsvc.controller.request.ChallengeDTO;
+import com.example.codelabsvc.controller.request.challenge.ChallengeDTO;
 import com.example.codelabsvc.entity.Challenge;
-import com.example.codelabsvc.entity.PreScript;
 import com.example.codelabsvc.entity.TestCase;
 import com.example.codelabsvc.entity.Topic;
+import com.example.codelabsvc.entity.User;
 import com.example.codelabsvc.exception.CustomException;
 import com.example.codelabsvc.multithread.ExecutionFactory;
 import com.example.codelabsvc.repository.ChallengeRepository;
+import com.example.codelabsvc.repository.TestCaseRepository;
 import com.example.codelabsvc.repository.TopicRepository;
 import com.example.codelabsvc.service.ChallengeService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.concurrent.*;
 
 @Service
 public class ChallengeServiceImpl implements ChallengeService {
 
-    @Autowired
-    private TopicRepository topicRepository;
+    @Value("${compile.url}")
+    private String compileUrl;
+    private final TopicRepository topicRepository;
 
-    @Autowired
-    private ChallengeRepository challengeRepository;
+    private final ChallengeRepository challengeRepository;
+    private final TestCaseRepository testCaseRepository;
 
-    @Autowired
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
-    @Autowired
-    private MongoTemplate mongoTemplate;
+    private final MongoTemplate mongoTemplate;
+
+    public ChallengeServiceImpl(TopicRepository topicRepository, ChallengeRepository challengeRepository, TestCaseRepository testCaseRepository, ModelMapper modelMapper, MongoTemplate mongoTemplate) {
+        this.topicRepository = topicRepository;
+        this.challengeRepository = challengeRepository;
+        this.testCaseRepository = testCaseRepository;
+        this.modelMapper = modelMapper;
+        this.mongoTemplate = mongoTemplate;
+    }
 
 
     @Override
     public Challenge createChallenge(ChallengeDTO challengeDTO) throws CustomException {
+        User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
         Challenge challenge = new Challenge();
 
-        if(challengeRepository.existsByName(challengeDTO.getName())){
+        if (challengeRepository.existsByName(challengeDTO.getName())) {
             throw new CustomException(ErrorCode.CHALLENGE_EXIST);
         }
 
@@ -56,8 +66,19 @@ public class ChallengeServiceImpl implements ChallengeService {
         challenge.setDifficulty(challengeDTO.getDifficulty());
         challenge.setSubDomain(challengeDTO.getSubDomain());
         challenge.setStatus(challengeDTO.getStatus());
-        challenge.setTestCases(challengeDTO.getTestCases());
 
+        if (CollectionUtils.isNotEmpty(challengeDTO.getTestCaseIds())) {
+            var listTestCase = this.testCaseRepository.findTestCasesByTestCaseIds(challengeDTO.getTestCaseIds());
+            if (listTestCase.size() != challengeDTO.getTestCaseIds().size()) {
+                throw new CustomException(ErrorCode.TESTCASE_NOT_EXISTED_OR_INVALID);
+            }
+
+            challenge.setTestCaseIds(challengeDTO.getTestCaseIds());
+        }
+
+        challenge.setCreatedAt(LocalDate.now().toString());
+        challenge.setCreatedBy(authentication.getId());
+        //Todo bonuses
         return challengeRepository.save(challenge);
     }
 
@@ -76,36 +97,43 @@ public class ChallengeServiceImpl implements ChallengeService {
     }
 
     @Override
-    public List<TestCase> submitCode(PreScript preScript, String challengeId) {
-        Optional<Challenge> challenge = challengeRepository.findById(challengeId);
+    public List<TestCase> submitCode(String language, String challengeId, MultipartFile submittedSourceCode) throws CustomException {
+        if (!Objects.equals(language, Language.valueOf(language).toString().split(" ")[0])) {
+            throw new CustomException(ErrorCode.LANGUAGE_ERROR);
+        }
+
+        var challenge = getChallengeById(challengeId);
         List<Future<TestCase>> futureList = new ArrayList<>();
         List<TestCase> testCasesResult = new ArrayList<>();
 
-        if (challenge.isPresent()) {
+        List<String> testCaseIds = challenge.getTestCaseIds();
+        List<TestCase> testCases = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(testCaseIds)) {
 
-            List<TestCase> testCases = challenge.get().getTestCases();
-            ExecutorService executorService = Executors.newFixedThreadPool(testCases.size());
+            testCases = this.testCaseRepository.findTestCasesByTestCaseIds(testCaseIds);
+        }
+        ExecutorService executorService = Executors.newFixedThreadPool(testCases.size());
 
-            Callable<TestCase> callable;
-            Future<TestCase> future;
+        Callable<TestCase> callable;
+        Future<TestCase> future;
 
-            for (TestCase testCase : testCases) {
-                callable = new ExecutionFactory(preScript, testCase);
-                future = executorService.submit(callable);
+        for (TestCase testCase : testCases) {
+            callable = new ExecutionFactory(compileUrl, language, submittedSourceCode, testCase);
+            future = executorService.submit(callable);
 
-                futureList.add(future);
-            }
+            futureList.add(future);
+        }
 
-            executorService.shutdown();
+        executorService.shutdown();
 
-            for (Future<TestCase> f : futureList) {
-                try {
-                    testCasesResult.add(f.get());
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
-                }
+        for (Future<TestCase> f : futureList) {
+            try {
+                testCasesResult.add(f.get());
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
             }
         }
+
         return testCasesResult;
     }
 
@@ -120,7 +148,20 @@ public class ChallengeServiceImpl implements ChallengeService {
         challenge.setDifficulty(challengeDTO.getDifficulty() != null ? challengeDTO.getDifficulty() : challenge.getDifficulty());
         challenge.setSubDomain(challengeDTO.getSubDomain() != null ? challengeDTO.getSubDomain() : challenge.getSubDomain());
         challenge.setStatus(challengeDTO.getStatus() != null ? challengeDTO.getStatus() : challenge.getStatus());
-        challenge.setTestCases(challengeDTO.getTestCases() != null ? challengeDTO.getTestCases() : challenge.getTestCases());
+
+        if (CollectionUtils.isNotEmpty(challengeDTO.getTestCaseIds())) {
+            var listTestCase = this.testCaseRepository.findTestCasesByTestCaseIds(challengeDTO.getTestCaseIds());
+            if (listTestCase.size() != challengeDTO.getTestCaseIds().size()) {
+                throw new CustomException(ErrorCode.TESTCASE_NOT_EXISTED_OR_INVALID);
+            }
+
+            for (String newTestCaseId: challengeDTO.getTestCaseIds()) {
+                if (!challenge.getTestCaseIds().contains(newTestCaseId)) {
+                    challenge.getTestCaseIds().add(newTestCaseId);
+                }
+            }
+        }
+
         challenge.setBookmark(challengeDTO.isBookmark());
 
         return challengeRepository.save(challenge);
@@ -142,10 +183,10 @@ public class ChallengeServiceImpl implements ChallengeService {
     public List<Challenge> filterChallenge(Status status, Skill skill, Difficulty difficulty, Subdomain subdomain) {
         Criteria criteria = new Criteria();
 
-        if(status != null) criteria.and("status").is(status);
-        if(skill != null) criteria.and("skill").is(skill);
-        if(difficulty != null) criteria.and("difficulty").is(difficulty);
-        if(subdomain != null) criteria.and("subDomain").is(subdomain);
+        if (status != null) criteria.and("status").is(status);
+        if (skill != null) criteria.and("skill").is(skill);
+        if (difficulty != null) criteria.and("difficulty").is(difficulty);
+        if (subdomain != null) criteria.and("subDomain").is(subdomain);
 
         Query query = new Query(criteria);
 
