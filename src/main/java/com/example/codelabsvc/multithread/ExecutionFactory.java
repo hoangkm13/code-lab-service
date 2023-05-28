@@ -3,6 +3,9 @@ package com.example.codelabsvc.multithread;
 import com.example.codelabsvc.constant.Language;
 import com.example.codelabsvc.entity.PreScript;
 import com.example.codelabsvc.entity.TestCase;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
@@ -88,8 +91,10 @@ public class ExecutionFactory implements Callable<TestCase> {
 
         System.out.println(response);
 
+        ObjectMapper mapper = new ObjectMapper();
+
         //Đang tìm cách map object và test case lại
-        return (TestCase) response.getBody();
+        return mapper.readValue(Objects.requireNonNull(response.getBody()).toString(), TestCase.class);
     }
 
 

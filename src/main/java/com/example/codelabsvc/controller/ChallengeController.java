@@ -7,7 +7,7 @@ import com.example.codelabsvc.entity.PreScript;
 import com.example.codelabsvc.entity.TestCase;
 import com.example.codelabsvc.exception.CustomException;
 import com.example.codelabsvc.model.ApiResponse;
-import com.example.codelabsvc.service.impl.ChallengeServiceImpl;
+import com.example.codelabsvc.service.ChallengeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,9 +20,9 @@ import java.util.List;
 public class ChallengeController {
 
     @Autowired
-    private ChallengeServiceImpl challengeService;
+    private ChallengeService challengeService;
 
-    @PostMapping(value = "/", produces = "application/json")
+    @PostMapping(value = "", produces = "application/json")
     public ApiResponse<Challenge> createChallenge(@Valid @RequestBody ChallengeDTO challengeDTO) throws CustomException {
         Challenge challenge = challengeService.createChallenge(challengeDTO);
         return ApiResponse.successWithResult(challenge);
