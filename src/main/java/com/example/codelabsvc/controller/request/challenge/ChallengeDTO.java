@@ -14,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ChallengeDTO {
+    private String id;
 
     private String name;
 

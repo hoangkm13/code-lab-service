@@ -19,11 +19,11 @@ public class Topic extends EntityBase {
 
     private String name;
 
-    private List<Challenge> challenges;
-
     private String description;
 
     private Integer totalPoints;
 
-    private List<Star> stars;
+    private List<String> challengeIds;
+
+    private List<String> starIds;
 }

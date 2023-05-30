@@ -29,6 +29,18 @@ public class ChallengeController {
         return ApiResponse.successWithResult(challenge);
     }
 
+    @PutMapping(value = "", produces = "application/json")
+    public ApiResponse<Challenge> updateChallenge(@Valid @RequestBody ChallengeDTO challengeDTO) throws CustomException {
+        Challenge challenge = challengeService.updateChallenge(challengeDTO);
+        return ApiResponse.successWithResult(challenge);
+    }
+
+    @DeleteMapping(value = "/{challengeId}", produces = "application/json")
+    public ApiResponse<Challenge> deleteChallenge(@Valid @PathVariable String challengeId) throws CustomException {
+        Challenge challenge = challengeService.deleteChallenge(challengeId);
+        return ApiResponse.successWithResult(challenge);
+    }
+
     @PostMapping(value = "/submit-code/{challengeId}", produces = "application/json")
     public ApiResponse<List<TestCase>> submitCode(@RequestParam String language,
                                                   @PathVariable("challengeId") String challengeId,

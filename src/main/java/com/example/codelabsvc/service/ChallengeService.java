@@ -28,5 +28,7 @@ public interface ChallengeService {
 
     List<Challenge> filterChallenge(Status status, Skill skill, Difficulty difficulty, Subdomain subdomain);
 
-    Challenge updateChallenge(String id, ChallengeDTO challengeDTO) throws CustomException;
+    Challenge updateChallenge(ChallengeDTO challengeDTO) throws CustomException;
+
+    Challenge deleteChallenge(String id) throws CustomException;
 }

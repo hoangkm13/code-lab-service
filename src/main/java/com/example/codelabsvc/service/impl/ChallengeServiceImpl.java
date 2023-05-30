@@ -66,6 +66,7 @@ public class ChallengeServiceImpl implements ChallengeService {
         challenge.setSubDomain(challengeDTO.getSubDomain());
         challenge.setStatus(challengeDTO.getStatus());
 
+
         if (CollectionUtils.isNotEmpty(challengeDTO.getTestCaseIds())) {
             var listTestCase = this.testCaseRepository.findTestCasesByTestCaseIds(challengeDTO.getTestCaseIds());
             if (listTestCase.size() != challengeDTO.getTestCaseIds().size()) {
@@ -85,14 +86,25 @@ public class ChallengeServiceImpl implements ChallengeService {
     public List<Challenge> getAllChallengesByTopic(String topicId) throws CustomException {
         var topic = topicRepository.findById(topicId);
 
-        return topic.map(Topic::getChallenges).orElseThrow(() -> new CustomException(ErrorCode.TOPIC_NOT_EXIST));
+        if(topic.isEmpty()){
+            throw new CustomException(ErrorCode.TOPIC_NOT_EXIST);
+        }
+
+        List<Challenge> challenges = new ArrayList<>();
+
+        for (String id: topic.get().getChallengeIds()){
+            Challenge challenge = getChallengeById(id);
+            challenges.add(challenge);
+        }
+
+        return challenges;
     }
 
     @Override
     public Challenge getChallengeById(String id) throws CustomException {
         var challenge = challengeRepository.findById(id);
 
-        return challenge.orElseThrow(() -> new CustomException(ErrorCode.CHALLENGE_NOT_EXIST));
+        return challenge.orElseThrow(() -> new CustomException(ErrorCode.CHALLENGE_NOT_EXISTED_OR_INVALID));
     }
 
     @Override
@@ -137,8 +149,10 @@ public class ChallengeServiceImpl implements ChallengeService {
     }
 
     @Override
-    public Challenge updateChallenge(String id, ChallengeDTO challengeDTO) throws CustomException {
-        Challenge challenge = getChallengeById(id);
+    public Challenge updateChallenge(ChallengeDTO challengeDTO) throws CustomException {
+        User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+
+        Challenge challenge = getChallengeById(challengeDTO.getId());
 
         challenge.setName(challengeDTO.getName() != null ? challengeDTO.getName() : challenge.getName());
         challenge.setIssue(challengeDTO.getName() != null ? challengeDTO.getName() : challenge.getName());
@@ -162,8 +176,17 @@ public class ChallengeServiceImpl implements ChallengeService {
         }
 
         challenge.setBookmark(challengeDTO.isBookmark());
+        challenge.setUpdateBy(authentication.getUsername());
+        challenge.setUpdatedAt(LocalDate.now().toString());
 
         return challengeRepository.save(challenge);
+    }
+
+    @Override
+    public Challenge deleteChallenge(String id) throws CustomException {
+        Challenge challenge = getChallengeById(id);
+        challengeRepository.delete(challenge);
+        return challenge;
     }
 
     @Override
