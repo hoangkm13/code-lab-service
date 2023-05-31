@@ -42,7 +42,6 @@ public class TestCaseServiceImpl implements TestCaseService {
         testCase.setName(createTestCaseDTO.getName());
         testCase.setMemoryLimit(createTestCaseDTO.getMemoryLimit());
         testCase.setCompilerMessage(createTestCaseDTO.getCompilerMessage());
-        testCase.setComplicationDuration(createTestCaseDTO.getComplicationDuration());
         testCase.setTimeLimit(createTestCaseDTO.getTimeLimit());
         testCase.setExpectedOutputFilePath(result.getExpectedOutputFilePath());
         testCase.setInputFilePath(result.getInputFilePath());
