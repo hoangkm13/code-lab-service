@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class TopicServiceImpl implements TopicService {
@@ -38,8 +39,10 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public Topic createTopic(TopicDTO topicDTO) throws CustomException {
         User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+        String uuid = UUID.randomUUID().toString();
 
         Topic topic = new Topic();
+        topic.setId(uuid);
         topic.setName(topicDTO.getName());
         topic.setDescription(topicDTO.getDescription());
         topic.setTotalPoints(topicDTO.getTotalPoints());
