@@ -13,7 +13,6 @@ import com.example.codelabsvc.repository.TestCaseRepository;
 import com.example.codelabsvc.repository.TopicRepository;
 import com.example.codelabsvc.service.ChallengeService;
 import org.apache.commons.collections4.CollectionUtils;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -23,7 +22,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.*;
 
 @Service
@@ -36,15 +38,12 @@ public class ChallengeServiceImpl implements ChallengeService {
     private final ChallengeRepository challengeRepository;
     private final TestCaseRepository testCaseRepository;
 
-    private final ModelMapper modelMapper;
-
     private final MongoTemplate mongoTemplate;
 
-    public ChallengeServiceImpl(TopicRepository topicRepository, ChallengeRepository challengeRepository, TestCaseRepository testCaseRepository, ModelMapper modelMapper, MongoTemplate mongoTemplate) {
+    public ChallengeServiceImpl(TopicRepository topicRepository, ChallengeRepository challengeRepository, TestCaseRepository testCaseRepository, MongoTemplate mongoTemplate) {
         this.topicRepository = topicRepository;
         this.challengeRepository = challengeRepository;
         this.testCaseRepository = testCaseRepository;
-        this.modelMapper = modelMapper;
         this.mongoTemplate = mongoTemplate;
     }
 
@@ -118,7 +117,7 @@ public class ChallengeServiceImpl implements ChallengeService {
         Future<TestCase> future;
 
         for (TestCase testCase : testCases) {
-            callable = new ExecutionFactory(compileUrl, language, submittedSourceCode, testCase);
+            callable = new ExecutionFactory(compileUrl, language, submittedSourceCode, testCase, testCaseRepository);
             future = executorService.submit(callable);
 
             futureList.add(future);
@@ -155,7 +154,7 @@ public class ChallengeServiceImpl implements ChallengeService {
                 throw new CustomException(ErrorCode.TESTCASE_NOT_EXISTED_OR_INVALID);
             }
 
-            for (String newTestCaseId: challengeDTO.getTestCaseIds()) {
+            for (String newTestCaseId : challengeDTO.getTestCaseIds()) {
                 if (!challenge.getTestCaseIds().contains(newTestCaseId)) {
                     challenge.getTestCaseIds().add(newTestCaseId);
                 }

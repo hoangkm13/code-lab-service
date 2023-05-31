@@ -2,6 +2,7 @@ package com.example.codelabsvc.multithread;
 
 import com.example.codelabsvc.constant.WellKnownParam;
 import com.example.codelabsvc.entity.TestCase;
+import com.example.codelabsvc.repository.TestCaseRepository;
 import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
@@ -11,6 +12,8 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.lang.reflect.Field;
+import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -21,11 +24,13 @@ public class ExecutionFactory implements Callable<TestCase> {
     private final MultipartFile submittedSourceCode;
     private final TestCase testCase;
 
-    public ExecutionFactory(String compileUrl, String language, MultipartFile submittedSourceCode, TestCase testCase) {
+    private final TestCaseRepository testCaseRepository;
+    public ExecutionFactory(String compileUrl, String language, MultipartFile submittedSourceCode, TestCase testCase, TestCaseRepository testCaseRepository) {
         this.compileUrl = compileUrl;
         this.language = language;
         this.submittedSourceCode = submittedSourceCode;
         this.testCase = testCase;
+        this.testCaseRepository = testCaseRepository;
     }
 
     @Override
@@ -54,7 +59,7 @@ public class ExecutionFactory implements Callable<TestCase> {
             }
         });
         File inputFile = new File(testCase.getInputFilePath());
-        body.add(WellKnownParam.INPUTS, new ByteArrayResource(FileUtils.readFileToByteArray(inputFile)){
+        body.add(WellKnownParam.INPUTS, new ByteArrayResource(FileUtils.readFileToByteArray(inputFile)) {
             @Override
             public String getFilename() {
                 return inputFile.getName();
@@ -76,9 +81,22 @@ public class ExecutionFactory implements Callable<TestCase> {
                 Object.class
         );
 
-        System.out.println(response);
+        LinkedHashMap linkedHashMap = (LinkedHashMap) response.getBody();
 
-        //Đang tìm cách map object và test case lại
-        return (TestCase) response.getBody();
+        Class<?> objClass = testCase.getClass();
+        Field[] fields = objClass.getDeclaredFields();
+
+        if (linkedHashMap != null) {
+            for (Field field : fields) {
+                field.setAccessible(true);
+                if (linkedHashMap.containsKey(field.getName())) {
+                    field.set(testCase, linkedHashMap.get(field.getName()));
+                }
+            }
+        }
+
+        this.testCaseRepository.save(testCase);
+
+        return testCase;
     }
 }
