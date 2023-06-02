@@ -19,7 +19,7 @@ public class TopicController {
     @Autowired
     private TopicService topicService;
 
-    @GetMapping(value = "/", produces = "application/json")
+    @GetMapping(value = "", produces = "application/json")
     public ApiResponse<List<Topic>> getAllTopics() {
         List<Topic> topics = topicService.getAllTopics();
         return ApiResponse.successWithResult(topics);
