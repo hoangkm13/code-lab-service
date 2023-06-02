@@ -7,12 +7,12 @@ import java.util.Objects;
 
 @Getter
 public enum Language {
-    JAVA("java", "Ngôn ngữ java"),
-    PYTHON("py", "Ngôn ngữ python"),
-    CPP("cpp", "Ngôn ngữ cpp"),
-    CS("cs", "Ngôn ngữ cs"),
-    C("c", "Ngôn ngữ c"),
-    RUBY("ruby", "Ngôn ngữ ruby");
+    JAVA("JAVA", "Ngôn ngữ java"),
+    PYTHON("PYTHON", "Ngôn ngữ python"),
+    CPP("CPP", "Ngôn ngữ cpp"),
+    CS("CS", "Ngôn ngữ cs"),
+    C("C", "Ngôn ngữ c"),
+    RUBY("RUBY", "Ngôn ngữ ruby");
 
     private final String value;
     private final String reasonPhrase;

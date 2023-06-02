@@ -1,8 +1,12 @@
 package com.example.codelabsvc.entity;
 
-import lombok.*;
-import org.springframework.data.annotation.Id;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.LinkedHashMap;
 
 
 @Data
@@ -14,18 +18,33 @@ public class TestCase {
 
     private String id;
 
+    private String name;
+
     private String compilerMessage;
 
-    private String input;
+    private String inputFilePath;
 
-    private String output;
+    private String expectedOutputFilePath;
 
-    private String expectedOutput;
 
-    private int complicationDuration;
+    private String verdict;
 
-    private int timeLimit;
+    private Integer statusCode;
 
-    private int memoryLimit;
+    private String error;
+
+    private LinkedHashMap<String, Object> testCasesResult;
+
+    private Integer compilationDuration;
+
+    private String averageExecutionDuration;
+
+    private Integer timeLimit;
+
+    private Integer memoryLimit;
+
+    private String language;
+
+    private String dateTime;
 
 }

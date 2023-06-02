@@ -1,15 +1,16 @@
 package com.example.codelabsvc.controller;
 
 
-import com.example.codelabsvc.controller.request.ChallengeDTO;
+import com.example.codelabsvc.controller.request.challenge.ChallengeDTO;
 import com.example.codelabsvc.entity.Challenge;
-import com.example.codelabsvc.entity.PreScript;
 import com.example.codelabsvc.entity.TestCase;
 import com.example.codelabsvc.exception.CustomException;
 import com.example.codelabsvc.model.ApiResponse;
+import com.example.codelabsvc.constant.WellKnownParam;
 import com.example.codelabsvc.service.ChallengeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -28,9 +29,11 @@ public class ChallengeController {
         return ApiResponse.successWithResult(challenge);
     }
 
-    @PostMapping(value = "/submitCode/{challengeId}", produces = "application/json")
-    public ApiResponse<List<TestCase>> submitCode(@Valid @RequestBody PreScript preScript, @PathVariable("challengeId") String challengeId) {
-        return ApiResponse.successWithResult(challengeService.submitCode(preScript, challengeId));
+    @PostMapping(value = "/submit-code/{challengeId}", produces = "application/json")
+    public ApiResponse<List<TestCase>> submitCode(@RequestParam String language,
+                                                  @PathVariable("challengeId") String challengeId,
+                                                  @RequestParam(value = WellKnownParam.SOURCE_CODE) MultipartFile sourceCode) throws CustomException {
+        return ApiResponse.successWithResult(challengeService.submitCode(language, challengeId, sourceCode));
     }
 
     @GetMapping(value = "/{challengeId}", produces = "application/json")

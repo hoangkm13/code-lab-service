@@ -5,7 +5,6 @@ import com.example.codelabsvc.constant.Skill;
 import com.example.codelabsvc.constant.Status;
 import com.example.codelabsvc.constant.Subdomain;
 import lombok.*;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
@@ -37,7 +36,7 @@ public class Challenge extends EntityBase {
 
     private boolean isBookmark;
 
-    private List<TestCase> testCases;
+    private List<String> testCaseIds;
 
-    private List<Bonus> bonuses;
+    private List<String> bonusIds;
 }

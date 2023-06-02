@@ -1,6 +1,6 @@
-package com.example.codelabsvc.multithread;
+package com.example.codelabsvc.constant;
 
-public class WellKnowParams {
+public class WellKnownParam {
     public static final String LANGUAGE = "language";
     public static final String SOURCE_CODE = "sourcecode";
     public static final String INPUTS = "inputs";

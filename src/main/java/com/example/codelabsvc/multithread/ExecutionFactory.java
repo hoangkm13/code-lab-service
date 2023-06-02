@@ -1,42 +1,37 @@
 package com.example.codelabsvc.multithread;
 
-import com.example.codelabsvc.constant.Language;
-import com.example.codelabsvc.entity.PreScript;
+import com.example.codelabsvc.constant.WellKnownParam;
 import com.example.codelabsvc.entity.TestCase;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Value;
+
+import com.example.codelabsvc.repository.TestCaseRepository;
+import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.File;
+import java.lang.reflect.Field;
+import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.Callable;
 
-
 public class ExecutionFactory implements Callable<TestCase> {
-
-    @Value("${compile.url}")
-    private String compileUrl;
-
-    private final PreScript preScript;
-
+    private final String compileUrl;
+    private final String language;
+    private final MultipartFile submittedSourceCode;
     private final TestCase testCase;
 
-    public ExecutionFactory(PreScript preScript, TestCase testCase) {
-        this.preScript = preScript;
+    private final TestCaseRepository testCaseRepository;
+    public ExecutionFactory(String compileUrl, String language, MultipartFile submittedSourceCode, TestCase testCase, TestCaseRepository testCaseRepository) {
+        this.compileUrl = compileUrl;
+        this.language = language;
+        this.submittedSourceCode = submittedSourceCode;
         this.testCase = testCase;
+        this.testCaseRepository = testCaseRepository;
     }
 
     @Override
@@ -52,55 +47,57 @@ public class ExecutionFactory implements Callable<TestCase> {
 
         /* Using for adding @RequestParam, @RequestPart,...*/
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add(WellKnowParams.LANGUAGE, preScript.getLanguage());
-        body.add(WellKnowParams.TIME_LIMIT, testCase.getTimeLimit());
-        body.add(WellKnowParams.MEMORY_LIMIT, testCase.getMemoryLimit());
+        body.add(WellKnownParam.LANGUAGE, language);
+        body.add(WellKnownParam.TIME_LIMIT, testCase.getTimeLimit());
+        body.add(WellKnownParam.MEMORY_LIMIT, testCase.getMemoryLimit());
 
-
-        /* Lay file input, expected output va source code de truyen vao
-
-        body.add(WellKnowParams.EXPECTED_OUTPUTS,new ByteArrayResource(expectedOutput.getBytes()) {
+        //Lay file input, expected output va source code de truyen vao
+        File expectedOutputFile = new File(testCase.getExpectedOutputFilePath());
+        body.add(WellKnownParam.EXPECTED_OUTPUTS, new ByteArrayResource(FileUtils.readFileToByteArray(expectedOutputFile)) {
             @Override
             public String getFilename() {
-                return expectedOutput.getOriginalFilename();
-            }
-        };);
-        body.add(WellKnowParams.INPUTS, new ByteArrayResource(inputFile.getBytes()) {
-            @Override
-            public String getFilename() {
-                return inputFile.getOriginalFilename();
-            }
-        };);
-        body.add(WellKnowParams.SOURCE_CODE,new ByteArrayResource(sourceCode.getBytes()) {
-            @Override
-            public String getFilename() {
-                return sourceCode.getOriginalFilename();
+                return expectedOutputFile.getName();
             }
         });
-
-        */
+        File inputFile = new File(testCase.getInputFilePath());
+        body.add(WellKnownParam.INPUTS, new ByteArrayResource(FileUtils.readFileToByteArray(inputFile)) {
+            @Override
+            public String getFilename() {
+                return inputFile.getName();
+            }
+        });
+        body.add(WellKnownParam.SOURCE_CODE, new ByteArrayResource(submittedSourceCode.getBytes()) {
+            @Override
+            public String getFilename() {
+                return submittedSourceCode.getOriginalFilename();
+            }
+        });
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
         ResponseEntity<Object> response = restTemplate.exchange(
-                compileUrl,
+                Objects.requireNonNull(compileUrl),
                 HttpMethod.POST,
                 requestEntity,
                 Object.class
         );
 
-        System.out.println(response);
+        LinkedHashMap linkedHashMap = (LinkedHashMap) response.getBody();
 
-        ObjectMapper mapper = new ObjectMapper();
+        Class<?> objClass = testCase.getClass();
+        Field[] fields = objClass.getDeclaredFields();
 
-        //Đang tìm cách map object và test case lại
-        return mapper.readValue(Objects.requireNonNull(response.getBody()).toString(), TestCase.class);
+        if (linkedHashMap != null) {
+            for (Field field : fields) {
+                field.setAccessible(true);
+                if (linkedHashMap.containsKey(field.getName())) {
+                    field.set(testCase, linkedHashMap.get(field.getName()));
+                }
+            }
+        }
+
+        this.testCaseRepository.save(testCase);
+
+        return testCase;
     }
-
-
-//    public static Resource getFile(String folder, String fileName, String suffix, String content) throws IOException {
-//        Path filePath = Paths.get("/loadtests/"+folder+"/"+fileName+"/"+suffix);
-//        Files.write(filePath, content.getBytes());
-//        return new FileSystemResource(filePath.toFile());
-//    }
 }
