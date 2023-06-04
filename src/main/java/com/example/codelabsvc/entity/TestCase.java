@@ -37,7 +37,7 @@ public class TestCase {
 
     private Integer compilationDuration;
 
-    private Double averageExecutionDuration;
+    private Integer averageExecutionDuration;
 
     private Integer timeLimit;
 
