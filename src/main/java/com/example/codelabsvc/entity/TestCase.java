@@ -26,7 +26,6 @@ public class TestCase {
 
     private String expectedOutputFilePath;
 
-
     private String verdict;
 
     private Integer statusCode;

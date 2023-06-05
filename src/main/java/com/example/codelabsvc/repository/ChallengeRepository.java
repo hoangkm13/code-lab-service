@@ -12,6 +12,6 @@ public interface ChallengeRepository extends MongoRepository<Challenge, String> 
     boolean existsByName(String name);
 
     @Query("{'_id' : { $in : ?0 } }")
-    List<TestCase> findChallengesByChallengeIds(List<String> challengeIds);
+    List<Challenge> findChallengesByChallengeIds(List<String> challengeIds);
 
 }

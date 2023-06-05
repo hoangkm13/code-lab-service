@@ -103,9 +103,13 @@ public class ChallengeServiceImpl implements ChallengeService {
 
         List<Challenge> challenges = new ArrayList<>();
 
-        for (String id : topic.get().getChallengeIds()) {
-            Challenge challenge = getChallengeById(id);
-            challenges.add(challenge);
+        if (CollectionUtils.isNotEmpty(topic.get().getChallengeIds())) {
+            var challengeList = this.challengeRepository.findChallengesByChallengeIds(topic.get().getChallengeIds());
+            if (challengeList.size() != topic.get().getChallengeIds().size()) {
+                throw new CustomException(ErrorCode.CHALLENGE_NOT_EXISTED_OR_INVALID);
+            }
+            challenges = challengeList;
+
         }
 
         return new PageImpl<>(challenges, pageable, challenges.size());
@@ -207,14 +211,14 @@ public class ChallengeServiceImpl implements ChallengeService {
 
         BookmarkedChallenge bookmarkedChallenge;
 
-        if(!bookmarkedChallengeRepository.existsByUserIdAndChallengeId(authentication.getId(), challenge.getId())){
+        if (!bookmarkedChallengeRepository.existsByUserIdAndChallengeId(authentication.getId(), challenge.getId())) {
             bookmarkedChallenge = new BookmarkedChallenge();
 
             bookmarkedChallenge.setChallengeId(challenge.getId());
             bookmarkedChallenge.setUserId(authentication.getId());
 
             return bookmarkedChallengeRepository.save(bookmarkedChallenge);
-        }else{
+        } else {
             bookmarkedChallenge = bookmarkedChallengeRepository.findByUserIdAndChallengeId(authentication.getId(), challenge.getId());
 
             bookmarkedChallengeRepository.delete(bookmarkedChallenge);
@@ -233,7 +237,7 @@ public class ChallengeServiceImpl implements ChallengeService {
 
         List<Challenge> challenges = new ArrayList<>();
 
-        for(BookmarkedChallenge c : bookmarkedChallenges){
+        for (BookmarkedChallenge c : bookmarkedChallenges) {
             Challenge challenge = getChallengeById(c.getChallengeId());
 
             challenges.add(challenge);
