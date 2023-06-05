@@ -34,8 +34,6 @@ public class Challenge extends EntityBase {
 
     private String issue;
 
-    private boolean isBookmark;
-
     private List<String> testCaseIds;
 
     private List<String> bonusIds;

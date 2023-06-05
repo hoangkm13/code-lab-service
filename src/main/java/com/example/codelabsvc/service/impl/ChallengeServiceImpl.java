@@ -1,19 +1,25 @@
 package com.example.codelabsvc.service.impl;
 
-import com.example.codelabsvc.constant.*;
+import com.example.codelabsvc.constant.ErrorCode;
+import com.example.codelabsvc.constant.Language;
 import com.example.codelabsvc.controller.request.challenge.ChallengeDTO;
+import com.example.codelabsvc.entity.BookmarkedChallenge;
 import com.example.codelabsvc.entity.Challenge;
 import com.example.codelabsvc.entity.TestCase;
-import com.example.codelabsvc.entity.Topic;
 import com.example.codelabsvc.entity.User;
 import com.example.codelabsvc.exception.CustomException;
 import com.example.codelabsvc.multithread.ExecutionFactory;
+import com.example.codelabsvc.repository.BookmarkedChallengeRepository;
 import com.example.codelabsvc.repository.ChallengeRepository;
 import com.example.codelabsvc.repository.TestCaseRepository;
 import com.example.codelabsvc.repository.TopicRepository;
 import com.example.codelabsvc.service.ChallengeService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -22,10 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.*;
 
 @Service
@@ -38,13 +41,20 @@ public class ChallengeServiceImpl implements ChallengeService {
     private final ChallengeRepository challengeRepository;
     private final TestCaseRepository testCaseRepository;
 
+    private final BookmarkedChallengeRepository bookmarkedChallengeRepository;
+
     private final MongoTemplate mongoTemplate;
 
-    public ChallengeServiceImpl(TopicRepository topicRepository, ChallengeRepository challengeRepository, TestCaseRepository testCaseRepository, MongoTemplate mongoTemplate) {
+    public ChallengeServiceImpl(TopicRepository topicRepository,
+                                ChallengeRepository challengeRepository,
+                                TestCaseRepository testCaseRepository,
+                                MongoTemplate mongoTemplate,
+                                BookmarkedChallengeRepository bookmarkedChallengeRepository) {
         this.topicRepository = topicRepository;
         this.challengeRepository = challengeRepository;
         this.testCaseRepository = testCaseRepository;
         this.mongoTemplate = mongoTemplate;
+        this.bookmarkedChallengeRepository = bookmarkedChallengeRepository;
     }
 
 
@@ -66,6 +76,7 @@ public class ChallengeServiceImpl implements ChallengeService {
         challenge.setSubDomain(challengeDTO.getSubDomain());
         challenge.setStatus(challengeDTO.getStatus());
 
+
         if (CollectionUtils.isNotEmpty(challengeDTO.getTestCaseIds())) {
             var listTestCase = this.testCaseRepository.findTestCasesByTestCaseIds(challengeDTO.getTestCaseIds());
             if (listTestCase.size() != challengeDTO.getTestCaseIds().size()) {
@@ -82,17 +93,33 @@ public class ChallengeServiceImpl implements ChallengeService {
     }
 
     @Override
-    public List<Challenge> getAllChallengesByTopic(String topicId) throws CustomException {
+    public Page<Challenge> getAllChallengesByTopic(String topicId, int page, int size) throws CustomException {
+        Pageable pageable = PageRequest.of(page, size);
         var topic = topicRepository.findById(topicId);
 
-        return topic.map(Topic::getChallenges).orElseThrow(() -> new CustomException(ErrorCode.TOPIC_NOT_EXIST));
+        if (topic.isEmpty()) {
+            throw new CustomException(ErrorCode.TOPIC_NOT_EXIST);
+        }
+
+        List<Challenge> challenges = new ArrayList<>();
+
+        if (CollectionUtils.isNotEmpty(topic.get().getChallengeIds())) {
+            var challengeList = this.challengeRepository.findChallengesByChallengeIds(topic.get().getChallengeIds());
+            if (challengeList.size() != topic.get().getChallengeIds().size()) {
+                throw new CustomException(ErrorCode.CHALLENGE_NOT_EXISTED_OR_INVALID);
+            }
+            challenges = challengeList;
+
+        }
+
+        return new PageImpl<>(challenges, pageable, challenges.size());
     }
 
     @Override
     public Challenge getChallengeById(String id) throws CustomException {
         var challenge = challengeRepository.findById(id);
 
-        return challenge.orElseThrow(() -> new CustomException(ErrorCode.CHALLENGE_NOT_EXIST));
+        return challenge.orElseThrow(() -> new CustomException(ErrorCode.CHALLENGE_NOT_EXISTED_OR_INVALID));
     }
 
     @Override
@@ -107,10 +134,11 @@ public class ChallengeServiceImpl implements ChallengeService {
 
         List<String> testCaseIds = challenge.getTestCaseIds();
         List<TestCase> testCases = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(testCaseIds)) {
 
+        if (CollectionUtils.isNotEmpty(testCaseIds)) {
             testCases = this.testCaseRepository.findTestCasesByTestCaseIds(testCaseIds);
         }
+
         ExecutorService executorService = Executors.newFixedThreadPool(testCases.size());
 
         Callable<TestCase> callable;
@@ -137,8 +165,10 @@ public class ChallengeServiceImpl implements ChallengeService {
     }
 
     @Override
-    public Challenge updateChallenge(String id, ChallengeDTO challengeDTO) throws CustomException {
-        Challenge challenge = getChallengeById(id);
+    public Challenge updateChallenge(ChallengeDTO challengeDTO) throws CustomException {
+        User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+
+        Challenge challenge = getChallengeById(challengeDTO.getId());
 
         challenge.setName(challengeDTO.getName() != null ? challengeDTO.getName() : challenge.getName());
         challenge.setIssue(challengeDTO.getName() != null ? challengeDTO.getName() : challenge.getName());
@@ -161,34 +191,73 @@ public class ChallengeServiceImpl implements ChallengeService {
             }
         }
 
-        challenge.setBookmark(challengeDTO.isBookmark());
+        challenge.setUpdateBy(authentication.getUsername());
+        challenge.setUpdatedAt(LocalDate.now().toString());
 
         return challengeRepository.save(challenge);
     }
 
     @Override
-    public Challenge bookmarkChallenge(String id, boolean bookmarkStatus) throws CustomException {
+    public Challenge deleteChallenge(String id) throws CustomException {
         Challenge challenge = getChallengeById(id);
-        challenge.setBookmark(bookmarkStatus);
-        return challengeRepository.save(challenge);
+        challengeRepository.delete(challenge);
+        return challenge;
     }
 
     @Override
-    public List<Challenge> listAllBookmarkChallenge() {
-        return challengeRepository.findAllByBookmark(true);
+    public BookmarkedChallenge changeBookmarkStatus(String id) throws CustomException {
+        User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+        Challenge challenge = getChallengeById(id);
+
+        BookmarkedChallenge bookmarkedChallenge;
+
+        if (!bookmarkedChallengeRepository.existsByUserIdAndChallengeId(authentication.getId(), challenge.getId())) {
+            bookmarkedChallenge = new BookmarkedChallenge();
+
+            bookmarkedChallenge.setChallengeId(challenge.getId());
+            bookmarkedChallenge.setUserId(authentication.getId());
+
+            return bookmarkedChallengeRepository.save(bookmarkedChallenge);
+        } else {
+            bookmarkedChallenge = bookmarkedChallengeRepository.findByUserIdAndChallengeId(authentication.getId(), challenge.getId());
+
+            bookmarkedChallengeRepository.delete(bookmarkedChallenge);
+
+            return bookmarkedChallenge;
+        }
     }
 
     @Override
-    public List<Challenge> filterChallenge(Status status, Skill skill, Difficulty difficulty, Subdomain subdomain) {
+    public Page<Challenge> listAllBookmarkChallenge(int page, int size) throws CustomException {
+        Pageable pageable = PageRequest.of(page, size);
+
+        User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+
+        List<BookmarkedChallenge> bookmarkedChallenges = bookmarkedChallengeRepository.findAllByUserId(authentication.getId());
+
+        List<Challenge> challenges = new ArrayList<>();
+
+        for (BookmarkedChallenge c : bookmarkedChallenges) {
+            Challenge challenge = getChallengeById(c.getChallengeId());
+
+            challenges.add(challenge);
+        }
+
+        return new PageImpl<>(challenges, pageable, challenges.size());
+    }
+
+    @Override
+    public List<Challenge> filterChallenge(Map<String, List<String>> fieldValues) {
         Criteria criteria = new Criteria();
 
-        if (status != null) criteria.and("status").is(status);
-        if (skill != null) criteria.and("skill").is(skill);
-        if (difficulty != null) criteria.and("difficulty").is(difficulty);
-        if (subdomain != null) criteria.and("subDomain").is(subdomain);
+        for (Map.Entry<String, List<String>> entry : fieldValues.entrySet()) {
+            String fieldName = entry.getKey();
+            List<String> value = entry.getValue();
+
+            criteria.and(fieldName).in(value);
+        }
 
         Query query = new Query(criteria);
-
-        return mongoTemplate.findAll(Challenge.class, query.toString());
+        return mongoTemplate.find(query, Challenge.class);
     }
 }

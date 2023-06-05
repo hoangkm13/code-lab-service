@@ -26,7 +26,6 @@ public class TestCase {
 
     private String expectedOutputFilePath;
 
-
     private String verdict;
 
     private Integer statusCode;
@@ -37,7 +36,7 @@ public class TestCase {
 
     private Integer compilationDuration;
 
-    private String averageExecutionDuration;
+    private Integer averageExecutionDuration;
 
     private Integer timeLimit;
 

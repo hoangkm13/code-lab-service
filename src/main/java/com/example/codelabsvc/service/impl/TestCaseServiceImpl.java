@@ -46,8 +46,7 @@ public class TestCaseServiceImpl implements TestCaseService {
         testCase.setExpectedOutputFilePath(result.getExpectedOutputFilePath());
         testCase.setInputFilePath(result.getInputFilePath());
 
-        this.testCaseRepository.save(testCase);
 
-        return testCase;
+        return testCaseRepository.save(testCase);
     }
 }
