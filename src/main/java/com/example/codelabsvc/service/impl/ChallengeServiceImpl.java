@@ -3,10 +3,7 @@ package com.example.codelabsvc.service.impl;
 import com.example.codelabsvc.constant.ErrorCode;
 import com.example.codelabsvc.constant.Language;
 import com.example.codelabsvc.controller.request.challenge.ChallengeDTO;
-import com.example.codelabsvc.entity.BookmarkedChallenge;
-import com.example.codelabsvc.entity.Challenge;
-import com.example.codelabsvc.entity.TestCase;
-import com.example.codelabsvc.entity.User;
+import com.example.codelabsvc.entity.*;
 import com.example.codelabsvc.exception.CustomException;
 import com.example.codelabsvc.multithread.ExecutionFactory;
 import com.example.codelabsvc.repository.BookmarkedChallengeRepository;
@@ -21,6 +18,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ChallengeServiceImpl implements ChallengeService {
@@ -74,8 +73,6 @@ public class ChallengeServiceImpl implements ChallengeService {
         challenge.setPoints(challengeDTO.getPoints());
         challenge.setDifficulty(challengeDTO.getDifficulty());
         challenge.setSubDomain(challengeDTO.getSubDomain());
-        challenge.setStatus(challengeDTO.getStatus());
-
 
         if (CollectionUtils.isNotEmpty(challengeDTO.getTestCaseIds())) {
             var listTestCase = this.testCaseRepository.findTestCasesByTestCaseIds(challengeDTO.getTestCaseIds());
@@ -161,7 +158,18 @@ public class ChallengeServiceImpl implements ChallengeService {
             }
         }
 
+        checkResult(testCasesResult, challenge);
+
         return testCasesResult;
+    }
+
+    //Check result after submit code
+    private void checkResult(List<TestCase> testCases, Challenge challenge) {
+        int size = (int) testCases.stream().filter(tc -> tc.getVerdict().equals("Accepted")).count();
+
+        if (size == testCases.size()) {
+
+        }
     }
 
     @Override
@@ -176,7 +184,6 @@ public class ChallengeServiceImpl implements ChallengeService {
         challenge.setPoints(challengeDTO.getPoints() != null ? challengeDTO.getPoints() : challenge.getPoints());
         challenge.setDifficulty(challengeDTO.getDifficulty() != null ? challengeDTO.getDifficulty() : challenge.getDifficulty());
         challenge.setSubDomain(challengeDTO.getSubDomain() != null ? challengeDTO.getSubDomain() : challenge.getSubDomain());
-        challenge.setStatus(challengeDTO.getStatus() != null ? challengeDTO.getStatus() : challenge.getStatus());
 
         if (CollectionUtils.isNotEmpty(challengeDTO.getTestCaseIds())) {
             var listTestCase = this.testCaseRepository.findTestCasesByTestCaseIds(challengeDTO.getTestCaseIds());
@@ -248,16 +255,53 @@ public class ChallengeServiceImpl implements ChallengeService {
 
     @Override
     public List<Challenge> filterChallenge(Map<String, List<String>> fieldValues) {
-        Criteria criteria = new Criteria();
+        Query query = new Query();
 
-        for (Map.Entry<String, List<String>> entry : fieldValues.entrySet()) {
-            String fieldName = entry.getKey();
-            List<String> value = entry.getValue();
+        // Check if "status" field is provided and filter accordingly
+        if (fieldValues.containsKey("status")) {
+            List<String> statusValues = fieldValues.get("status");
 
-            criteria.and(fieldName).in(value);
+            if (statusValues.contains("SOLVED") && statusValues.contains("UNSOLVED")) {
+                // Show all challenges
+            } else if (statusValues.contains("SOLVED")) {
+                query.addCriteria(Criteria.where("id").in(getSolvedChallengeIds()));
+            } else if (statusValues.contains("UNSOLVED")) {
+                query.addCriteria(Criteria.where("id").nin(getSolvedChallengeIds()));
+            }
         }
 
-        Query query = new Query(criteria);
+        // Check if "skill" field is provided and filter accordingly
+        if (fieldValues.containsKey("skill")) {
+            List<String> skillValues = fieldValues.get("skill");
+            Criteria skillCriteria = Criteria.where("skill").in(skillValues);
+            query.addCriteria(skillCriteria);
+        }
+
+        // Check if "difficulty" field is provided and filter accordingly
+        if (fieldValues.containsKey("difficulty")) {
+            List<String> difficultyValues = fieldValues.get("difficulty");
+            Criteria difficultyCriteria = Criteria.where("difficulty").in(difficultyValues);
+            query.addCriteria(difficultyCriteria);
+        }
+
+        // Check if "subDomain" field is provided and filter accordingly
+        if (fieldValues.containsKey("subDomain")) {
+            List<String> subDomainValues = fieldValues.get("subDomain");
+            Criteria subDomainCriteria = Criteria.where("subDomain").in(subDomainValues);
+            query.addCriteria(subDomainCriteria);
+        }
+
         return mongoTemplate.find(query, Challenge.class);
+    }
+
+    private List<String> getSolvedChallengeIds() {
+        Query solvedQuery = new Query(Criteria.where("status").is("SOLVED"));
+        solvedQuery.fields().include("challengeId");
+
+        List<UserChallenge> solvedChallenges = mongoTemplate.find(solvedQuery, UserChallenge.class);
+
+        return solvedChallenges.stream()
+                .map(UserChallenge::getChallengeId)
+                .collect(Collectors.toList());
     }
 }
