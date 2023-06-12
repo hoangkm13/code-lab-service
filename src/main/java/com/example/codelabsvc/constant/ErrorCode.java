@@ -18,6 +18,7 @@ public enum ErrorCode {
     LANGUAGE_ERROR("LANGUAGE_ERROR", "Ngôn ngữ không tồn tại hoặc sai format"),
     TESTCASE_EXISTED("TESTCASE_EXISTED", "Test case tồn tại"),
     TESTCASE_NOT_EXISTED_OR_INVALID("TESTCASE_NOT_EXISTED_OR_INVALID", "Test case không tồn tại hoặc sai id "),
+    TESTCASE_TEMPLATE_INVALID("TESTCASE_TEMPLATE_INVALID", "Test case template không hợp lệ "),
     CHALLENGE_NOT_EXISTED_OR_INVALID("CHALLENGE_NOT_EXISTED_OR_INVALID", "Challenge không tồn tại hoặc sai id ");
 
     private final String message;

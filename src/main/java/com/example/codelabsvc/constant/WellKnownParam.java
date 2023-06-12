@@ -7,6 +7,7 @@ public class WellKnownParam {
     public static final String EXPECTED_OUTPUTS = "expectedOutputs";
     public static final String TIME_LIMIT = "timeLimit";
     public static final String MEMORY_LIMIT = "memoryLimit";
+    public static final String REQUEST_JSON = "request";
 
 //    public static final String PREFER = "Prefer";
 //    public static final String URL = "Url";

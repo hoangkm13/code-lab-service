@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.util.Date;
 import java.util.Objects;
 
 @Component
@@ -53,5 +54,17 @@ public class FileUtils {
 
         inputStream.close();
         outputStream.close();
+    }
+
+    public static String convertFileToString(File file) throws IOException {
+//        File file = new File(pa);
+
+        String str = org.apache.commons.io.FileUtils.readFileToString(file, "UTF-8");
+
+        return str;
+    }
+
+    public static void main(String[] args) throws IOException {
+        System.out.printf(convertFileToString(null));
     }
 }

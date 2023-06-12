@@ -1,8 +1,11 @@
 package com.example.codelabsvc.controller.request.testCase;
 
+import com.example.codelabsvc.controller.request.challenge.ChallengeSubmitJson;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import javax.validation.constraints.NotNull;
 
 
 @Data
@@ -12,18 +15,15 @@ public class CreateTestCaseDTO {
 
     private String id;
 
+    @NotNull
     private String name;
 
-    private String compilerMessage;
+    private String userId;
 
-    private int complicationDuration;
+    @NotNull
+    private ChallengeSubmitJson challengeSubmitJson;
 
-    private int timeLimit;
-
-    private int memoryLimit;
-
-    private String expectedOutputContent;
-
-    private String inputContent;
+    @NotNull
+    private String challengeId;
 
 }

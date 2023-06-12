@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @CrossOrigin("*")
@@ -24,6 +25,12 @@ public class TestCaseController {
     public ApiResponse<TestCase> createTestCase(@Valid @RequestBody CreateTestCaseDTO createTestCase) throws CustomException, IOException {
         TestCase testCase = testCaseService.createTestCase(createTestCase);
         return ApiResponse.successWithResult(testCase);
+    }
+
+    @GetMapping(value = "{challengeId}", produces = "application/json")
+    public ApiResponse<List<TestCase>> getListTestCaseByUserIdAndChallengeId(@PathVariable String challengeId) throws CustomException, IOException {
+        List<TestCase> testCases = testCaseService.getListTestCaseByUserIdAndChallengeId(challengeId);
+        return ApiResponse.successWithResult(testCases);
     }
 
 }

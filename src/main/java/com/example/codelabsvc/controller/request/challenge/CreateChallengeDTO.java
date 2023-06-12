@@ -8,33 +8,42 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChallengeDTO {
+public class CreateChallengeDTO {
     private String id;
 
+    @NotNull
     private String name;
 
     private Status status;
 
+    @NotNull
     private Skill skill;
 
+    @NotNull
     private Difficulty difficulty;
 
+    @NotNull
     private Subdomain subDomain;
 
+    @NotNull
     private Integer star;
 
+    @NotNull
     private Integer points;
 
     private boolean isBookmark;
 
+    @NotNull
     private String issue;
 
-    private List<String> testCaseIds;
+    private String testCaseId;
 
+    @NotNull
     private List<String> bonusIds;
 }

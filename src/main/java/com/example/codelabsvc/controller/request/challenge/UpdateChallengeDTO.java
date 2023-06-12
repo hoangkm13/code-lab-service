@@ -1,24 +1,20 @@
-package com.example.codelabsvc.entity;
+package com.example.codelabsvc.controller.request.challenge;
 
 import com.example.codelabsvc.constant.Difficulty;
 import com.example.codelabsvc.constant.Skill;
 import com.example.codelabsvc.constant.Status;
 import com.example.codelabsvc.constant.Subdomain;
-import lombok.*;
-import org.springframework.data.mongodb.core.mapping.Document;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Document(collection = "challenge")
-
-public class Challenge extends EntityBase {
-
-    private String id;
+@NoArgsConstructor
+public class UpdateChallengeDTO {
+    private String challengeId;
 
     private String name;
 
@@ -30,11 +26,15 @@ public class Challenge extends EntityBase {
 
     private Subdomain subDomain;
 
+    private Integer star;
+
     private Integer points;
+
+    private boolean isBookmark;
 
     private String issue;
 
-//    private String testCaseId;
+    private String testCaseId;
 
     private List<String> bonusIds;
 }
