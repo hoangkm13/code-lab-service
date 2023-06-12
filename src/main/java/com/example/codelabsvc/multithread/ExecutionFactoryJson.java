@@ -3,7 +3,10 @@ package com.example.codelabsvc.multithread;
 import com.example.codelabsvc.controller.request.challenge.TestCaseSubmitJson;
 import com.example.codelabsvc.controller.response.testCase.TestCaseJsonResponse;
 import com.example.codelabsvc.entity.TestCase;
+import com.example.codelabsvc.exception.CustomExceptionHandler;
 import com.example.codelabsvc.repository.TestCaseRepository;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -15,6 +18,7 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 
 public class ExecutionFactoryJson implements Callable<TestCaseJsonResponse> {
+    private final Log logger = LogFactory.getLog(CustomExceptionHandler.class);
     private final String userId;
     private final TestCase testCase;
     private final String compileJsonUrl;
@@ -74,6 +78,8 @@ public class ExecutionFactoryJson implements Callable<TestCaseJsonResponse> {
         testCaseByUserId.setChallengeId(testCase.getChallengeId());
         testCaseByUserId.setName(testCase.getName().split("-")[0] + "result by: " + userId);
         testCaseByUserId.setUserId(userId);
+
+        logger.info("Testcase result: " + testCaseByUserId.getTestCaseJsonResponse());
 
         this.testCaseRepository.save(testCaseByUserId);
 
