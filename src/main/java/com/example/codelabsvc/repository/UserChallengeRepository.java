@@ -9,4 +9,7 @@ import java.util.List;
 @Repository
 public interface UserChallengeRepository extends MongoRepository<UserChallenge, String> {
     List<UserChallenge> findAllByUserId(String userId);
+
+    boolean existsByUserIdAndChallengeId(String userId, String challengeId);
+
 }

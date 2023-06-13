@@ -1,12 +1,12 @@
 package com.example.codelabsvc.entity;
 
+import com.example.codelabsvc.controller.request.challenge.ChallengeSubmitJson;
+import com.example.codelabsvc.controller.response.testCase.TestCaseJsonResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.util.LinkedHashMap;
 
 
 @Data
@@ -18,32 +18,14 @@ public class TestCase {
 
     private String id;
 
+    private String challengeId;
+
+    private String userId;
+
     private String name;
 
-    private String compilerMessage;
+    private ChallengeSubmitJson challengeSubmitJson;
 
-    private String inputFilePath;
-
-    private String expectedOutputFilePath;
-
-    private String verdict;
-
-    private Integer statusCode;
-
-    private String error;
-
-    private LinkedHashMap<String, Object> testCasesResult;
-
-    private Integer compilationDuration;
-
-    private Double averageExecutionDuration;
-
-    private Integer timeLimit;
-
-    private Integer memoryLimit;
-
-    private String language;
-
-    private String dateTime;
+    private TestCaseJsonResponse testCaseJsonResponse;
 
 }

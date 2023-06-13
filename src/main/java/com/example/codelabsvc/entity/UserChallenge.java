@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Document(collection = "userChallenge")
+@Document(collection = "user-challenge")
 
 public class UserChallenge {
 
