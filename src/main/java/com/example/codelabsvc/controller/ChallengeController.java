@@ -54,9 +54,8 @@ public class ChallengeController {
 //    }
 
     @PostMapping(value = "/submit-code-json/{testCaseId}", produces = "application/json")
-
     public ApiResponse<TestCaseJsonResponse> submitCodeJson(@PathVariable("testCaseId") String testCaseId,
-                                                            @RequestBody @Valid TestCaseSubmitJson testCaseSubmitJson) throws CustomException, ExecutionException, InterruptedException {
+                                          @RequestBody @Valid TestCaseSubmitJson testCaseSubmitJson) throws CustomException, ExecutionException, InterruptedException {
         return ApiResponse.successWithResult(challengeService.submitCodeJson(testCaseId, testCaseSubmitJson));
     }
 

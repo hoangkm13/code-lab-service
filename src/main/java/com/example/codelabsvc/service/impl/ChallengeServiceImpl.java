@@ -22,8 +22,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -84,7 +82,6 @@ public class ChallengeServiceImpl implements ChallengeService {
         challenge.setPoints(createChallengeDTO.getPoints());
         challenge.setDifficulty(createChallengeDTO.getDifficulty());
         challenge.setSubDomain(createChallengeDTO.getSubDomain());
-
 
         if (createChallengeDTO.getTestCaseId() != null) {
             var existedTestCase = this.testCaseRepository.findById(createChallengeDTO.getTestCaseId());
@@ -230,6 +227,7 @@ public class ChallengeServiceImpl implements ChallengeService {
                 throw new CustomException(ErrorCode.TESTCASE_NOT_EXISTED_OR_INVALID);
             }
         }
+
 
         challenge.setUpdateBy(authentication.getUsername());
         challenge.setUpdatedAt(LocalDate.now().toString());
