@@ -40,31 +40,25 @@ public class ChallengeServiceImpl implements ChallengeService {
 
     @Value("${compile.json.url}")
     private String compileJsonUrl;
-
     private final TopicRepository topicRepository;
 
     private final ChallengeRepository challengeRepository;
-
     private final TestCaseRepository testCaseRepository;
 
     private final BookmarkedChallengeRepository bookmarkedChallengeRepository;
 
     private final MongoTemplate mongoTemplate;
 
-    private final UserChallengeRepository userChallengeRepository;
-
     public ChallengeServiceImpl(TopicRepository topicRepository,
                                 ChallengeRepository challengeRepository,
                                 TestCaseRepository testCaseRepository,
                                 MongoTemplate mongoTemplate,
-                                BookmarkedChallengeRepository bookmarkedChallengeRepository,
-                                UserChallengeRepository userChallengeRepository) {
+                                BookmarkedChallengeRepository bookmarkedChallengeRepository) {
         this.topicRepository = topicRepository;
         this.challengeRepository = challengeRepository;
         this.testCaseRepository = testCaseRepository;
         this.mongoTemplate = mongoTemplate;
         this.bookmarkedChallengeRepository = bookmarkedChallengeRepository;
-        this.userChallengeRepository = userChallengeRepository;
     }
 
 
@@ -194,20 +188,7 @@ public class ChallengeServiceImpl implements ChallengeService {
 
         executorService.shutdown();
 
-        checkResult(future.get().getVerdict(), existedTestCase.getChallengeId(), authentication.getId());
-
         return future.get();
-    }
-
-    private void checkResult(String verdict, String challengeId, String userId) {
-        if (verdict.equals("Accepted") && !userChallengeRepository.existsByUserIdAndChallengeId(userId, challengeId)) {
-            userChallengeRepository.save(UserChallenge.builder()
-                    .id(UUID.randomUUID().toString())
-                    .challengeId(challengeId)
-                    .userId(userId)
-                    .status(Status.SOLVED)
-                    .build());
-        }
     }
 
     @Override
@@ -229,7 +210,6 @@ public class ChallengeServiceImpl implements ChallengeService {
                 throw new CustomException(ErrorCode.TESTCASE_NOT_EXISTED_OR_INVALID);
             }
         }
-
 
         challenge.setUpdateBy(authentication.getUsername());
         challenge.setUpdatedAt(LocalDate.now().toString());

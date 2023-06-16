@@ -11,5 +11,4 @@ public interface UserChallengeRepository extends MongoRepository<UserChallenge, 
     List<UserChallenge> findAllByUserId(String userId);
 
     boolean existsByUserIdAndChallengeId(String userId, String challengeId);
-
 }
