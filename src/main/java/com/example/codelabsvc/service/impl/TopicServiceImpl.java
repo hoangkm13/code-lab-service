@@ -45,7 +45,7 @@ public class TopicServiceImpl implements TopicService {
         topic.setId(uuid);
         topic.setName(topicDTO.getName());
         topic.setDescription(topicDTO.getDescription());
-        topic.setTotalPoints(topicDTO.getTotalPoints());
+//        topic.setTotalPoints(topicDTO.getTotalPoints());
 
         if (CollectionUtils.isNotEmpty(topicDTO.getChallengeIds())) {
             var listChallenges = this.challengeRepository.findChallengesByChallengeIds(topicDTO.getChallengeIds());
@@ -72,7 +72,7 @@ public class TopicServiceImpl implements TopicService {
 
         topic.setName(topicDTO.getName() != null ? topicDTO.getName() : topic.getName());
         topic.setDescription(topicDTO.getDescription() != null ? topicDTO.getDescription() : topic.getDescription());
-        topic.setTotalPoints(topicDTO.getTotalPoints() != null ? topicDTO.getTotalPoints() : topic.getTotalPoints());
+//        topic.setTotalPoints(topicDTO.getTotalPoints() != null ? topicDTO.getTotalPoints() : topic.getTotalPoints());
         topic.setStarIds(topicDTO.getStarIds() != null ? topicDTO.getStarIds() : topic.getStarIds());
 
         if (CollectionUtils.isNotEmpty(topicDTO.getChallengeIds())) {

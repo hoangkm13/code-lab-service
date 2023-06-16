@@ -22,8 +22,6 @@ public class Challenge extends EntityBase {
 
     private String name;
 
-    private Status status;
-
     private Skill skill;
 
     private Difficulty difficulty;

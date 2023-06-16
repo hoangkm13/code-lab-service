@@ -4,6 +4,7 @@ package com.example.codelabsvc.controller;
 import com.example.codelabsvc.controller.request.challenge.CreateChallengeDTO;
 import com.example.codelabsvc.controller.request.challenge.TestCaseSubmitJson;
 import com.example.codelabsvc.controller.request.challenge.UpdateChallengeDTO;
+import com.example.codelabsvc.controller.response.Challenge.ChallengeResponseDTO;
 import com.example.codelabsvc.controller.response.testCase.TestCaseJsonResponse;
 import com.example.codelabsvc.entity.BookmarkedChallenge;
 import com.example.codelabsvc.entity.Challenge;
@@ -52,10 +53,9 @@ public class ChallengeController {
 //        return ApiResponse.successWithResult(challengeService.submitCode(language, challengeId, sourceCode));
 //    }
 
-    @PostMapping(value = "/submit-code-json/{challengeId}", produces = "application/json")
-
-    public ApiResponse<TestCaseJsonResponse> submitCodeJson(@PathVariable("challengeId") String testCaseId,
-                                                            @RequestBody @Valid TestCaseSubmitJson testCaseSubmitJson) throws CustomException, ExecutionException, InterruptedException {
+    @PostMapping(value = "/submit-code-json/{testCaseId}", produces = "application/json")
+    public ApiResponse<TestCaseJsonResponse> submitCodeJson(@PathVariable("testCaseId") String testCaseId,
+                                          @RequestBody @Valid TestCaseSubmitJson testCaseSubmitJson) throws CustomException, ExecutionException, InterruptedException {
         return ApiResponse.successWithResult(challengeService.submitCodeJson(testCaseId, testCaseSubmitJson));
     }
 
@@ -65,7 +65,7 @@ public class ChallengeController {
     }
 
     @GetMapping(value = "/filter", produces = "application/json")
-    public ApiResponse<List<Challenge>> filterChallenges(@RequestBody Map<String, List<String>> fieldValues) {
+    public ApiResponse<List<ChallengeResponseDTO>> filterChallenges(@RequestBody Map<String, List<String>> fieldValues) {
         return ApiResponse.successWithResult(challengeService.filterChallenge(fieldValues));
     }
 
