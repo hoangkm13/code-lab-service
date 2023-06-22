@@ -25,6 +25,11 @@ public class TopicController {
         return ApiResponse.successWithResult(topics);
     }
 
+    @GetMapping(value = "{topic-id}", produces = "application/json")
+    public ApiResponse<Topic> getTopicById(@PathVariable("topic-id") String topicId) throws CustomException {
+        return ApiResponse.successWithResult(topicService.getTopicById(topicId));
+    }
+
     @PostMapping(value = "", produces = "application/json")
     public ApiResponse<Topic> createTopic(@RequestBody TopicDTO topicDTO) throws CustomException {
         Topic topic = topicService.createTopic(topicDTO);

@@ -7,7 +7,7 @@ import java.util.Objects;
 
 @Getter
 public enum Difficulty {
-    VERY_EASY("very_easy", "Rất dễ"),
+    VERY_EASY("VERY_EASY", "Rất dễ"),
     EASY("EASY", "Dễ"),
     NORMAL("NORMAL", "Bình thường"),
     HARD("HARD", "Khó"),
