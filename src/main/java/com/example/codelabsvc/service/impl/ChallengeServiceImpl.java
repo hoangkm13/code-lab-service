@@ -5,6 +5,7 @@ import com.example.codelabsvc.constant.Status;
 import com.example.codelabsvc.controller.request.challenge.CreateChallengeDTO;
 import com.example.codelabsvc.controller.request.challenge.TestCaseSubmitJson;
 import com.example.codelabsvc.controller.request.challenge.UpdateChallengeDTO;
+import com.example.codelabsvc.controller.response.Challenge.ChallengeListAndPointResponseDTO;
 import com.example.codelabsvc.controller.response.Challenge.ChallengeResponseDTO;
 import com.example.codelabsvc.controller.response.testCase.TestCaseJsonResponse;
 import com.example.codelabsvc.entity.BookmarkedChallenge;
@@ -46,6 +47,7 @@ public class ChallengeServiceImpl implements ChallengeService {
     private final TestCaseRepository testCaseRepository;
 
     private final BookmarkedChallengeRepository bookmarkedChallengeRepository;
+    private final UserChallengeRepository userChallengeRepository;
 
     private final MongoTemplate mongoTemplate;
 
@@ -53,12 +55,14 @@ public class ChallengeServiceImpl implements ChallengeService {
                                 ChallengeRepository challengeRepository,
                                 TestCaseRepository testCaseRepository,
                                 MongoTemplate mongoTemplate,
-                                BookmarkedChallengeRepository bookmarkedChallengeRepository) {
+                                BookmarkedChallengeRepository bookmarkedChallengeRepository,
+                                UserChallengeRepository userChallengeRepository) {
         this.topicRepository = topicRepository;
         this.challengeRepository = challengeRepository;
         this.testCaseRepository = testCaseRepository;
         this.mongoTemplate = mongoTemplate;
         this.bookmarkedChallengeRepository = bookmarkedChallengeRepository;
+        this.userChallengeRepository = userChallengeRepository;
     }
 
 
@@ -93,7 +97,10 @@ public class ChallengeServiceImpl implements ChallengeService {
     }
 
     @Override
-    public Page<Challenge> getAllChallengesByTopic(String topicId, int page, int size) throws CustomException {
+    public Page<ChallengeListAndPointResponseDTO> getAllChallengesByTopic(String topicId, int page, int size) throws CustomException {
+
+        Integer totalPointOfUser = 0;
+        User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
         Pageable pageable = PageRequest.of(page, size);
         var topic = topicRepository.findById(topicId);
 
@@ -101,18 +108,27 @@ public class ChallengeServiceImpl implements ChallengeService {
             throw new CustomException(ErrorCode.TOPIC_NOT_EXIST);
         }
 
-        List<Challenge> challenges = new ArrayList<>();
+          Page<Challenge> challenges = null;
 
         if (CollectionUtils.isNotEmpty(topic.get().getChallengeIds())) {
-            var challengeList = this.challengeRepository.findChallengesByChallengeIds(topic.get().getChallengeIds());
-            if (challengeList.size() != topic.get().getChallengeIds().size()) {
-                throw new CustomException(ErrorCode.CHALLENGE_NOT_EXISTED_OR_INVALID);
+              challenges = this.challengeRepository.findAllByIdIn(topic.get().getChallengeIds(),pageable);
+            for (Challenge challenge : challenges) {
+                challenge.setIsSolveByUser(userChallengeRepository.existsByUserIdAndChallengeId(authentication.getId(), challenge.getId()));
             }
-            challenges = challengeList;
 
         }
+        try {
+            for (UserChallenge challengeSolved : userChallengeRepository.findAllByUserIdAndChallengeIdIn(authentication.getId(), topic.get().getChallengeIds())) {
+                totalPointOfUser += challengeRepository.findById(challengeSolved.getChallengeId()).get().getPoints();
+            }
 
-        return new PageImpl<>(challenges, pageable, challenges.size());
+        } catch (NullPointerException nullPointerException) {
+                totalPointOfUser += 0;
+        }
+
+        List<ChallengeListAndPointResponseDTO> list = new ArrayList<>();
+        list.add(new ChallengeListAndPointResponseDTO(challenges.getContent(),topic.get().getTotalPoints(),totalPointOfUser));
+        return new PageImpl<>(list, pageable, challenges.getTotalElements());
     }
 
     @Override

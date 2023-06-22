@@ -45,6 +45,7 @@ public class TopicServiceImpl implements TopicService {
         topic.setId(uuid);
         topic.setName(topicDTO.getName());
         topic.setDescription(topicDTO.getDescription());
+        topic.setImageUrl(topicDTO.getImageUrl());
 //        topic.setTotalPoints(topicDTO.getTotalPoints());
 
         if (CollectionUtils.isNotEmpty(topicDTO.getChallengeIds())) {

@@ -3,6 +3,7 @@ package com.example.codelabsvc.service;
 import com.example.codelabsvc.controller.request.challenge.CreateChallengeDTO;
 import com.example.codelabsvc.controller.request.challenge.TestCaseSubmitJson;
 import com.example.codelabsvc.controller.request.challenge.UpdateChallengeDTO;
+import com.example.codelabsvc.controller.response.Challenge.ChallengeListAndPointResponseDTO;
 import com.example.codelabsvc.controller.response.Challenge.ChallengeResponseDTO;
 import com.example.codelabsvc.controller.request.challenge.ChallengeSubmitJson;
 import com.example.codelabsvc.controller.request.testCase.TestCaseJsonDTO;
@@ -20,7 +21,7 @@ public interface ChallengeService {
 
     Challenge createChallenge(CreateChallengeDTO createChallengeDTO) throws CustomException;
 
-    Page<Challenge> getAllChallengesByTopic(String topicId, int page, int size) throws CustomException;
+    Page<ChallengeListAndPointResponseDTO> getAllChallengesByTopic(String topicId, int page, int size) throws CustomException;
 
     Challenge getChallengeById(String id) throws CustomException;
 

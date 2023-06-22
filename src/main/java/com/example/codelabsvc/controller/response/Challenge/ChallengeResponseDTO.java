@@ -14,7 +14,8 @@ import java.util.List;
 @NoArgsConstructor
 public class ChallengeResponseDTO {
     private Challenge challenge;
-
     private Status status;
+    private Integer totalPointOfTopic;
+    private Integer totalPointOfUser;
 
 }

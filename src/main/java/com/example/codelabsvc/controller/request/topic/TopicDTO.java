@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,6 +19,8 @@ public class TopicDTO {
     private String description;
 
     private Integer totalPoints;
+
+    private String imageUrl;
 
     private List<String> starIds;
 }

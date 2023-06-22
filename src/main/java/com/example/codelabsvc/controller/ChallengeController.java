@@ -4,6 +4,7 @@ package com.example.codelabsvc.controller;
 import com.example.codelabsvc.controller.request.challenge.CreateChallengeDTO;
 import com.example.codelabsvc.controller.request.challenge.TestCaseSubmitJson;
 import com.example.codelabsvc.controller.request.challenge.UpdateChallengeDTO;
+import com.example.codelabsvc.controller.response.Challenge.ChallengeListAndPointResponseDTO;
 import com.example.codelabsvc.controller.response.Challenge.ChallengeResponseDTO;
 import com.example.codelabsvc.controller.response.testCase.TestCaseJsonResponse;
 import com.example.codelabsvc.entity.BookmarkedChallenge;
@@ -84,9 +85,9 @@ public class ChallengeController {
 
 
     @GetMapping(value = "/topic/{topicId}", produces = "application/json")
-    public ApiResponse<Page<Challenge>> listAllChallengeByTopic(@PathVariable String topicId, @RequestParam(defaultValue = "0", required = false) int page,
-                                                                @RequestParam(defaultValue = "5", required = false) int size) throws CustomException {
-        Page<Challenge> challenges = challengeService.getAllChallengesByTopic(topicId, page, size);
+    public ApiResponse<Page<ChallengeListAndPointResponseDTO>> listAllChallengeByTopic(@PathVariable String topicId, @RequestParam(defaultValue = "0", required = false) int page,
+                                                                                       @RequestParam(defaultValue = "5", required = false) int size) throws CustomException {
+        Page<ChallengeListAndPointResponseDTO> challenges = challengeService.getAllChallengesByTopic(topicId, page, size);
         return ApiResponse.successWithResult(challenges);
     }
 }
