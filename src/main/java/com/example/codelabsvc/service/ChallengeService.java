@@ -3,9 +3,7 @@ package com.example.codelabsvc.service;
 import com.example.codelabsvc.controller.request.challenge.CreateChallengeDTO;
 import com.example.codelabsvc.controller.request.challenge.TestCaseSubmitJson;
 import com.example.codelabsvc.controller.request.challenge.UpdateChallengeDTO;
-import com.example.codelabsvc.controller.response.Challenge.ChallengeResponseDTO;
-import com.example.codelabsvc.controller.request.challenge.ChallengeSubmitJson;
-import com.example.codelabsvc.controller.request.testCase.TestCaseJsonDTO;
+import com.example.codelabsvc.controller.response.challenge.ChallengeResponseDTO;
 import com.example.codelabsvc.controller.response.testCase.TestCaseJsonResponse;
 import com.example.codelabsvc.entity.BookmarkedChallenge;
 import com.example.codelabsvc.entity.Challenge;
@@ -36,5 +34,5 @@ public interface ChallengeService {
 
     Challenge deleteChallenge(String id) throws CustomException;
 
-    List<ChallengeResponseDTO> filterChallenge(Map<String, List<String>> fieldValues);
+    List<ChallengeResponseDTO> filterChallenge(List<Challenge> challenges, Map<String, List<String>> fieldValues);
 }

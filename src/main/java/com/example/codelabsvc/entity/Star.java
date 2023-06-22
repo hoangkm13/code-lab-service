@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Star {
     private String id;
 
-    private int value;
+    private int value; //value = 1, 2, 3, 4
 
     private int validPoint;
 }
