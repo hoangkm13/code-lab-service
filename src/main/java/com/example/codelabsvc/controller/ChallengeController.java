@@ -65,8 +65,9 @@ public class ChallengeController {
     }
 
     @GetMapping(value = "/filter", produces = "application/json")
-    public ApiResponse<List<ChallengeResponseDTO>> filterChallenges(@RequestParam List<Challenge> challenges, @RequestParam Map<String, List<String>> fieldValues) {
-        return ApiResponse.successWithResult(challengeService.filterChallenge(challenges, fieldValues));
+    public ApiResponse<Page<ChallengeResponseDTO>> filterChallenges(@RequestParam(defaultValue = "1", required = false) int page,
+                                                                    @RequestParam(defaultValue = "5", required = false) int size, @RequestParam List<Challenge> challenges, @RequestParam Map<String, List<String>> fieldValues) {
+        return ApiResponse.successWithResult(challengeService.filterChallenge(page, size, challenges, fieldValues));
     }
 
     @PostMapping(value = "/bookmarked", produces = "application/json")
@@ -84,9 +85,9 @@ public class ChallengeController {
 
 
     @GetMapping(value = "/topic/{topicId}", produces = "application/json")
-    public ApiResponse<Page<Challenge>> listAllChallengeByTopic(@PathVariable String topicId, @RequestParam(defaultValue = "1", required = false) int page,
+    public ApiResponse<Page<ChallengeResponseDTO>> listAllChallengeByTopic(@PathVariable String topicId, @RequestParam(defaultValue = "1", required = false) int page,
                                                                 @RequestParam(defaultValue = "5", required = false) int size) throws CustomException {
-        Page<Challenge> challenges = challengeService.getAllChallengesByTopic(topicId, page, size);
+        Page<ChallengeResponseDTO> challenges = challengeService.getAllChallengesByTopic(topicId, page, size);
         return ApiResponse.successWithResult(challenges);
     }
 }

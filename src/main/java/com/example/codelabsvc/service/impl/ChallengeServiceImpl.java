@@ -17,7 +17,6 @@ import com.example.codelabsvc.repository.*;
 import com.example.codelabsvc.service.ChallengeService;
 import com.example.codelabsvc.util.ListUtils;
 import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -96,8 +95,9 @@ public class ChallengeServiceImpl implements ChallengeService {
     }
 
     @Override
-    public Page<Challenge> getAllChallengesByTopic(String topicId, int page, int size) throws CustomException {
-        Pageable pageable = PageRequest.of(page, size);
+    public Page<ChallengeResponseDTO> getAllChallengesByTopic(String topicId, int page, int size) throws CustomException {
+        User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+
         var topic = topicRepository.findById(topicId);
 
         if (topic.isEmpty()) {
@@ -114,7 +114,25 @@ public class ChallengeServiceImpl implements ChallengeService {
             challenges = challengeList;
         }
 
-        return new PageImpl<>(ListUtils.getPage(challenges, page, size));
+        List<ChallengeResponseDTO> challengeResponseDTOS = new ArrayList<>();
+
+        List<String> challengeIds = getSolvedChallengeIds(authentication.getId());
+
+        for (Challenge challenge : challenges) {
+            ChallengeResponseDTO challengeResponseDTO = new ChallengeResponseDTO();
+            if (challengeIds.contains(challenge.getId())) {
+                challengeResponseDTO.setStatus(Status.SOLVED);
+            } else {
+                challengeResponseDTO.setStatus(Status.UNSOLVED);
+            }
+            challengeResponseDTO.setChallenge(challenge);
+            challengeResponseDTOS.add(challengeResponseDTO);
+        }
+
+        return new PageImpl<>(ListUtils.getPage(challengeResponseDTOS
+                .stream()
+                .sorted(Comparator.comparing(ChallengeResponseDTO::getStatus))
+                .collect(Collectors.toList()), page, size));
     }
 
     @Override
@@ -302,7 +320,7 @@ public class ChallengeServiceImpl implements ChallengeService {
     }
 
     @Override
-    public List<ChallengeResponseDTO> filterChallenge(List<Challenge> challenges, Map<String, List<String>> fieldValues) {
+    public Page<ChallengeResponseDTO> filterChallenge(int page, int size, List<Challenge> challenges, Map<String, List<String>> fieldValues) {
         User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
 
         Predicate<Challenge> p = Objects::nonNull;
@@ -345,10 +363,10 @@ public class ChallengeServiceImpl implements ChallengeService {
             challengeResponseDTOList.add(challengeResponseDTO);
         }
 
-        return challengeResponseDTOList
+        return new PageImpl<>(ListUtils.getPage(challengeResponseDTOList
                 .stream()
                 .sorted(Comparator.comparing(ChallengeResponseDTO::getStatus))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()), page, size));
     }
 
     private boolean isChallengeSolved(Challenge challenge, String id) {
