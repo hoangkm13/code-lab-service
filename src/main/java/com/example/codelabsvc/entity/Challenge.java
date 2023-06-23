@@ -34,6 +34,18 @@ public class Challenge extends EntityBase {
 
     private List<String> bonusIds;
 
-    private Boolean isSolveByUser;
+
+    public String getFieldValue(String fieldName) {
+        switch (fieldName) {
+            case "skill":
+                return skill.value();
+            case "difficulty":
+                return difficulty.value();
+            case "subDomain":
+                return subDomain.value();
+            default:
+                throw new IllegalArgumentException("Unknown field name: " + fieldName);
+        }
+    }
 
 }

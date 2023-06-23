@@ -5,8 +5,7 @@ import com.example.codelabsvc.constant.Status;
 import com.example.codelabsvc.controller.request.challenge.CreateChallengeDTO;
 import com.example.codelabsvc.controller.request.challenge.TestCaseSubmitJson;
 import com.example.codelabsvc.controller.request.challenge.UpdateChallengeDTO;
-import com.example.codelabsvc.controller.response.Challenge.ChallengeListAndPointResponseDTO;
-import com.example.codelabsvc.controller.response.Challenge.ChallengeResponseDTO;
+
 import com.example.codelabsvc.controller.response.testCase.TestCaseJsonResponse;
 import com.example.codelabsvc.entity.BookmarkedChallenge;
 import com.example.codelabsvc.entity.Challenge;
@@ -16,7 +15,9 @@ import com.example.codelabsvc.exception.CustomException;
 import com.example.codelabsvc.multithread.ExecutionFactoryJson;
 import com.example.codelabsvc.repository.*;
 import com.example.codelabsvc.service.ChallengeService;
+import com.example.codelabsvc.util.ListUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -31,6 +32,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,14 +44,11 @@ public class ChallengeServiceImpl implements ChallengeService {
     @Value("${compile.json.url}")
     private String compileJsonUrl;
     private final TopicRepository topicRepository;
-
     private final ChallengeRepository challengeRepository;
     private final TestCaseRepository testCaseRepository;
-
     private final BookmarkedChallengeRepository bookmarkedChallengeRepository;
-    private final UserChallengeRepository userChallengeRepository;
-
     private final MongoTemplate mongoTemplate;
+    private final UserChallengeRepository userChallengeRepository;
 
     public ChallengeServiceImpl(TopicRepository topicRepository,
                                 ChallengeRepository challengeRepository,
@@ -97,10 +96,7 @@ public class ChallengeServiceImpl implements ChallengeService {
     }
 
     @Override
-    public Page<ChallengeListAndPointResponseDTO> getAllChallengesByTopic(String topicId, int page, int size) throws CustomException {
-
-        Integer totalPointOfUser = 0;
-        User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+    public Page<Challenge> getAllChallengesByTopic(String topicId, int page, int size) throws CustomException {
         Pageable pageable = PageRequest.of(page, size);
         var topic = topicRepository.findById(topicId);
 
@@ -108,27 +104,17 @@ public class ChallengeServiceImpl implements ChallengeService {
             throw new CustomException(ErrorCode.TOPIC_NOT_EXIST);
         }
 
-          Page<Challenge> challenges = null;
+        List<Challenge> challenges = new ArrayList<>();
 
         if (CollectionUtils.isNotEmpty(topic.get().getChallengeIds())) {
-              challenges = this.challengeRepository.findAllByIdIn(topic.get().getChallengeIds(),pageable);
-            for (Challenge challenge : challenges) {
-                challenge.setIsSolveByUser(userChallengeRepository.existsByUserIdAndChallengeId(authentication.getId(), challenge.getId()));
+            var challengeList = this.challengeRepository.findChallengesByChallengeIds(topic.get().getChallengeIds());
+            if (challengeList.size() != topic.get().getChallengeIds().size()) {
+                throw new CustomException(ErrorCode.CHALLENGE_NOT_EXISTED_OR_INVALID);
             }
-
-        }
-        try {
-            for (UserChallenge challengeSolved : userChallengeRepository.findAllByUserIdAndChallengeIdIn(authentication.getId(), topic.get().getChallengeIds())) {
-                totalPointOfUser += challengeRepository.findById(challengeSolved.getChallengeId()).get().getPoints();
-            }
-
-        } catch (NullPointerException nullPointerException) {
-                totalPointOfUser += 0;
+            challenges = challengeList;
         }
 
-        List<ChallengeListAndPointResponseDTO> list = new ArrayList<>();
-        list.add(new ChallengeListAndPointResponseDTO(challenges.getContent(),topic.get().getTotalPoints(),totalPointOfUser));
-        return new PageImpl<>(list, pageable, challenges.getTotalElements());
+        return new PageImpl<>(ListUtils.getPage(challenges, page, size));
     }
 
     @Override
@@ -202,9 +188,42 @@ public class ChallengeServiceImpl implements ChallengeService {
         callable = new ExecutionFactoryJson(authentication.getId(), existedTestCase, compileJsonUrl, testCaseSubmitJson, testCaseRepository);
         future = executorService.submit(callable);
 
+        checkResult(future.get().getVerdict(), existedTestCase.getChallengeId(), authentication.getId());
+
         executorService.shutdown();
 
         return future.get();
+    }
+
+    private void checkResult(String verdict, String challengeId, String userId) {
+        if (verdict.equals("Accepted") && !userChallengeRepository.existsByUserIdAndChallengeId(userId, challengeId)) {
+
+//            String topicId = topicRepository.findByChallengeIds(challengeId).getId();
+//            Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(() -> new RuntimeException(""));
+//
+//            Optional<UserPoint> userPoint = userPointRepository.findByUserIdAndTopicId(userId, topicId);
+//
+//            if (userPoint.isEmpty()) {
+//                userPoint = Optional.of(new UserPoint());
+//
+//                userPoint.get().setCurrentPoint(challenge.getPoints());
+//                userPoint.get().setUserId(userId);
+//                userPoint.get().setTopicId(topicId);
+//            } else {
+//                userPoint.get().setCurrentPoint(userPoint.get().getCurrentPoint() + challenge.getPoints());
+//            }
+//
+//            System.out.println(userPoint.get().getCurrentPoint());
+//
+//            userPointRepository.save(userPoint.get());
+
+            userChallengeRepository.save(UserChallenge.builder()
+                    .id(UUID.randomUUID().toString())
+                    .challengeId(challengeId)
+                    .userId(userId)
+                    .status(Status.SOLVED)
+                    .build());
+        }
     }
 
     @Override
@@ -279,35 +298,38 @@ public class ChallengeServiceImpl implements ChallengeService {
             challenges.add(challenge);
         }
 
-        return new PageImpl<>(challenges, pageable, challenges.size());
+        return new PageImpl<>(ListUtils.getPage(challenges, page, size), pageable, challenges.size());
     }
 
     @Override
-    public List<ChallengeResponseDTO> filterChallenge(Map<String, List<String>> fieldValues) {
+    public List<ChallengeResponseDTO> filterChallenge(List<Challenge> challenges, Map<String, List<String>> fieldValues) {
         User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
 
-        Query query = new Query();
+        Predicate<Challenge> p = Objects::nonNull;
 
-        // Check if "status" field is provided and filter accordingly
         for (Map.Entry<String, List<String>> f : fieldValues.entrySet()) {
             List<String> values = f.getValue();
             if (!values.isEmpty()) {
                 if (Objects.equals(f.getKey(), "status")) {
                     if (values.contains("SOLVED") && values.contains("UNSOLVED")) {
                         // Show all challenges
+                        continue;
                     } else if (values.contains("SOLVED")) {
-                        query.addCriteria(Criteria.where("id").in(getSolvedChallengeIds(authentication.getId())));
+                        p = p.and(challenge -> isChallengeSolved(challenge, authentication.getId()));
                     } else if (values.contains("UNSOLVED")) {
-                        query.addCriteria(Criteria.where("id").nin(getSolvedChallengeIds(authentication.getId())));
+                        p = p.and(challenge -> !isChallengeSolved(challenge, authentication.getId()));
                     }
                 } else {
-                    Criteria criteria = Criteria.where(f.getKey()).in(values);
-                    query.addCriteria(criteria);
+                    String fieldKey = f.getKey();
+                    p = p.and(challenge -> values.contains(challenge.getFieldValue(fieldKey)));
                 }
             }
         }
 
-        List<Challenge> challenges = mongoTemplate.find(query, Challenge.class);
+        challenges = challenges.stream()
+                .filter(p)
+                .collect(Collectors.toList());
+
         List<ChallengeResponseDTO> challengeResponseDTOList = new ArrayList<>();
 
         for (Challenge challenge : challenges) {
@@ -325,6 +347,10 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .stream()
                 .sorted(Comparator.comparing(ChallengeResponseDTO::getStatus))
                 .collect(Collectors.toList());
+    }
+
+    private boolean isChallengeSolved(Challenge challenge, String id) {
+        return userChallengeRepository.existsByUserIdAndChallengeId(id, challenge.getId());
     }
 
     private List<String> getSolvedChallengeIds(String userId) {
