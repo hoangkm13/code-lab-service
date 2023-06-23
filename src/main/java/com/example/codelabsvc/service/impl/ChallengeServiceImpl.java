@@ -332,9 +332,11 @@ public class ChallengeServiceImpl implements ChallengeService {
 
         List<ChallengeResponseDTO> challengeResponseDTOList = new ArrayList<>();
 
+        List<String> challengeIds = getSolvedChallengeIds(authentication.getId());
+
         for (Challenge challenge : challenges) {
             ChallengeResponseDTO challengeResponseDTO = new ChallengeResponseDTO();
-            if (getSolvedChallengeIds(authentication.getId()).contains(challenge.getId())) {
+            if (challengeIds.contains(challenge.getId())) {
                 challengeResponseDTO.setStatus(Status.SOLVED);
             } else {
                 challengeResponseDTO.setStatus(Status.UNSOLVED);
