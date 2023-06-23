@@ -18,7 +18,7 @@ public interface ChallengeService {
 
     Challenge createChallenge(CreateChallengeDTO createChallengeDTO) throws CustomException;
 
-    Page<Challenge> getAllChallengesByTopic(String topicId, int page, int size) throws CustomException;
+    Page<ChallengeResponseDTO> getAllChallengesByTopic(String topicId, int page, int size) throws CustomException;
 
     Challenge getChallengeById(String id) throws CustomException;
 
@@ -34,5 +34,5 @@ public interface ChallengeService {
 
     Challenge deleteChallenge(String id) throws CustomException;
 
-    List<ChallengeResponseDTO> filterChallenge(List<Challenge> challenges, Map<String, List<String>> fieldValues);
+    Page<ChallengeResponseDTO> filterChallenge(int page, int size, List<Challenge> challenges, Map<String, List<String>> fieldValues);
 }
