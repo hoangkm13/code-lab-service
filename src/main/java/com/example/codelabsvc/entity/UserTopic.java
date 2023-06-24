@@ -1,6 +1,5 @@
 package com.example.codelabsvc.entity;
 
-import com.example.codelabsvc.constant.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,15 +10,17 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Document(collection = "user-challenge")
+@Document(collection = "user-topic")
 
-public class UserChallenge {
+public class UserTopic {
 
     private String id;
 
     private String userId;
 
-    private String challengeId;
+    private String topicId;
 
-    private String status;
+    private Integer userPoints;
+
+    private Integer totalPoints;
 }

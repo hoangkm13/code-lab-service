@@ -9,7 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -37,13 +36,8 @@ public class CreateChallengeDTO {
     @NotNull
     private Integer points;
 
-    private boolean isBookmark;
-
     @NotNull
     private String issue;
 
     private String testCaseId;
-
-    @NotNull
-    private List<String> bonusIds;
 }
