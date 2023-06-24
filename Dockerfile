@@ -8,8 +8,6 @@ RUN ["mvn", "clean", "install", "-Dmaven.test.skip=true"]
 FROM openjdk:11.0.6-jre-slim
 WORKDIR /app
 
-USER root
-
 COPY --from=BUILD_STAGE /app/target/*.jar ../app.jar
 ENTRYPOINT ["java", "-jar", "code-lab-svc-0.0.1-SNAPSHOT.jar"]
 EXPOSE 8004
