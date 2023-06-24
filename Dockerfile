@@ -1,13 +1,12 @@
-# Build stage
-FROM maven:3.6.0 AS BUILD_STAGE
-WORKDIR /app
-COPY . .
-RUN ["mvn", "clean", "install", "-Dmaven.test.skip=true"]
+FROM maven:3.8.3-openjdk-11-slim AS build
+COPY src /home/app/src
+COPY pom.xml /home/app
+RUN mvn -f /home/app/pom.xml -B package -DskipTests
 
-# Run stage
-FROM openjdk:11.0.6-jre-slim
-WORKDIR /app
+FROM adoptopenjdk:11-jre-hotspot
+COPY --from=build "/home/app/target/code-lab-svc-0.0.1-SNAPSHOT.jar" "/opt/code-lab-svc.jar"
 
-COPY --from=BUILD_STAGE /app/target/*.jar ../app.jar
-ENTRYPOINT ["java", "-jar", "code-lab-svc-0.0.1-SNAPSHOT.jar"]
 EXPOSE 8004
+
+ENTRYPOINT ["java", "-jar", "/opt/code-lab-svc.jar"]
+
