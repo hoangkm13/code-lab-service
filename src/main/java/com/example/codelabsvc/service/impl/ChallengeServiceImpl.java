@@ -239,7 +239,7 @@ public class ChallengeServiceImpl implements ChallengeService {
                     .id(UUID.randomUUID().toString())
                     .challengeId(challengeId)
                     .userId(userId)
-                    .status(Status.SOLVED)
+                    .status(String.valueOf(Status.SOLVED))
                     .build());
         }
     }

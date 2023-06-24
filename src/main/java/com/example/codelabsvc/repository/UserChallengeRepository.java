@@ -11,4 +11,7 @@ import java.util.List;
 public interface UserChallengeRepository extends MongoRepository<UserChallenge, String> {
     @Query("{'userId' :  ?0, 'challengeId': {$in : ?1}, 'status': 'SOLVED' }")
     List<UserChallenge> findSolvedUserChallenges(String userId, List<String> challengeId);
+
+    boolean existsByUserIdAndChallengeId(String userId, String challengeId);
+
 }
