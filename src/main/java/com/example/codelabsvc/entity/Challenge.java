@@ -2,12 +2,9 @@ package com.example.codelabsvc.entity;
 
 import com.example.codelabsvc.constant.Difficulty;
 import com.example.codelabsvc.constant.Skill;
-import com.example.codelabsvc.constant.Status;
 import com.example.codelabsvc.constant.Subdomain;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -31,6 +28,4 @@ public class Challenge extends EntityBase {
     private Integer points;
 
     private String issue;
-
-    private List<String> bonusIds;
 }

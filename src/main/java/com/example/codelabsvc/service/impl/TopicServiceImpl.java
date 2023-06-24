@@ -2,11 +2,12 @@ package com.example.codelabsvc.service.impl;
 
 import com.example.codelabsvc.constant.ErrorCode;
 import com.example.codelabsvc.controller.request.topic.TopicDTO;
-import com.example.codelabsvc.entity.Topic;
-import com.example.codelabsvc.entity.User;
+import com.example.codelabsvc.entity.*;
 import com.example.codelabsvc.exception.CustomException;
 import com.example.codelabsvc.repository.ChallengeRepository;
 import com.example.codelabsvc.repository.TopicRepository;
+import com.example.codelabsvc.repository.UserChallengeRepository;
+import com.example.codelabsvc.repository.UserTopicRepository;
 import com.example.codelabsvc.service.TopicService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class TopicServiceImpl implements TopicService {
@@ -26,9 +30,54 @@ public class TopicServiceImpl implements TopicService {
     @Autowired
     private ChallengeRepository challengeRepository;
 
+    @Autowired
+    private UserTopicRepository userTopicRepository;
+
+    @Autowired
+    private UserChallengeRepository userChallengeRepository;
+
     @Override
     public List<Topic> getAllTopics() {
         return topicRepository.findAll();
+    }
+
+    @Override
+    public UserTopic getUserTopic(String id, String userId) throws CustomException {
+
+        var topic = topicRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.TOPIC_NOT_EXIST));
+
+        var listChallenges = this.challengeRepository.findChallengesByChallengeIds(topic.getChallengeIds());
+        if (listChallenges.size() != topic.getChallengeIds().size()) {
+            throw new CustomException(ErrorCode.CHALLENGE_NOT_EXISTED_OR_INVALID);
+        }
+
+        int totalPoints = 0;
+        for (Challenge challenge : listChallenges) {
+            totalPoints = totalPoints + challenge.getPoints();
+        }
+        topic.setTotalPoints(totalPoints);
+
+        this.topicRepository.save(topic);
+
+        var userChallenges = this.userChallengeRepository.findSolvedUserChallenges(userId, topic.getChallengeIds());
+        List<String> userChallengeId = new ArrayList<>();
+        for (UserChallenge challenge : userChallenges) {
+            userChallengeId.add(challenge.getChallengeId());
+        }
+
+        var challenges = this.challengeRepository.findChallengesByChallengeIds(userChallengeId);
+        int userPoints = 0;
+        for (Challenge challenge : challenges) {
+            userPoints = userPoints + challenge.getPoints();
+        }
+
+        var userTopic = this.userTopicRepository.findUserTopicByUserIdAndTopicId(userId, id);
+        userTopic.setTotalPoints(totalPoints);
+        userTopic.setUserPoints(userPoints);
+        this.userTopicRepository.save(userTopic);
+
+
+        return userTopic;
     }
 
     @Override
@@ -45,7 +94,6 @@ public class TopicServiceImpl implements TopicService {
         topic.setId(uuid);
         topic.setName(topicDTO.getName());
         topic.setDescription(topicDTO.getDescription());
-//        topic.setTotalPoints(topicDTO.getTotalPoints());
 
         if (CollectionUtils.isNotEmpty(topicDTO.getChallengeIds())) {
             var listChallenges = this.challengeRepository.findChallengesByChallengeIds(topicDTO.getChallengeIds());
@@ -56,10 +104,13 @@ public class TopicServiceImpl implements TopicService {
             topic.setChallengeIds(topicDTO.getChallengeIds());
         }
 
-        topic.setStarIds(topicDTO.getStarIds());
-
         topic.setCreatedBy(authentication.getUsername());
         topic.setCreatedAt(LocalDate.now().toString());
+
+        UserTopic userTopic = new UserTopic();
+        userTopic.setUserId(authentication.getId());
+        userTopic.setTopicId(topic.getId());
+        this.userTopicRepository.save(userTopic);
 
         return topicRepository.save(topic);
     }
@@ -72,18 +123,16 @@ public class TopicServiceImpl implements TopicService {
 
         topic.setName(topicDTO.getName() != null ? topicDTO.getName() : topic.getName());
         topic.setDescription(topicDTO.getDescription() != null ? topicDTO.getDescription() : topic.getDescription());
-//        topic.setTotalPoints(topicDTO.getTotalPoints() != null ? topicDTO.getTotalPoints() : topic.getTotalPoints());
-        topic.setStarIds(topicDTO.getStarIds() != null ? topicDTO.getStarIds() : topic.getStarIds());
 
         if (CollectionUtils.isNotEmpty(topicDTO.getChallengeIds())) {
-            var listTestCase = this.challengeRepository.findChallengesByChallengeIds(topicDTO.getChallengeIds());
-            if (listTestCase.size() != topicDTO.getChallengeIds().size()) {
+            var listChallenges = this.challengeRepository.findChallengesByChallengeIds(topicDTO.getChallengeIds());
+            if (listChallenges.size() != topicDTO.getChallengeIds().size()) {
                 throw new CustomException(ErrorCode.CHALLENGE_NOT_EXISTED_OR_INVALID);
             }
 
-            for (String newTestCaseId : topicDTO.getChallengeIds()) {
-                if (!topic.getChallengeIds().contains(newTestCaseId)) {
-                    topic.getChallengeIds().add(newTestCaseId);
+            for (String newChallengeId : topicDTO.getChallengeIds()) {
+                if (!topic.getChallengeIds().contains(newChallengeId)) {
+                    topic.getChallengeIds().add(newChallengeId);
                 }
             }
         }
@@ -99,5 +148,14 @@ public class TopicServiceImpl implements TopicService {
         Topic topic = getTopicById(id);
         topicRepository.delete(topic);
         return topic;
+    }
+
+    @Override
+    public List<UserTopic> ranking(String topicId) {
+        var allUserTopic = this.userTopicRepository.findUserTopicByTopicId(topicId);
+
+        List<UserTopic> rankedList = allUserTopic.stream().sorted(Comparator.comparingInt(UserTopic::getUserPoints)).collect(Collectors.toList());
+
+        return rankedList;
     }
 }

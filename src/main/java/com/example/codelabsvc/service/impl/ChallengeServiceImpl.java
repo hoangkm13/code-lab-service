@@ -88,7 +88,7 @@ public class ChallengeServiceImpl implements ChallengeService {
 
         challenge.setCreatedAt(LocalDate.now().toString());
         challenge.setCreatedBy(authentication.getId());
-        //Todo bonuses
+
         return challengeRepository.save(challenge);
     }
 

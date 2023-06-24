@@ -2,10 +2,13 @@ package com.example.codelabsvc.controller;
 
 import com.example.codelabsvc.controller.request.topic.TopicDTO;
 import com.example.codelabsvc.entity.Topic;
+import com.example.codelabsvc.entity.User;
+import com.example.codelabsvc.entity.UserTopic;
 import com.example.codelabsvc.exception.CustomException;
 import com.example.codelabsvc.model.ApiResponse;
 import com.example.codelabsvc.service.TopicService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -25,6 +28,19 @@ public class TopicController {
         return ApiResponse.successWithResult(topics);
     }
 
+    @GetMapping(value = "/{topicId}", produces = "application/json")
+    public ApiResponse<UserTopic> getUserTopic(@Valid @PathVariable String topicId) throws CustomException {
+        User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+        UserTopic userTopic = topicService.getUserTopic(topicId, authentication.getId());
+        return ApiResponse.successWithResult(userTopic);
+    }
+
+    @GetMapping(value = "ranking/{topicId}", produces = "application/json")
+    public ApiResponse<List<UserTopic>> rankingUser(@Valid @PathVariable String topicId) throws CustomException {
+        List<UserTopic> userTopic = topicService.ranking(topicId);
+        return ApiResponse.successWithResult(userTopic);
+    }
+
     @PostMapping(value = "", produces = "application/json")
     public ApiResponse<Topic> createTopic(@RequestBody TopicDTO topicDTO) throws CustomException {
         Topic topic = topicService.createTopic(topicDTO);
@@ -42,5 +58,6 @@ public class TopicController {
         Topic topic = topicService.deleteTopic(topicId);
         return ApiResponse.successWithResult(topic);
     }
+
 
 }
