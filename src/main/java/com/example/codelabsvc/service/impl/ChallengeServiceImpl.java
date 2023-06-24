@@ -5,7 +5,7 @@ import com.example.codelabsvc.constant.Status;
 import com.example.codelabsvc.controller.request.challenge.CreateChallengeDTO;
 import com.example.codelabsvc.controller.request.challenge.TestCaseSubmitJson;
 import com.example.codelabsvc.controller.request.challenge.UpdateChallengeDTO;
-import com.example.codelabsvc.controller.response.Challenge.ChallengeResponseDTO;
+import com.example.codelabsvc.controller.response.challenge.ChallengeResponseDTO;
 import com.example.codelabsvc.controller.response.testCase.TestCaseJsonResponse;
 import com.example.codelabsvc.entity.BookmarkedChallenge;
 import com.example.codelabsvc.entity.Challenge;
@@ -15,6 +15,7 @@ import com.example.codelabsvc.exception.CustomException;
 import com.example.codelabsvc.multithread.ExecutionFactoryJson;
 import com.example.codelabsvc.repository.*;
 import com.example.codelabsvc.service.ChallengeService;
+import com.example.codelabsvc.util.ListUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,24 +43,24 @@ public class ChallengeServiceImpl implements ChallengeService {
     @Value("${compile.json.url}")
     private String compileJsonUrl;
     private final TopicRepository topicRepository;
-
     private final ChallengeRepository challengeRepository;
     private final TestCaseRepository testCaseRepository;
-
     private final BookmarkedChallengeRepository bookmarkedChallengeRepository;
-
     private final MongoTemplate mongoTemplate;
+    private final UserChallengeRepository userChallengeRepository;
 
     public ChallengeServiceImpl(TopicRepository topicRepository,
                                 ChallengeRepository challengeRepository,
                                 TestCaseRepository testCaseRepository,
                                 MongoTemplate mongoTemplate,
-                                BookmarkedChallengeRepository bookmarkedChallengeRepository) {
+                                BookmarkedChallengeRepository bookmarkedChallengeRepository,
+                                UserChallengeRepository userChallengeRepository) {
         this.topicRepository = topicRepository;
         this.challengeRepository = challengeRepository;
         this.testCaseRepository = testCaseRepository;
         this.mongoTemplate = mongoTemplate;
         this.bookmarkedChallengeRepository = bookmarkedChallengeRepository;
+        this.userChallengeRepository = userChallengeRepository;
     }
 
 
@@ -93,8 +95,9 @@ public class ChallengeServiceImpl implements ChallengeService {
     }
 
     @Override
-    public Page<Challenge> getAllChallengesByTopic(String topicId, int page, int size) throws CustomException {
-        Pageable pageable = PageRequest.of(page, size);
+    public Page<ChallengeResponseDTO> getAllChallengesByTopic(String topicId, int page, int size) throws CustomException {
+        User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+
         var topic = topicRepository.findById(topicId);
 
         if (topic.isEmpty()) {
@@ -109,10 +112,27 @@ public class ChallengeServiceImpl implements ChallengeService {
                 throw new CustomException(ErrorCode.CHALLENGE_NOT_EXISTED_OR_INVALID);
             }
             challenges = challengeList;
-
         }
 
-        return new PageImpl<>(challenges, pageable, challenges.size());
+        List<ChallengeResponseDTO> challengeResponseDTOS = new ArrayList<>();
+
+        List<String> challengeIds = getSolvedChallengeIds(authentication.getId());
+
+        for (Challenge challenge : challenges) {
+            ChallengeResponseDTO challengeResponseDTO = new ChallengeResponseDTO();
+            if (challengeIds.contains(challenge.getId())) {
+                challengeResponseDTO.setStatus(Status.SOLVED);
+            } else {
+                challengeResponseDTO.setStatus(Status.UNSOLVED);
+            }
+            challengeResponseDTO.setChallenge(challenge);
+            challengeResponseDTOS.add(challengeResponseDTO);
+        }
+
+        return new PageImpl<>(ListUtils.getPage(challengeResponseDTOS
+                .stream()
+                .sorted(Comparator.comparing(ChallengeResponseDTO::getStatus))
+                .collect(Collectors.toList()), page, size));
     }
 
     @Override
@@ -186,9 +206,42 @@ public class ChallengeServiceImpl implements ChallengeService {
         callable = new ExecutionFactoryJson(authentication.getId(), existedTestCase, compileJsonUrl, testCaseSubmitJson, testCaseRepository);
         future = executorService.submit(callable);
 
+        checkResult(future.get().getVerdict(), existedTestCase.getChallengeId(), authentication.getId());
+
         executorService.shutdown();
 
         return future.get();
+    }
+
+    private void checkResult(String verdict, String challengeId, String userId) {
+        if (verdict.equals("Accepted") && !userChallengeRepository.existsByUserIdAndChallengeId(userId, challengeId)) {
+
+//            String topicId = topicRepository.findByChallengeIds(challengeId).getId();
+//            Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(() -> new RuntimeException(""));
+//
+//            Optional<UserPoint> userPoint = userPointRepository.findByUserIdAndTopicId(userId, topicId);
+//
+//            if (userPoint.isEmpty()) {
+//                userPoint = Optional.of(new UserPoint());
+//
+//                userPoint.get().setCurrentPoint(challenge.getPoints());
+//                userPoint.get().setUserId(userId);
+//                userPoint.get().setTopicId(topicId);
+//            } else {
+//                userPoint.get().setCurrentPoint(userPoint.get().getCurrentPoint() + challenge.getPoints());
+//            }
+//
+//            System.out.println(userPoint.get().getCurrentPoint());
+//
+//            userPointRepository.save(userPoint.get());
+
+            userChallengeRepository.save(UserChallenge.builder()
+                    .id(UUID.randomUUID().toString())
+                    .challengeId(challengeId)
+                    .userId(userId)
+                    .status(Status.SOLVED)
+                    .build());
+        }
     }
 
     @Override
@@ -263,40 +316,45 @@ public class ChallengeServiceImpl implements ChallengeService {
             challenges.add(challenge);
         }
 
-        return new PageImpl<>(challenges, pageable, challenges.size());
+        return new PageImpl<>(ListUtils.getPage(challenges, page, size), pageable, challenges.size());
     }
 
     @Override
-    public List<ChallengeResponseDTO> filterChallenge(Map<String, List<String>> fieldValues) {
+    public Page<ChallengeResponseDTO> filterChallenge(int page, int size, List<Challenge> challenges, Map<String, List<String>> fieldValues) {
         User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
 
-        Query query = new Query();
+        Predicate<Challenge> p = Objects::nonNull;
 
-        // Check if "status" field is provided and filter accordingly
         for (Map.Entry<String, List<String>> f : fieldValues.entrySet()) {
             List<String> values = f.getValue();
             if (!values.isEmpty()) {
                 if (Objects.equals(f.getKey(), "status")) {
                     if (values.contains("SOLVED") && values.contains("UNSOLVED")) {
                         // Show all challenges
+                        continue;
                     } else if (values.contains("SOLVED")) {
-                        query.addCriteria(Criteria.where("id").in(getSolvedChallengeIds(authentication.getId())));
+                        p = p.and(challenge -> isChallengeSolved(challenge, authentication.getId()));
                     } else if (values.contains("UNSOLVED")) {
-                        query.addCriteria(Criteria.where("id").nin(getSolvedChallengeIds(authentication.getId())));
+                        p = p.and(challenge -> !isChallengeSolved(challenge, authentication.getId()));
                     }
                 } else {
-                    Criteria criteria = Criteria.where(f.getKey()).in(values);
-                    query.addCriteria(criteria);
+                    String fieldKey = f.getKey();
+                    p = p.and(challenge -> values.contains(challenge.getFieldValue(fieldKey)));
                 }
             }
         }
 
-        List<Challenge> challenges = mongoTemplate.find(query, Challenge.class);
+        challenges = challenges.stream()
+                .filter(p)
+                .collect(Collectors.toList());
+
         List<ChallengeResponseDTO> challengeResponseDTOList = new ArrayList<>();
+
+        List<String> challengeIds = getSolvedChallengeIds(authentication.getId());
 
         for (Challenge challenge : challenges) {
             ChallengeResponseDTO challengeResponseDTO = new ChallengeResponseDTO();
-            if (getSolvedChallengeIds(authentication.getId()).contains(challenge.getId())) {
+            if (challengeIds.contains(challenge.getId())) {
                 challengeResponseDTO.setStatus(Status.SOLVED);
             } else {
                 challengeResponseDTO.setStatus(Status.UNSOLVED);
@@ -305,10 +363,14 @@ public class ChallengeServiceImpl implements ChallengeService {
             challengeResponseDTOList.add(challengeResponseDTO);
         }
 
-        return challengeResponseDTOList
+        return new PageImpl<>(ListUtils.getPage(challengeResponseDTOList
                 .stream()
                 .sorted(Comparator.comparing(ChallengeResponseDTO::getStatus))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()), page, size));
+    }
+
+    private boolean isChallengeSolved(Challenge challenge, String id) {
+        return userChallengeRepository.existsByUserIdAndChallengeId(id, challenge.getId());
     }
 
     private List<String> getSolvedChallengeIds(String userId) {

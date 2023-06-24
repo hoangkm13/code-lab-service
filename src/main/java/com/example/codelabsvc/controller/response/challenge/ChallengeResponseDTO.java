@@ -1,14 +1,9 @@
-package com.example.codelabsvc.controller.response.Challenge;
+package com.example.codelabsvc.controller.response.challenge;
 
-import com.example.codelabsvc.constant.Difficulty;
-import com.example.codelabsvc.constant.Skill;
 import com.example.codelabsvc.constant.Status;
-import com.example.codelabsvc.constant.Subdomain;
 import com.example.codelabsvc.entity.Challenge;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Data
 @NoArgsConstructor

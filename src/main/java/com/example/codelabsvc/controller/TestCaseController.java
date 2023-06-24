@@ -28,7 +28,7 @@ public class TestCaseController {
     }
 
     @GetMapping(value = "{challengeId}", produces = "application/json")
-    public ApiResponse<List<TestCase>> getListTestCaseByUserIdAndChallengeId(@PathVariable String challengeId) throws CustomException, IOException {
+    public ApiResponse<List<TestCase>> getTestCaseSubmissions(@PathVariable String challengeId) throws CustomException, IOException {
         List<TestCase> testCases = testCaseService.getListTestCaseByUserIdAndChallengeId(challengeId);
         return ApiResponse.successWithResult(testCases);
     }
