@@ -7,11 +7,11 @@ import java.util.Objects;
 
 @Getter
 public enum Subdomain {
-    INTRODUCTION("introduction", "Giới thiệu"),
-    CONDITIONALS_AND_LOOPS("conditionals_and_loops", "Điều kiện và vòng lặp"),
-    ARRAYS_AND_STRINGS("arrays_and_strings", "Chuỗi và chuỗi kỹ tự"),
-    FUNCTIONS("functions", "hàm"),
-    STRUCTS_AND_ENUMS("structs and enums", "Cấu trúc và enum");
+    INTRODUCTION("INTRODUCTION", "Giới thiệu"),
+    CONDITIONALS_AND_LOOPS("CONDITIONALS_AND_LOOPS", "Điều kiện và vòng lặp"),
+    ARRAYS_AND_STRINGS("ARRAYS_AND_STRINGS", "Chuỗi và chuỗi kỹ tự"),
+    FUNCTIONS("FUNCTIONS", "hàm"),
+    STRUCTS_AND_ENUMS("STRUCTS_AND_ENUMS", "Cấu trúc và enum");
 
     private final String value;
     private final String reasonPhrase;

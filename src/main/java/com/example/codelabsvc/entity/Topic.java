@@ -1,7 +1,6 @@
 package com.example.codelabsvc.entity;
 
 import lombok.*;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
@@ -21,9 +20,7 @@ public class Topic extends EntityBase {
 
     private String description;
 
-    private Integer totalPoints;
-
     private List<String> challengeIds;
 
-    private List<String> starIds;
+    private Integer totalPoints;
 }

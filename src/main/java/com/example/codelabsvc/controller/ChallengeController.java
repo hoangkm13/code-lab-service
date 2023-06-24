@@ -4,6 +4,7 @@ package com.example.codelabsvc.controller;
 import com.example.codelabsvc.controller.request.challenge.CreateChallengeDTO;
 import com.example.codelabsvc.controller.request.challenge.TestCaseSubmitJson;
 import com.example.codelabsvc.controller.request.challenge.UpdateChallengeDTO;
+import com.example.codelabsvc.controller.response.challenge.ChallengeResponseDTO;
 import com.example.codelabsvc.controller.response.testCase.TestCaseJsonResponse;
 import com.example.codelabsvc.entity.BookmarkedChallenge;
 import com.example.codelabsvc.entity.Challenge;
@@ -52,10 +53,9 @@ public class ChallengeController {
 //        return ApiResponse.successWithResult(challengeService.submitCode(language, challengeId, sourceCode));
 //    }
 
-    @PostMapping(value = "/submit-code-json/{challengeId}", produces = "application/json")
-
-    public ApiResponse<TestCaseJsonResponse> submitCodeJson(@PathVariable("challengeId") String testCaseId,
-                                                            @RequestBody @Valid TestCaseSubmitJson testCaseSubmitJson) throws CustomException, ExecutionException, InterruptedException {
+    @PostMapping(value = "/submit-code-json/{testCaseId}", produces = "application/json")
+    public ApiResponse<TestCaseJsonResponse> submitCodeJson(@PathVariable("testCaseId") String testCaseId,
+                                          @RequestBody @Valid TestCaseSubmitJson testCaseSubmitJson) throws CustomException, ExecutionException, InterruptedException {
         return ApiResponse.successWithResult(challengeService.submitCodeJson(testCaseId, testCaseSubmitJson));
     }
 
@@ -65,8 +65,9 @@ public class ChallengeController {
     }
 
     @GetMapping(value = "/filter", produces = "application/json")
-    public ApiResponse<List<Challenge>> filterChallenges(@RequestBody Map<String, List<String>> fieldValues) {
-        return ApiResponse.successWithResult(challengeService.filterChallenge(fieldValues));
+    public ApiResponse<Page<ChallengeResponseDTO>> filterChallenges(@RequestParam(defaultValue = "1", required = false) int page,
+                                                                    @RequestParam(defaultValue = "5", required = false) int size, @RequestParam List<Challenge> challenges, @RequestParam Map<String, List<String>> fieldValues) {
+        return ApiResponse.successWithResult(challengeService.filterChallenge(page, size, challenges, fieldValues));
     }
 
     @PostMapping(value = "/bookmarked", produces = "application/json")
@@ -84,9 +85,9 @@ public class ChallengeController {
 
 
     @GetMapping(value = "/topic/{topicId}", produces = "application/json")
-    public ApiResponse<Page<Challenge>> listAllChallengeByTopic(@PathVariable String topicId, @RequestParam(defaultValue = "0", required = false) int page,
+    public ApiResponse<Page<ChallengeResponseDTO>> listAllChallengeByTopic(@PathVariable String topicId, @RequestParam(defaultValue = "1", required = false) int page,
                                                                 @RequestParam(defaultValue = "5", required = false) int size) throws CustomException {
-        Page<Challenge> challenges = challengeService.getAllChallengesByTopic(topicId, page, size);
+        Page<ChallengeResponseDTO> challenges = challengeService.getAllChallengesByTopic(topicId, page, size);
         return ApiResponse.successWithResult(challenges);
     }
 }
