@@ -5,7 +5,7 @@ import com.example.codelabsvc.constant.Status;
 import com.example.codelabsvc.controller.request.challenge.CreateChallengeDTO;
 import com.example.codelabsvc.controller.request.challenge.TestCaseSubmitJson;
 import com.example.codelabsvc.controller.request.challenge.UpdateChallengeDTO;
-
+import com.example.codelabsvc.controller.response.challenge.ChallengeResponseDTO;
 import com.example.codelabsvc.controller.response.testCase.TestCaseJsonResponse;
 import com.example.codelabsvc.entity.BookmarkedChallenge;
 import com.example.codelabsvc.entity.Challenge;
@@ -131,7 +131,7 @@ public class ChallengeServiceImpl implements ChallengeService {
 
         return new PageImpl<>(ListUtils.getPage(challengeResponseDTOS
                 .stream()
-                .sorted(Comparator.comparing(ChallengeResponseDTO::getStatus))
+                .sorted(Comparator.comparing(ChallengeResponseDTO::getStatus).reversed())
                 .collect(Collectors.toList()), page, size));
     }
 
