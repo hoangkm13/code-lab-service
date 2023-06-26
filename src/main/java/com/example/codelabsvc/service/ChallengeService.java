@@ -16,6 +16,7 @@ import java.util.concurrent.ExecutionException;
 
 public interface ChallengeService {
 
+    List<Challenge> searchChallenge(String challengeName) throws CustomException;
     Challenge createChallenge(CreateChallengeDTO createChallengeDTO) throws CustomException;
 
     Page<ChallengeResponseDTO> getAllChallengesByTopic(String topicId, int page, int size) throws CustomException;
