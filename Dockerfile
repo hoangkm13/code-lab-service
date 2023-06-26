@@ -1,26 +1,12 @@
-# Build stage
+FROM maven:3.8.3-openjdk-11-slim AS build
+COPY src /home/app/src
+COPY pom.xml /home/app
+RUN mvn -f /home/app/pom.xml -B package -DskipTests
 
-FROM maven:3.6.0 AS BUILD_STAGE
-WORKDIR /compiler
-COPY . .
-RUN ["mvn", "clean", "install", "-Dmaven.test.skip=true"]
+FROM adoptopenjdk:11-jre-hotspot
+COPY --from=build "/home/app/target/code-lab-svc-0.0.1-SNAPSHOT.jar" "/opt/code-lab-svc.jar"
 
-# Run stage
-FROM openjdk:11.0.6-jre-slim
-WORKDIR /compiler
+EXPOSE 8004
 
-USER root
+ENTRYPOINT ["java", "-jar", "/opt/code-lab-svc.jar"]
 
-COPY --from=BUILD_STAGE /compiler/target/*.jar ../compiler.jar
-
-RUN apt update && apt install -y docker.io
-    
-ADD executions ../executions
-
-ADD entrypoint.sh ../entrypoint.sh
-
-RUN chmod a+x ../entrypoint.sh
-
-EXPOSE 8082
-
-ENTRYPOINT ["../entrypoint.sh"]
