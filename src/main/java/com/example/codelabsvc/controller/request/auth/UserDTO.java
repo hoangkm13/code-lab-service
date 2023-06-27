@@ -37,6 +37,12 @@ public class UserDTO {
     @Length(max = 20, min = 6)
     private String password;
 
+    private String country;
+
+    private String github;
+
+    private String facebook;
+
     private String avatar;
 
     private String role;

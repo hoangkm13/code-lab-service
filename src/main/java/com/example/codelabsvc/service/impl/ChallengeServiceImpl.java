@@ -3,6 +3,7 @@ package com.example.codelabsvc.service.impl;
 import com.example.codelabsvc.constant.ErrorCode;
 import com.example.codelabsvc.constant.Status;
 import com.example.codelabsvc.controller.request.challenge.CreateChallengeDTO;
+import com.example.codelabsvc.controller.request.challenge.FilterChallengeRequest;
 import com.example.codelabsvc.controller.request.challenge.TestCaseSubmitJson;
 import com.example.codelabsvc.controller.request.challenge.UpdateChallengeDTO;
 import com.example.codelabsvc.controller.response.challenge.ChallengeResponseDTO;
@@ -224,26 +225,6 @@ public class ChallengeServiceImpl implements ChallengeService {
 
     private void checkResult(String verdict, String challengeId, String userId) {
         if (verdict.equals("Accepted") && !userChallengeRepository.existsByUserIdAndChallengeId(userId, challengeId)) {
-
-//            String topicId = topicRepository.findByChallengeIds(challengeId).getId();
-//            Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(() -> new RuntimeException(""));
-//
-//            Optional<UserPoint> userPoint = userPointRepository.findByUserIdAndTopicId(userId, topicId);
-//
-//            if (userPoint.isEmpty()) {
-//                userPoint = Optional.of(new UserPoint());
-//
-//                userPoint.get().setCurrentPoint(challenge.getPoints());
-//                userPoint.get().setUserId(userId);
-//                userPoint.get().setTopicId(topicId);
-//            } else {
-//                userPoint.get().setCurrentPoint(userPoint.get().getCurrentPoint() + challenge.getPoints());
-//            }
-//
-//            System.out.println(userPoint.get().getCurrentPoint());
-//
-//            userPointRepository.save(userPoint.get());
-
             userChallengeRepository.save(UserChallenge.builder()
                     .id(UUID.randomUUID().toString())
                     .challengeId(challengeId)
@@ -329,12 +310,12 @@ public class ChallengeServiceImpl implements ChallengeService {
     }
 
     @Override
-    public Page<ChallengeResponseDTO> filterChallenge(int page, int size, List<Challenge> challenges, Map<String, List<String>> fieldValues) {
+    public Page<ChallengeResponseDTO> filterChallenge(FilterChallengeRequest filterChallengeRequest) {
         User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
 
         Predicate<Challenge> p = Objects::nonNull;
 
-        for (Map.Entry<String, List<String>> f : fieldValues.entrySet()) {
+        for (Map.Entry<String, List<String>> f : filterChallengeRequest.getFieldValues().entrySet()) {
             List<String> values = f.getValue();
             if (!values.isEmpty()) {
                 if (Objects.equals(f.getKey(), "status")) {
@@ -353,15 +334,15 @@ public class ChallengeServiceImpl implements ChallengeService {
             }
         }
 
-        challenges = challenges.stream()
+        filterChallengeRequest.setChallenges(filterChallengeRequest.getChallenges().stream()
                 .filter(p)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
 
         List<ChallengeResponseDTO> challengeResponseDTOList = new ArrayList<>();
 
         List<String> challengeIds = getSolvedChallengeIds(authentication.getId());
 
-        for (Challenge challenge : challenges) {
+        for (Challenge challenge : filterChallengeRequest.getChallenges()) {
             ChallengeResponseDTO challengeResponseDTO = new ChallengeResponseDTO();
             if (challengeIds.contains(challenge.getId())) {
                 challengeResponseDTO.setStatus(Status.SOLVED);
@@ -375,7 +356,7 @@ public class ChallengeServiceImpl implements ChallengeService {
         return new PageImpl<>(ListUtils.getPage(challengeResponseDTOList
                 .stream()
                 .sorted(Comparator.comparing(ChallengeResponseDTO::getStatus))
-                .collect(Collectors.toList()), page, size));
+                .collect(Collectors.toList()), filterChallengeRequest.getPage() > 0 ? filterChallengeRequest.getPage() : 1, filterChallengeRequest.getSize()));
     }
 
     private boolean isChallengeSolved(Challenge challenge, String id) {

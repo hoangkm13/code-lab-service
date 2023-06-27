@@ -1,6 +1,7 @@
 package com.example.codelabsvc.service.impl;
 
 import com.example.codelabsvc.constant.ErrorCode;
+import com.example.codelabsvc.constant.FileConfig;
 import com.example.codelabsvc.constant.Role;
 import com.example.codelabsvc.controller.request.auth.ResetPasswordDTO;
 import com.example.codelabsvc.controller.request.auth.UpdateUserDTO;
@@ -10,6 +11,7 @@ import com.example.codelabsvc.exception.CustomException;
 import com.example.codelabsvc.repository.UserRepository;
 import com.example.codelabsvc.service.UserService;
 import com.example.codelabsvc.util.AuthUtils;
+import com.example.codelabsvc.util.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,7 +22,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -50,10 +55,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public User findByUsername(String username) throws CustomException {
+    public User findByUsername(String username) throws CustomException, IOException {
         Optional<User> optionalUser = userRepository.findByUsername(username);
         if (optionalUser.isEmpty()) {
             throw new CustomException(ErrorCode.USER_NOT_EXIST);
+        }
+        File file = new File(FileConfig.PRE_PATH_AVATAR + optionalUser.get().getId() + ".jpg");
+
+        if (file.exists()) {
+            optionalUser.get().setAvatar(Arrays.toString(FileUtils.convertFileToBytes(file)));
         }
         return optionalUser.get();
     }
@@ -77,6 +87,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         User.setEmail(UserDTO.getEmail());
         User.setFirstName(UserDTO.getFirstName());
         User.setLastName(UserDTO.getLastName());
+        User.setCountry(UserDTO.getCountry());
         User.setPasswordHash(passwordEncoder.encode(UserDTO.getPassword()));
         return userRepository.save(User);
     }
@@ -101,14 +112,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public User preCheckUpdateUserInfo(UpdateUserDTO updateUserDTO, String currentUserId, String UserId) throws CustomException {
+    public User preCheckUpdateUserInfo(UpdateUserDTO updateUserDTO, String currentUserId, String UserId, MultipartFile avatarFile) throws CustomException, IOException {
         var existedUser = this.findById(currentUserId);
 
         if (!Objects.equals(UserId, existedUser.getId())) {
             throw new CustomException(ErrorCode.UNAUTHORIZED);
         }
 
-        return this.updateUser(updateUserDTO, existedUser);
+        return this.updateUser(updateUserDTO, existedUser, avatarFile);
     }
 
     @Override
@@ -124,7 +135,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return this.userRepository.save(existedUser);
     }
 
-    private User updateUser(UpdateUserDTO updateUserDTO, User existedUser) {
+    private User updateUser(UpdateUserDTO updateUserDTO, User existedUser, MultipartFile avatarFile) throws IOException {
+
+        FileUtils fileUtils = new FileUtils();
 
         existedUser.setGender(updateUserDTO.getGender() != null ? updateUserDTO.getGender() : existedUser.getGender());
         existedUser.setBirthOfDate(updateUserDTO.getBirthOfDate() != null ? updateUserDTO.getBirthOfDate() : existedUser.getBirthOfDate());
@@ -133,6 +146,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         existedUser.setFirstName(updateUserDTO.getFirstName() != null ? updateUserDTO.getFirstName() : existedUser.getFirstName());
         existedUser.setLastName(updateUserDTO.getLastName() != null ? updateUserDTO.getLastName() : existedUser.getLastName());
         existedUser.setEmail(updateUserDTO.getEmail() != null ? updateUserDTO.getEmail() : existedUser.getEmail());
+        existedUser.setGithub(updateUserDTO.getGithub() != null ? updateUserDTO.getGithub() : existedUser.getGithub());
+        existedUser.setFacebook(updateUserDTO.getFacebook() != null ? updateUserDTO.getFacebook() : existedUser.getFacebook());
+        existedUser.setAvatar(existedUser.getId());
+        existedUser.setCountry(updateUserDTO.getCountry() != null ? updateUserDTO.getCountry() : existedUser.getCountry());
+
+        fileUtils.createFileSave(avatarFile, FileConfig.PRE_PATH_AVATAR, existedUser.getId() + ".jpg");
 
         this.userRepository.save(existedUser);
 

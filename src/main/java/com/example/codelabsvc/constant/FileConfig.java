@@ -5,4 +5,5 @@ public class FileConfig {
     public static final String EXPECTED_OUTPUT_FILE_NAME = "expectedOutput.txt";
     public static final String TEXT_PLAIN_CONTENT_TYPE = "text/plain";
     public static final String PRE_PATH = "loadtests/test-case/";
+    public static final String PRE_PATH_AVATAR = "user/avatar/";
 }

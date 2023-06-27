@@ -13,11 +13,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.io.IOException;
 
 @RestController
-@CrossOrigin("*")
+@CrossOrigin("http://localhost:8080/")
 @RequestMapping("v1/auth")
 public class UserController {
     private final AuthenticationManager authenticationManager;
@@ -36,7 +38,7 @@ public class UserController {
 
 
     @PostMapping(value = "/login", produces = "application/json")
-    public ApiResponse<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequestDTO) throws CustomException {
+    public ApiResponse<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequestDTO) throws CustomException, IOException {
         var user = userService.findByUsername(loginRequestDTO.getUsername());
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 loginRequestDTO.getUsername(),
@@ -49,7 +51,7 @@ public class UserController {
     }
 
     @GetMapping(produces = "application/json")
-    public ApiResponse<UserDTO> getCurrentUser() throws CustomException {
+    public ApiResponse<UserDTO> getCurrentUser() throws CustomException, IOException {
         User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
         User User = userService.findByUsername(authentication.getUsername());
         return ApiResponse.successWithResult(modelMapper.map(User, UserDTO.class));
@@ -62,9 +64,9 @@ public class UserController {
     }
 
     @PutMapping(value = "{UserId}", produces = "application/json")
-    public ApiResponse<UserDTO> updateUser(@PathVariable String UserId, @Valid @RequestBody UpdateUserDTO UserDTO) throws CustomException {
+    public ApiResponse<UserDTO> updateUser(@PathVariable String UserId, @Valid @RequestPart UpdateUserDTO UserDTO, @RequestPart MultipartFile avatarFile) throws CustomException, IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        var User = userService.preCheckUpdateUserInfo(UserDTO, authentication.getPrincipal().toString(), UserId);
+        var User = userService.preCheckUpdateUserInfo(UserDTO, authentication.getPrincipal().toString(), UserId, avatarFile);
         return ApiResponse.successWithResult(modelMapper.map(User, UserDTO.class));
     }
 
