@@ -19,7 +19,6 @@ import javax.validation.Valid;
 import java.io.IOException;
 
 @RestController
-@CrossOrigin("http://localhost:8080/")
 @RequestMapping("v1/auth")
 public class UserController {
     private final AuthenticationManager authenticationManager;
