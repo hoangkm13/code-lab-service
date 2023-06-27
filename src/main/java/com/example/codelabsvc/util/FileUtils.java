@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
-import java.util.Date;
 import java.util.Objects;
 
 @Component
@@ -25,10 +24,10 @@ public class FileUtils {
         String path = FileConfig.PRE_PATH + testCaseId;
 
         MultipartFile inputFile = new MockMultipartFile(inputName, inputOriginalFileName, contentType, inputData);
-        saveMultipartFile(inputFile, path);
+        createFileSave(inputFile, path);
 
         MultipartFile expectedOutputFile = new MockMultipartFile(expectedOutputName, expectedOutputOriginalFileName, contentType, expectedOutputData);
-        saveMultipartFile(expectedOutputFile, path);
+        createFileSave(expectedOutputFile, path);
 
         CreateTestCaseFilePathResponse testCaseRequirementAndResponse = new CreateTestCaseFilePathResponse();
         testCaseRequirementAndResponse.setInputFilePath(path + "/" + inputFile.getName());
@@ -37,10 +36,18 @@ public class FileUtils {
         return testCaseRequirementAndResponse;
     }
 
-    private void saveMultipartFile(MultipartFile multipartFile, String path) throws IOException {
+    public void createFileSave(MultipartFile multipartFile, String path, String subPath) throws IOException {
         InputStream inputStream = multipartFile.getInputStream();
 
-        File destinationFile = new File(path, Objects.requireNonNull(multipartFile.getOriginalFilename()));
+        saveMultipartFile(inputStream, new File(path, subPath));
+    }
+
+    public void createFileSave(MultipartFile multipartFile, String path) throws IOException {
+        InputStream inputStream = multipartFile.getInputStream();
+        saveMultipartFile(inputStream, new File(path, Objects.requireNonNull(multipartFile.getOriginalFilename())));
+    }
+
+    private void saveMultipartFile(InputStream inputStream, File destinationFile) throws IOException {
 
         destinationFile.getParentFile().mkdirs();
 
@@ -63,7 +70,11 @@ public class FileUtils {
 
         return str;
     }
+    public static byte[] convertFileToBytes(File file) throws IOException {
+        byte[] fileBytes = org.apache.commons.io.FileUtils.readFileToByteArray(file);
 
+        return fileBytes;
+    }
     public static void main(String[] args) throws IOException {
         System.out.printf(convertFileToString(null));
     }

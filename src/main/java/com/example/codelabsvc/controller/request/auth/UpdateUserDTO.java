@@ -13,6 +13,7 @@ import javax.validation.constraints.Size;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateUserDTO {
+
     @Length(max = 20, min = 6)
     private String username;
 
@@ -30,4 +31,10 @@ public class UpdateUserDTO {
     @Email(message = "Sai định dạng email !")
     @Size(max = 256, message = "Mail Tối đa 256 ký tự !")
     private String email;
+
+    private String github;
+
+    private String facebook;
+
+    private String country;
 }

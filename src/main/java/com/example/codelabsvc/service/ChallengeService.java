@@ -1,6 +1,7 @@
 package com.example.codelabsvc.service;
 
 import com.example.codelabsvc.controller.request.challenge.CreateChallengeDTO;
+import com.example.codelabsvc.controller.request.challenge.FilterChallengeRequest;
 import com.example.codelabsvc.controller.request.challenge.TestCaseSubmitJson;
 import com.example.codelabsvc.controller.request.challenge.UpdateChallengeDTO;
 import com.example.codelabsvc.controller.response.challenge.ChallengeResponseDTO;
@@ -35,5 +36,5 @@ public interface ChallengeService {
 
     Challenge deleteChallenge(String id) throws CustomException;
 
-    Page<ChallengeResponseDTO> filterChallenge(int page, int size, List<Challenge> challenges, Map<String, List<String>> fieldValues);
+    Page<ChallengeResponseDTO> filterChallenge(FilterChallengeRequest filterChallengeRequest);
 }
