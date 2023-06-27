@@ -2,6 +2,7 @@ package com.example.codelabsvc.controller;
 
 
 import com.example.codelabsvc.controller.request.challenge.CreateChallengeDTO;
+import com.example.codelabsvc.controller.request.challenge.FilterChallengeRequestDTO;
 import com.example.codelabsvc.controller.request.challenge.TestCaseSubmitJson;
 import com.example.codelabsvc.controller.request.challenge.UpdateChallengeDTO;
 import com.example.codelabsvc.controller.response.challenge.ChallengeResponseDTO;
@@ -64,10 +65,9 @@ public class ChallengeController {
         return ApiResponse.successWithResult(challengeService.getChallengeById(id));
     }
 
-    @GetMapping(value = "/filter", produces = "application/json")
-    public ApiResponse<Page<ChallengeResponseDTO>> filterChallenges(@RequestParam(defaultValue = "1", required = false) int page,
-                                                                    @RequestParam(defaultValue = "5", required = false) int size, @RequestParam List<Challenge> challenges, @RequestParam Map<String, List<String>> fieldValues) {
-        return ApiResponse.successWithResult(challengeService.filterChallenge(page, size, challenges, fieldValues));
+    @PostMapping(value = "/filter", produces = "application/json")
+    public ApiResponse<Page<ChallengeResponseDTO>> filterChallenges(@RequestBody @Valid FilterChallengeRequestDTO requestDTO) {
+        return ApiResponse.successWithResult(challengeService.filterChallenge(requestDTO.getPage(), requestDTO.getSize(),requestDTO.getChallenges(), requestDTO.getFieldValues()));
     }
 
     @PostMapping(value = "/bookmarked", produces = "application/json")
