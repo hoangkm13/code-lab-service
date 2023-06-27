@@ -28,7 +28,7 @@ public class TestCaseServiceImpl implements TestCaseService {
     }
 
     @Override
-    public TestCase createTestCase(CreateTestCaseDTO createTestCaseDTO) throws CustomException, IOException {
+    public TestCase createTestCase(CreateTestCaseDTO createTestCaseDTO) throws CustomException {
 
         var existedTestCase = this.testCaseRepository.findByName(createTestCaseDTO.getName());
 
