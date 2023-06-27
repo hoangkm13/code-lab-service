@@ -35,6 +35,12 @@ public class ChallengeController {
         return ApiResponse.successWithResult(challenge);
     }
 
+    @PostMapping(value = "search-challenge/{challengeName}", produces = "application/json")
+    public ApiResponse<List<Challenge>> searchChallenge(@Valid @PathVariable String challengeName) throws CustomException {
+        List<Challenge> challenges = challengeService.searchChallenge(challengeName);
+        return ApiResponse.successWithResult(challenges);
+    }
+
     @PutMapping(value = "", produces = "application/json")
     public ApiResponse<Challenge> updateChallenge(@Valid @RequestBody UpdateChallengeDTO updateChallengeDTO) throws CustomException {
         Challenge challenge = challengeService.updateChallenge(updateChallengeDTO);

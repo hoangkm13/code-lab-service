@@ -65,6 +65,15 @@ public class ChallengeServiceImpl implements ChallengeService {
 
 
     @Override
+    public List<Challenge> searchChallenge(String challengeName) throws CustomException {
+        if (challengeName == null) {
+            throw new CustomException(ErrorCode.CHALLENGE_NOT_EXISTED_OR_INVALID);
+        }
+        return this.challengeRepository.searchChallengeByNameLike(challengeName);
+
+    }
+
+    @Override
     public Challenge createChallenge(CreateChallengeDTO createChallengeDTO) throws CustomException {
         User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
         Challenge challenge = new Challenge();
