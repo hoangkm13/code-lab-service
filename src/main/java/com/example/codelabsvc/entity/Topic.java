@@ -23,6 +23,6 @@ public class Topic extends EntityBase {
     private String imageUrl;
 
     private List<String> challengeIds;
-
+    private Integer totalPoints;
 
 }

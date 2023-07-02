@@ -1,10 +1,7 @@
 package com.example.codelabsvc.controller;
 
 
-import com.example.codelabsvc.controller.request.challenge.CreateChallengeDTO;
-import com.example.codelabsvc.controller.request.challenge.FilterChallengeRequestDTO;
-import com.example.codelabsvc.controller.request.challenge.TestCaseSubmitJson;
-import com.example.codelabsvc.controller.request.challenge.UpdateChallengeDTO;
+import com.example.codelabsvc.controller.request.challenge.*;
 import com.example.codelabsvc.controller.response.challenge.ChallengeResponseDTO;
 import com.example.codelabsvc.controller.response.testCase.TestCaseJsonResponse;
 import com.example.codelabsvc.entity.BookmarkedChallenge;
@@ -74,7 +71,7 @@ public class ChallengeController {
     @PostMapping(value = "/filter", produces = "application/json")
      public ApiResponse<Page<ChallengeResponseDTO>> filterChallenges(@RequestBody FilterChallengeRequest filterChallengeRequest) {
         return ApiResponse.successWithResult(challengeService.filterChallenge(filterChallengeRequest));
-         
+    }
     @PostMapping(value = "/bookmarked", produces = "application/json")
     public ApiResponse<BookmarkedChallenge> changeBookmarkedChallenge(@RequestParam String challengeId) throws CustomException {
         BookmarkedChallenge bookmarkedChallenge = challengeService.changeBookmarkStatus(challengeId);
