@@ -154,7 +154,7 @@ public class TopicServiceImpl implements TopicService {
     public List<UserTopic> ranking(String topicId) {
         var allUserTopic = this.userTopicRepository.findUserTopicByTopicId(topicId);
 
-        List<UserTopic> rankedList = allUserTopic.stream().sorted(Comparator.comparingInt(UserTopic::getUserPoints)).collect(Collectors.toList());
+        List<UserTopic> rankedList = allUserTopic.stream().sorted(Comparator.comparingInt(UserTopic::getUserPoints).reversed()).collect(Collectors.toList());
 
         return rankedList;
     }

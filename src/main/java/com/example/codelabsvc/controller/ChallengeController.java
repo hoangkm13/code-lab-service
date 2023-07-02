@@ -1,10 +1,7 @@
 package com.example.codelabsvc.controller;
 
 
-import com.example.codelabsvc.controller.request.challenge.CreateChallengeDTO;
-import com.example.codelabsvc.controller.request.challenge.FilterChallengeRequestDTO;
-import com.example.codelabsvc.controller.request.challenge.TestCaseSubmitJson;
-import com.example.codelabsvc.controller.request.challenge.UpdateChallengeDTO;
+import com.example.codelabsvc.controller.request.challenge.*;
 import com.example.codelabsvc.controller.response.challenge.ChallengeResponseDTO;
 import com.example.codelabsvc.controller.response.testCase.TestCaseJsonResponse;
 import com.example.codelabsvc.entity.BookmarkedChallenge;
@@ -18,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
+
 import java.util.concurrent.ExecutionException;
 
 @RestController
@@ -72,8 +69,9 @@ public class ChallengeController {
     }
 
     @PostMapping(value = "/filter", produces = "application/json")
-    public ApiResponse<Page<ChallengeResponseDTO>> filterChallenges(@RequestBody @Valid FilterChallengeRequestDTO requestDTO) {
-        return ApiResponse.successWithResult(challengeService.filterChallenge(requestDTO.getPage(), requestDTO.getSize(),requestDTO.getChallenges(), requestDTO.getFieldValues()));
+    public ApiResponse<Page<ChallengeResponseDTO>> filterChallenges(@RequestBody @Valid FilterChallengeRequest requestDTO) {
+
+        return ApiResponse.successWithResult(challengeService.filterChallenge(requestDTO));
     }
 
     @PostMapping(value = "/bookmarked", produces = "application/json")

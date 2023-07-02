@@ -25,5 +25,5 @@ public class Topic extends EntityBase {
 
     private List<String> challengeIds;
 
-    private Integer totalPoints;
+
 }
