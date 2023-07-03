@@ -1,6 +1,7 @@
 package com.example.codelabsvc.controller;
 
 import com.example.codelabsvc.controller.request.topic.TopicDTO;
+import com.example.codelabsvc.controller.response.topic.ListTopicsPercentResponse;
 import com.example.codelabsvc.entity.Topic;
 import com.example.codelabsvc.entity.User;
 import com.example.codelabsvc.entity.UserTopic;
@@ -59,5 +60,9 @@ public class TopicController {
         return ApiResponse.successWithResult(topic);
     }
 
-
+    @GetMapping(value = "/point", produces = "application/json")
+    public ApiResponse<List<ListTopicsPercentResponse>> getAllTopicsWithPoint() throws CustomException{
+        List<ListTopicsPercentResponse> topics = topicService.getAllTopicWithPoint();
+        return ApiResponse.successWithResult(topics);
+    }
 }

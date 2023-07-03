@@ -32,8 +32,6 @@ public class Challenge extends EntityBase {
 
     private String issue;
 
-    private List<String> bonusIds;
-
     public String getFieldValue(String fieldName) {
         switch (fieldName) {
             case "skill":

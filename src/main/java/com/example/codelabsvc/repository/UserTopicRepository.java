@@ -12,4 +12,6 @@ public interface UserTopicRepository extends MongoRepository<UserTopic, String> 
     UserTopic findUserTopicByUserIdAndTopicId(String userId, String topicId);
     @Query("{'topicId' :  ?0}")
     List<UserTopic> findUserTopicByTopicId(String topicId);
+
+    List<UserTopic> findAllByUserId(String userId);
 }

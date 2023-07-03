@@ -8,11 +8,18 @@ import com.example.codelabsvc.service.PreScriptService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/v1/prescript")
 public class PrescriptController {
     @Autowired
     private PreScriptService preScriptService;
+
+    @GetMapping(value = "", produces = "application/json")
+    public ApiResponse<List<PreScript>> getAllPrescripts() {
+        return ApiResponse.successWithResult(preScriptService.getAllPrescripts());
+    }
     
 
     @PostMapping(value = "", produces = "application/json")
