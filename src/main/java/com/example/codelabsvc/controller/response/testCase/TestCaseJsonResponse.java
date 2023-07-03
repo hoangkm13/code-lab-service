@@ -21,5 +21,4 @@ public class TestCaseJsonResponse {
     private Integer memoryLimit;
     private String language;
     private String dateTime;
-
 }
