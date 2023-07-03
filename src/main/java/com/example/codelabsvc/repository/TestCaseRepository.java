@@ -15,4 +15,7 @@ public interface TestCaseRepository extends MongoRepository<TestCase, String> {
     List<TestCase> findTestCasesByTestCaseIds(List<String> testCaseIds);
     @Query("{'challengeId' : ?0, 'userId': ?1 }")
     List<TestCase> findTestCaseByChallengeIdAndUserId(String challengeId, String userId);
+
+    @Query(value = "{ 'userId' : { $exists: false } }")
+    TestCase findByChallengeIdAndUserIdIsEmpty(String challengeId);
 }

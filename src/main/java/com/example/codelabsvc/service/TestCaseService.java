@@ -12,4 +12,6 @@ public interface TestCaseService {
 
     List<TestCase> getListTestCaseByUserIdAndChallengeId(String challengeId) throws IOException, CustomException;
 
+    TestCase getTestCaseTemplateByChallengeId(String id);
+
 }
