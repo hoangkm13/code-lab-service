@@ -10,6 +10,7 @@ import com.example.codelabsvc.service.PreScriptService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -21,6 +22,11 @@ public class PreScriptServiceImpl implements PreScriptService {
     @Autowired
     private ChallengeService challengeService;
 
+
+    @Override
+    public List<PreScript> getAllPrescripts() {
+        return preScriptRepository.findAll();
+    }
 
     @Override
     public PreScript createPrescript(PrescriptDTO prescriptDTO) throws CustomException {

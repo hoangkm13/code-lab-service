@@ -1,7 +1,10 @@
 package com.example.codelabsvc.controller;
 
 
-import com.example.codelabsvc.controller.request.challenge.*;
+import com.example.codelabsvc.controller.request.challenge.CreateChallengeDTO;
+import com.example.codelabsvc.controller.request.challenge.FilterChallengeRequest;
+import com.example.codelabsvc.controller.request.challenge.TestCaseSubmitJson;
+import com.example.codelabsvc.controller.request.challenge.UpdateChallengeDTO;
 import com.example.codelabsvc.controller.response.challenge.ChallengeResponseDTO;
 import com.example.codelabsvc.controller.response.testCase.TestCaseJsonResponse;
 import com.example.codelabsvc.entity.BookmarkedChallenge;
@@ -15,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @RestController
@@ -68,10 +70,11 @@ public class ChallengeController {
         return ApiResponse.successWithResult(challengeService.getChallengeById(id));
     }
 
-    @PostMapping(value = "/filter", produces = "application/json")
-     public ApiResponse<Page<ChallengeResponseDTO>> filterChallenges(@RequestBody FilterChallengeRequest filterChallengeRequest) {
+    @GetMapping(value = "/filter", produces = "application/json")
+    public ApiResponse<Page<ChallengeResponseDTO>> filterChallenges(@RequestBody FilterChallengeRequest filterChallengeRequest) {
         return ApiResponse.successWithResult(challengeService.filterChallenge(filterChallengeRequest));
     }
+
     @PostMapping(value = "/bookmarked", produces = "application/json")
     public ApiResponse<BookmarkedChallenge> changeBookmarkedChallenge(@RequestParam String challengeId) throws CustomException {
         BookmarkedChallenge bookmarkedChallenge = challengeService.changeBookmarkStatus(challengeId);

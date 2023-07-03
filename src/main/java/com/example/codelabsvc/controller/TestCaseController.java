@@ -21,6 +21,11 @@ public class TestCaseController {
     @Autowired
     private TestCaseService testCaseService;
 
+    @GetMapping(value = "/{challengeId}/template", produces = "application/json")
+    public ApiResponse<TestCase> getTestcaseTemplate(@PathVariable String challengeId){
+        return ApiResponse.successWithResult(testCaseService.getTestCaseTemplateByChallengeId(challengeId));
+    }
+
     @PostMapping(produces = "application/json")
     public ApiResponse<TestCase> createTestCase(@Valid @RequestBody CreateTestCaseDTO createTestCase) throws CustomException, IOException {
         TestCase testCase = testCaseService.createTestCase(createTestCase);

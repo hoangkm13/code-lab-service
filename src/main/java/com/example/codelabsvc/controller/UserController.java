@@ -8,6 +8,7 @@ import com.example.codelabsvc.service.UserService;
 import com.example.codelabsvc.util.TokenUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -63,7 +64,7 @@ public class UserController {
     }
 
     @PutMapping(value = "{UserId}", produces = "application/json")
-    public ApiResponse<UserDTO> updateUser(@PathVariable String UserId, @Valid @RequestPart UpdateUserDTO UserDTO, @RequestPart MultipartFile avatarFile) throws CustomException, IOException {
+    public ApiResponse<UserDTO> updateUser(@PathVariable String UserId, @Valid @RequestPart UpdateUserDTO UserDTO, @RequestPart(required = false) MultipartFile avatarFile) throws CustomException, IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         var User = userService.preCheckUpdateUserInfo(UserDTO, authentication.getPrincipal().toString(), UserId, avatarFile);
         return ApiResponse.successWithResult(modelMapper.map(User, UserDTO.class));

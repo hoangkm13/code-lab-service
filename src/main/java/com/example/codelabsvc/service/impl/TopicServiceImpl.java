@@ -2,6 +2,7 @@ package com.example.codelabsvc.service.impl;
 
 import com.example.codelabsvc.constant.ErrorCode;
 import com.example.codelabsvc.controller.request.topic.TopicDTO;
+import com.example.codelabsvc.controller.response.topic.ListTopicsPercentResponse;
 import com.example.codelabsvc.entity.*;
 import com.example.codelabsvc.exception.CustomException;
 import com.example.codelabsvc.repository.ChallengeRepository;
@@ -157,5 +158,31 @@ public class TopicServiceImpl implements TopicService {
         List<UserTopic> rankedList = allUserTopic.stream().sorted(Comparator.comparingInt(UserTopic::getUserPoints).reversed()).collect(Collectors.toList());
 
         return rankedList;
+    }
+
+    @Override
+    public List<ListTopicsPercentResponse> getAllTopicWithPoint() throws CustomException {
+        User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+
+        List<ListTopicsPercentResponse> listTopicsPercentRespons = new ArrayList<>();
+
+        List<UserTopic> userTopics = userTopicRepository.findAllByUserId(authentication.getId())
+                .stream()
+                .sorted(Comparator.comparing(UserTopic::getId))
+                .collect(Collectors.toList());
+
+        List<Topic> topics = topicRepository.findAllById(userTopics
+                .stream().map(UserTopic::getTopicId).collect(Collectors.toList()));
+
+        if(topics.size() != userTopics.size()){
+            throw new CustomException(ErrorCode.TOPIC_NOT_EXIST);
+        }
+
+        for (int i = 0; i < userTopics.size(); i++) {
+            listTopicsPercentRespons.add(new ListTopicsPercentResponse(topics.get(i),
+                    userTopics.get(i).getUserPoints() * 100 / userTopics.get(i).getTotalPoints()));
+        }
+
+        return listTopicsPercentRespons;
     }
 }
