@@ -32,6 +32,8 @@ public class UpdateUserDTO {
     @Size(max = 256, message = "Mail Tối đa 256 ký tự !")
     private String email;
 
+    private String website;
+
     private String github;
 
     private String facebook;

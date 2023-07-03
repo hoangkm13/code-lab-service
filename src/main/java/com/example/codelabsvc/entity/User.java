@@ -39,6 +39,8 @@ public class User {
 
     private String role;
 
+    private String website;
+
     private String github;
 
     private String facebook;
