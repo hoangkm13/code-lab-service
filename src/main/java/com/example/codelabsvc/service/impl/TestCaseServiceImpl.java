@@ -11,7 +11,6 @@ import com.example.codelabsvc.util.FileUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -58,5 +57,10 @@ public class TestCaseServiceImpl implements TestCaseService {
         }
 
         return listExistedTestCases;
+    }
+
+    @Override
+    public TestCase getTestCaseTemplateByChallengeId(String id) {
+        return testCaseRepository.findByChallengeIdAndUserIdIsEmpty(id);
     }
 }
