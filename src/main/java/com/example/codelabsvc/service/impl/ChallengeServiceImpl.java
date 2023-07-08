@@ -364,8 +364,7 @@ public class ChallengeServiceImpl implements ChallengeService {
     }
 
     private List<String> getSolvedChallengeIds(String userId) {
-        Query solvedQuery = new Query(Criteria.where("status").is("SOLVED").and("userId").is(userId));
-        solvedQuery.fields().include("challengeId");
+        Query solvedQuery = new Query(Criteria.where("userId").is(userId));
 
         List<UserChallenge> solvedChallenges = mongoTemplate.find(solvedQuery, UserChallenge.class);
 
