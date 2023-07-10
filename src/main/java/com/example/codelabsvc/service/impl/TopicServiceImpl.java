@@ -56,6 +56,7 @@ public class TopicServiceImpl implements TopicService {
         for (Challenge challenge : listChallenges) {
             totalPoints = totalPoints + challenge.getPoints();
         }
+
         topic.setTotalPoints(totalPoints);
 
         this.topicRepository.save(topic);
@@ -76,8 +77,6 @@ public class TopicServiceImpl implements TopicService {
         userTopic.setTotalPoints(totalPoints);
         userTopic.setUserPoints(userPoints);
         this.userTopicRepository.save(userTopic);
-
-
         return userTopic;
     }
 
@@ -155,7 +154,7 @@ public class TopicServiceImpl implements TopicService {
     public List<UserTopic> ranking(String topicId) {
         var allUserTopic = this.userTopicRepository.findUserTopicByTopicId(topicId);
 
-        List<UserTopic> rankedList = allUserTopic.stream().sorted(Comparator.comparingInt(UserTopic::getUserPoints)).collect(Collectors.toList());
+        List<UserTopic> rankedList = allUserTopic.stream().sorted(Comparator.comparingInt(UserTopic::getUserPoints).reversed()).collect(Collectors.toList());
 
         return rankedList;
     }

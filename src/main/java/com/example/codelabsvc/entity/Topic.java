@@ -20,7 +20,9 @@ public class Topic extends EntityBase {
 
     private String description;
 
-    private List<String> challengeIds;
+    private String imageUrl;
 
+    private List<String> challengeIds;
     private Integer totalPoints;
+
 }
