@@ -70,7 +70,7 @@ public class ChallengeController {
         return ApiResponse.successWithResult(challengeService.getChallengeById(id));
     }
 
-    @GetMapping(value = "/filter", produces = "application/json")
+    @PostMapping(value = "/filter", produces = "application/json")
     public ApiResponse<Page<ChallengeResponseDTO>> filterChallenges(@RequestBody FilterChallengeRequest filterChallengeRequest) {
         return ApiResponse.successWithResult(challengeService.filterChallenge(filterChallengeRequest));
     }
