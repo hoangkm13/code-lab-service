@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:8080", allowCredentials = "true")
 @RequestMapping("/v1/prescript")
 public class PrescriptController {
     @Autowired

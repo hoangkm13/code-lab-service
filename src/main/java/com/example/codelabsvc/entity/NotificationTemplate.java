@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @NoArgsConstructor
-@Document(collection = "notificationTemplate")
+@Document(collection = "notificationTemplates")
 public class NotificationTemplate {
     private String id;
     private String content;

@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @RestController
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://localhost:8080", allowCredentials = "true")
 @RequestMapping("/v1/challenge")
 public class ChallengeController {
 

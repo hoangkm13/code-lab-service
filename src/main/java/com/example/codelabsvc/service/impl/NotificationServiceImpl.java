@@ -1,8 +1,10 @@
 package com.example.codelabsvc.service.impl;
 
+import com.example.codelabsvc.constant.ErrorCode;
 import com.example.codelabsvc.controller.response.comment.SaveNotificationRequestDTO;
 import com.example.codelabsvc.entity.Notification;
 import com.example.codelabsvc.entity.User;
+import com.example.codelabsvc.exception.CustomException;
 import com.example.codelabsvc.repository.NotificationRepository;
 import com.example.codelabsvc.service.NotificationService;
 import org.springframework.data.domain.Page;
@@ -43,8 +45,19 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public Page<Notification> getAllNotification(String userId,int page,int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return notificationRepository.getAllNotification(userId,pageable);
+        return notificationRepository.getAllNotificationByUserId(userId,pageable);
     }
 
+    @Override
+    public Notification deleteNotification(String notificationId) throws CustomException {
+        Notification notification = notificationRepository.findNotificationById(notificationId);
 
+        if (notification == null) {
+            throw new CustomException(ErrorCode.NOTIFICATION_NOT_EXIST);
+        }
+
+        notificationRepository.delete(notification);
+
+        return notification;
+    }
 }
