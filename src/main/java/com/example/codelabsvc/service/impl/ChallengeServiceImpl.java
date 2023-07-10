@@ -216,6 +216,7 @@ public class ChallengeServiceImpl implements ChallengeService {
         callable = new ExecutionFactoryJson(authentication.getId(), existedTestCase, compileJsonUrl, testCaseSubmitJson, testCaseRepository);
         future = executorService.submit(callable);
 
+
         checkResult(future.get().getVerdict(), existedTestCase.getChallengeId(), authentication.getId());
 
         executorService.shutdown();
@@ -229,7 +230,7 @@ public class ChallengeServiceImpl implements ChallengeService {
                     .id(UUID.randomUUID().toString())
                     .challengeId(challengeId)
                     .userId(userId)
-                    .status(String.valueOf(Status.SOLVED))
+                    .status(Status.SOLVED.value().toUpperCase())
                     .build());
         }
     }

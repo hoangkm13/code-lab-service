@@ -56,6 +56,7 @@ public class TopicServiceImpl implements TopicService {
         for (Challenge challenge : listChallenges) {
             totalPoints = totalPoints + challenge.getPoints();
         }
+
         topic.setTotalPoints(totalPoints);
 
         this.topicRepository.save(topic);
@@ -73,10 +74,16 @@ public class TopicServiceImpl implements TopicService {
         }
 
         var userTopic = this.userTopicRepository.findUserTopicByUserIdAndTopicId(userId, id);
-        userTopic.setTotalPoints(totalPoints);
-        userTopic.setUserPoints(userPoints);
-        this.userTopicRepository.save(userTopic);
-
+        if(userTopic ==null) {
+            userTopic = new UserTopic();
+            userTopic.setTotalPoints(totalPoints);
+            userTopic.setUserPoints(0);
+        }
+        else {
+            userTopic.setTotalPoints(totalPoints);
+            userTopic.setUserPoints(userPoints);
+            this.userTopicRepository.save(userTopic);
+        }
 
         return userTopic;
     }
