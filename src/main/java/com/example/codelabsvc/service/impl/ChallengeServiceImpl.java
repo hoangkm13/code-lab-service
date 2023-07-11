@@ -218,7 +218,6 @@ public class ChallengeServiceImpl implements ChallengeService {
         callable = new ExecutionFactoryJson(authentication.getId(), existedTestCase, compileJsonUrl, testCaseSubmitJson, testCaseRepository);
         future = executorService.submit(callable);
 
-
         checkResult(future.get().getVerdict(), existedTestCase.getChallengeId(), authentication.getId());
 
         executorService.shutdown();

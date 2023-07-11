@@ -6,8 +6,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface NotificationRepository extends MongoRepository<Notification,String> {
     Notification findNotificationById(String notificationId);
-    Page<Notification> getAllNotificationByUserId(String userId, Pageable pageable);
+    List<Notification> getAllByUserId(String userId);
 }
