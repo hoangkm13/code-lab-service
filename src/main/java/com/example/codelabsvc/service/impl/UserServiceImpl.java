@@ -6,8 +6,10 @@ import com.example.codelabsvc.constant.Role;
 import com.example.codelabsvc.controller.request.auth.ResetPasswordDTO;
 import com.example.codelabsvc.controller.request.auth.UpdateUserDTO;
 import com.example.codelabsvc.controller.request.auth.UserDTO;
+import com.example.codelabsvc.entity.Notification;
 import com.example.codelabsvc.entity.User;
 import com.example.codelabsvc.exception.CustomException;
+import com.example.codelabsvc.repository.NotificationRepository;
 import com.example.codelabsvc.repository.UserRepository;
 import com.example.codelabsvc.service.UserService;
 import com.example.codelabsvc.util.AuthUtils;
@@ -26,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -34,11 +37,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final AuthUtils authUtils;
 
+    private final NotificationRepository notificationRepository;
+
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthUtils authUtils) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthUtils authUtils, NotificationRepository notificationRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authUtils = authUtils;
+        this.notificationRepository = notificationRepository;
     }
 
     @Override
@@ -89,6 +95,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         User.setLastName(UserDTO.getLastName());
         User.setCountry(UserDTO.getCountry());
         User.setPasswordHash(passwordEncoder.encode(UserDTO.getPassword()));
+
+        notificationRepository.save(new Notification(null,
+                null,
+                null,
+                User.getId(),
+                "feb0978d-b7b6-4bb9-9a85-96f9cc0ed5de",
+                ""));
+
         return userRepository.save(User);
     }
 

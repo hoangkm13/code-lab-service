@@ -7,15 +7,14 @@ import com.example.codelabsvc.controller.request.challenge.FilterChallengeReques
 import com.example.codelabsvc.controller.request.challenge.TestCaseSubmitJson;
 import com.example.codelabsvc.controller.request.challenge.UpdateChallengeDTO;
 import com.example.codelabsvc.controller.response.challenge.ChallengeResponseDTO;
+import com.example.codelabsvc.controller.response.comment.SaveNotificationRequestDTO;
 import com.example.codelabsvc.controller.response.testCase.TestCaseJsonResponse;
-import com.example.codelabsvc.entity.BookmarkedChallenge;
-import com.example.codelabsvc.entity.Challenge;
-import com.example.codelabsvc.entity.User;
-import com.example.codelabsvc.entity.UserChallenge;
+import com.example.codelabsvc.entity.*;
 import com.example.codelabsvc.exception.CustomException;
 import com.example.codelabsvc.multithread.ExecutionFactoryJson;
 import com.example.codelabsvc.repository.*;
 import com.example.codelabsvc.service.ChallengeService;
+import com.example.codelabsvc.service.NotificationService;
 import com.example.codelabsvc.util.ListUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,19 +48,22 @@ public class ChallengeServiceImpl implements ChallengeService {
     private final BookmarkedChallengeRepository bookmarkedChallengeRepository;
     private final MongoTemplate mongoTemplate;
     private final UserChallengeRepository userChallengeRepository;
+    private final NotificationService notificationService;
 
     public ChallengeServiceImpl(TopicRepository topicRepository,
                                 ChallengeRepository challengeRepository,
                                 TestCaseRepository testCaseRepository,
                                 MongoTemplate mongoTemplate,
                                 BookmarkedChallengeRepository bookmarkedChallengeRepository,
-                                UserChallengeRepository userChallengeRepository) {
+                                UserChallengeRepository userChallengeRepository,
+                                NotificationService notificationService) {
         this.topicRepository = topicRepository;
         this.challengeRepository = challengeRepository;
         this.testCaseRepository = testCaseRepository;
         this.mongoTemplate = mongoTemplate;
         this.bookmarkedChallengeRepository = bookmarkedChallengeRepository;
         this.userChallengeRepository = userChallengeRepository;
+        this.notificationService = notificationService;
     }
 
 
@@ -224,14 +226,24 @@ public class ChallengeServiceImpl implements ChallengeService {
         return future.get();
     }
 
-    private void checkResult(String verdict, String challengeId, String userId) {
+    private void checkResult(String verdict, String challengeId, String userId) throws CustomException {
         if (verdict.equals("Accepted") && !userChallengeRepository.existsByUserIdAndChallengeId(userId, challengeId)) {
+            Challenge challenge = challengeRepository.findById(challengeId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.CHALLENGE_NOT_EXISTED_OR_INVALID));
+
             userChallengeRepository.save(UserChallenge.builder()
                     .id(UUID.randomUUID().toString())
                     .challengeId(challengeId)
                     .userId(userId)
                     .status(Status.SOLVED.value().toUpperCase())
                     .build());
+
+            SaveNotificationRequestDTO notification = new SaveNotificationRequestDTO();
+            notification.setPrivateContent(challenge.getPoints().toString());
+            notification.setUserId(userId);
+            notification.setTemplateId("39222077-6e8d-4342-ba50-f8c795fa6348");
+
+            notificationService.saveNotification(notification);
         }
     }
 
@@ -357,7 +369,9 @@ public class ChallengeServiceImpl implements ChallengeService {
         return new PageImpl<>(ListUtils.getPage(challengeResponseDTOList
                 .stream()
                 .sorted(Comparator.comparing(ChallengeResponseDTO::getStatus))
-                .collect(Collectors.toList()), filterChallengeRequest.getPage() > 0 ? filterChallengeRequest.getPage() : 1, filterChallengeRequest.getSize()));
+                .collect(Collectors.toList()),
+                filterChallengeRequest.getPage() > 0 ? filterChallengeRequest.getPage() : 1,
+                filterChallengeRequest.getSize()));
     }
 
     private boolean isChallengeSolved(Challenge challenge, String id) {

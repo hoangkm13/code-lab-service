@@ -8,5 +8,7 @@ import org.springframework.data.domain.Page;
 public interface NotificationService {
     Notification saveNotification(SaveNotificationRequestDTO dto) throws CustomException;
     Notification updateNotification(String notificationId);
-    Page<Notification>  getAllNotification(String userId,int page,int size);
+    Page<Notification>  getAllNotification(String userId, int page, int size);
+
+    Notification deleteNotification(String notificationId) throws CustomException;
 }

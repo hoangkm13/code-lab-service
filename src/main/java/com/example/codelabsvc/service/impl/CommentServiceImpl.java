@@ -108,12 +108,12 @@ public class CommentServiceImpl implements CommentService {
             Comment childComment = new Comment(dto.getChallengeId(), authentication.getUsername(), dto.getText(), "", false, null);
             childComment.setId(UUID.randomUUID().toString());
             commentRepository.save(childComment);
-            if (comment.getChildCommentId() == null) {
+            if (comment.getChildCommentIds() == null) {
                 List<String> idList = new ArrayList<>();
                 idList.add(childComment.getId());
-                comment.setChildCommentId(idList);
+                comment.setChildCommentIds(idList);
             } else {
-                comment.getChildCommentId().add(childComment.getId());
+                comment.getChildCommentIds().add(childComment.getId());
             }
             commentRepository.save(comment);
             return new CommentResponseDTO(childComment.getId(),
@@ -132,10 +132,10 @@ public class CommentServiceImpl implements CommentService {
             throw new CustomException(ErrorCode.COMMENT_NOT_EXIST);
         }
 
-        if (CollectionUtils.isEmpty(comment.getChildCommentId())) {
+        if (CollectionUtils.isEmpty(comment.getChildCommentIds())) {
             throw new CustomException(ErrorCode.CHILD_COMMENT_NOT_EXIST);
         }
-        var childComments = commentRepository.findCommentsByChildCommentIds(comment.getChildCommentId());
+        var childComments = commentRepository.findCommentsByChildCommentIds(comment.getChildCommentIds());
 
         Comparator<Comment> comparatorAsc = Comparator.comparing(comment2 -> comment2.getCreatedAt());
 

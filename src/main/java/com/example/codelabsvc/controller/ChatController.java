@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/v1/chat")
+@CrossOrigin(origins = "http://localhost:8080", allowCredentials = "true")
 public class ChatController {
 
     private final ChatService chatService;
