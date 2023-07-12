@@ -65,4 +65,9 @@ public class TopicController {
         List<ListTopicsPercentResponse> topics = topicService.getAllTopicWithPoint();
         return ApiResponse.successWithResult(topics);
     }
+
+    @GetMapping(value = "/most-point", produces = "application/json")
+    public ApiResponse<List<Topic>> getMostPointTopics() throws CustomException {
+        return ApiResponse.successWithResult(topicService.getMostPointTopics());
+    }
 }

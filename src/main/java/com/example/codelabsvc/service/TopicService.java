@@ -24,4 +24,6 @@ public interface TopicService {
     List<UserTopic> ranking(String topicId);
 
     List<ListTopicsPercentResponse> getAllTopicWithPoint() throws CustomException;
+
+    List<Topic> getMostPointTopics() throws CustomException;
 }

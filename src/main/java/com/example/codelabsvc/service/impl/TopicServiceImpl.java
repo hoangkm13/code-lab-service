@@ -16,10 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -188,5 +185,28 @@ public class TopicServiceImpl implements TopicService {
         }
 
         return listTopicsPercentRespons;
+    }
+
+    @Override
+    public List<Topic> getMostPointTopics() throws CustomException {
+        User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+
+        List<UserTopic> userTopics = userTopicRepository.findAllByUserId(authentication.getId());
+
+        Comparator<UserTopic> ratioComparator = (o1, o2) -> {
+            double ratio1 = (double) o1.getUserPoints() / o1.getTotalPoints();
+            double ratio2 = (double) o2.getUserPoints() / o2.getTotalPoints();
+            return Double.compare(ratio1, ratio2);
+        };
+
+        userTopics.sort(ratioComparator);
+
+        List<Topic> topics = new ArrayList<>();
+
+        for(UserTopic us : userTopics){
+            topics.add(topicRepository.findById(us.getTopicId()).orElseThrow(() -> new CustomException(ErrorCode.TOPIC_NOT_EXIST)));
+        }
+
+        return topics;
     }
 }
