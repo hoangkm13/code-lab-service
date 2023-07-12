@@ -22,4 +22,6 @@ public class UserChallenge {
     private String challengeId;
 
     private String status;
+
+    private String createdAt;
 }

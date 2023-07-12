@@ -9,7 +9,10 @@ import com.example.codelabsvc.controller.request.challenge.UpdateChallengeDTO;
 import com.example.codelabsvc.controller.response.challenge.ChallengeResponseDTO;
 import com.example.codelabsvc.controller.response.comment.SaveNotificationRequestDTO;
 import com.example.codelabsvc.controller.response.testCase.TestCaseJsonResponse;
-import com.example.codelabsvc.entity.*;
+import com.example.codelabsvc.entity.BookmarkedChallenge;
+import com.example.codelabsvc.entity.Challenge;
+import com.example.codelabsvc.entity.User;
+import com.example.codelabsvc.entity.UserChallenge;
 import com.example.codelabsvc.exception.CustomException;
 import com.example.codelabsvc.multithread.ExecutionFactoryJson;
 import com.example.codelabsvc.repository.*;
@@ -68,12 +71,29 @@ public class ChallengeServiceImpl implements ChallengeService {
 
 
     @Override
-    public List<Challenge> searchChallenge(String challengeName) throws CustomException {
+    public List<ChallengeResponseDTO> searchChallenge(String challengeName) throws CustomException {
+        User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+
         if (challengeName == null) {
             throw new CustomException(ErrorCode.CHALLENGE_NOT_EXISTED_OR_INVALID);
         }
-        return this.challengeRepository.searchChallengeByNameLike(challengeName);
+        List<Challenge> challenges = this.challengeRepository.searchChallengeByNameLike(challengeName);
 
+        List<ChallengeResponseDTO> challengeResponseDTOS = new ArrayList<>();
+
+        List<String> challengeIds = getSolvedChallengeIds(authentication.getId());
+
+        for (Challenge challenge : challenges) {
+            ChallengeResponseDTO challengeResponseDTO = new ChallengeResponseDTO();
+            if (challengeIds.contains(challenge.getId())) {
+                challengeResponseDTO.setStatus(Status.SOLVED);
+            } else {
+                challengeResponseDTO.setStatus(Status.UNSOLVED);
+            }
+            challengeResponseDTO.setChallenge(challenge);
+            challengeResponseDTOS.add(challengeResponseDTO);
+        }
+        return challengeResponseDTOS;
     }
 
     @Override
@@ -235,6 +255,7 @@ public class ChallengeServiceImpl implements ChallengeService {
                     .challengeId(challengeId)
                     .userId(userId)
                     .status(Status.SOLVED.value().toUpperCase())
+                    .createdAt(LocalDate.now().toString())
                     .build());
 
             SaveNotificationRequestDTO notification = new SaveNotificationRequestDTO();
@@ -385,9 +406,9 @@ public class ChallengeServiceImpl implements ChallengeService {
         }
 
         return new PageImpl<>(ListUtils.getPage(challengeResponseDTOList
-                .stream()
-                .sorted(Comparator.comparing(ChallengeResponseDTO::getStatus))
-                .collect(Collectors.toList()),
+                        .stream()
+                        .sorted(Comparator.comparing(ChallengeResponseDTO::getStatus))
+                        .collect(Collectors.toList()),
                 filterChallengeRequest.getPage() > 0 ? filterChallengeRequest.getPage() : 1,
                 filterChallengeRequest.getSize()));
     }
