@@ -49,12 +49,12 @@ public class TopicServiceImpl implements TopicService {
 
         int totalPoints = 0;
         int userPoints = 0;
+
         if (CollectionUtils.isNotEmpty(topic.getChallengeIds())) {
             var listChallenges = this.challengeRepository.findChallengesByChallengeIds(topic.getChallengeIds());
             if (listChallenges.size() != topic.getChallengeIds().size()) {
                 throw new CustomException(ErrorCode.CHALLENGE_NOT_EXISTED_OR_INVALID);
             }
-
 
             for (Challenge challenge : listChallenges) {
                 totalPoints = totalPoints + challenge.getPoints();
@@ -76,13 +76,12 @@ public class TopicServiceImpl implements TopicService {
                 userPoints = userPoints + challenge.getPoints();
             }
 
-
         }
+
         var userTopic = this.userTopicRepository.findUserTopicByUserIdAndTopicId(userId, id);
         userTopic.setTotalPoints(totalPoints);
         userTopic.setUserPoints(userPoints);
         this.userTopicRepository.save(userTopic);
-
 
         return userTopic;
     }
