@@ -9,6 +9,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -28,9 +29,9 @@ public class ChatController {
         return chatService.getMessages(chatId);
     }
 
-    @GetMapping()
-    public List<Integer> getAllChatIds() {
-        return chatService.getAllChatIds();
+    @GetMapping(value = "/get-all-chatIds/{sender}")
+    public List<Integer> getAllChatIds(@Valid @PathVariable String sender) {
+        return chatService.getAllChatIds(sender);
     }
 
     @PostMapping

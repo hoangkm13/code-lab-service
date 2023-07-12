@@ -47,8 +47,9 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public List<Integer> getAllChatIds() {
-        return this.chatCustomRepository.getAllChatIds();
+    public List<Integer> getAllChatIds(String sender) {
+
+        return this.chatCustomRepository.getAllChatIds(sender);
     }
 
 
