@@ -30,7 +30,7 @@ public class ChatController {
     }
 
     @GetMapping(value = "/get-all-chatIds/{sender}")
-    public List<Integer> getAllChatIds(@Valid @PathVariable String sender) {
+    public List<Chat> getAllChatIds(@Valid @PathVariable String sender) {
         return chatService.getAllChatIds(sender);
     }
 
