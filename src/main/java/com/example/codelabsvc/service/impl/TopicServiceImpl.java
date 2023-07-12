@@ -106,7 +106,7 @@ public class TopicServiceImpl implements TopicService {
 
         topic.setCreatedBy(authentication.getUsername());
         topic.setCreatedAt(LocalDate.now().toString());
-
+        topic.setTotalPoints(0);
         UserTopic userTopic = new UserTopic();
         userTopic.setUserId(authentication.getId());
         userTopic.setTopicId(topic.getId());
