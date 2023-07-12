@@ -3,6 +3,7 @@ package com.example.codelabsvc.service.impl;
 import com.example.codelabsvc.constant.ErrorCode;
 import com.example.codelabsvc.controller.request.topic.TopicDTO;
 import com.example.codelabsvc.controller.response.topic.ListTopicsPercentResponse;
+import com.example.codelabsvc.controller.response.topic.MostPointTopicResponse;
 import com.example.codelabsvc.entity.*;
 import com.example.codelabsvc.exception.CustomException;
 import com.example.codelabsvc.repository.ChallengeRepository;
@@ -188,7 +189,7 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public List<Topic> getMostPointTopics() throws CustomException {
+    public List<MostPointTopicResponse> getMostPointTopics() throws CustomException {
         User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
 
         List<UserTopic> userTopics = userTopicRepository.findAllByUserId(authentication.getId());
@@ -201,12 +202,14 @@ public class TopicServiceImpl implements TopicService {
 
         userTopics.sort(ratioComparator);
 
-        List<Topic> topics = new ArrayList<>();
+        List<MostPointTopicResponse> mostPointTopicResponses = new ArrayList<>();
 
         for(UserTopic us : userTopics){
-            topics.add(topicRepository.findById(us.getTopicId()).orElseThrow(() -> new CustomException(ErrorCode.TOPIC_NOT_EXIST)));
+            Topic topic = topicRepository.findById(us.getTopicId()).orElseThrow(() -> new CustomException(ErrorCode.TOPIC_NOT_EXIST));
+
+            mostPointTopicResponses.add(new MostPointTopicResponse(topic, us.getUserPoints()));
         }
 
-        return topics;
+        return mostPointTopicResponses;
     }
 }
