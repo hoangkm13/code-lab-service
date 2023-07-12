@@ -34,9 +34,9 @@ public class ChallengeController {
         return ApiResponse.successWithResult(challenge);
     }
 
-    @PostMapping(value = "search-challenge/{challengeName}", produces = "application/json")
-    public ApiResponse<List<Challenge>> searchChallenge(@Valid @PathVariable String challengeName) throws CustomException {
-        List<Challenge> challenges = challengeService.searchChallenge(challengeName);
+    @PostMapping(value = "/search-challenge/{challengeName}", produces = "application/json")
+    public ApiResponse<List<ChallengeResponseDTO>> searchChallenge(@Valid @PathVariable String challengeName) throws CustomException {
+        List<ChallengeResponseDTO> challenges = challengeService.searchChallenge(challengeName);
         return ApiResponse.successWithResult(challenges);
     }
 

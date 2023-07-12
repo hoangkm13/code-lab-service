@@ -3,6 +3,7 @@ package com.example.codelabsvc.service.impl;
 import com.example.codelabsvc.constant.ErrorCode;
 import com.example.codelabsvc.controller.request.topic.TopicDTO;
 import com.example.codelabsvc.controller.response.topic.ListTopicsPercentResponse;
+import com.example.codelabsvc.controller.response.topic.MostPointTopicResponse;
 import com.example.codelabsvc.entity.*;
 import com.example.codelabsvc.exception.CustomException;
 import com.example.codelabsvc.repository.ChallengeRepository;
@@ -16,10 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -188,5 +186,30 @@ public class TopicServiceImpl implements TopicService {
         }
 
         return listTopicsPercentRespons;
+    }
+
+    @Override
+    public List<MostPointTopicResponse> getMostPointTopics() throws CustomException {
+        User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+
+        List<UserTopic> userTopics = userTopicRepository.findAllByUserId(authentication.getId());
+
+        Comparator<UserTopic> ratioComparator = (o1, o2) -> {
+            double ratio1 = (double) o1.getUserPoints() / o1.getTotalPoints();
+            double ratio2 = (double) o2.getUserPoints() / o2.getTotalPoints();
+            return Double.compare(ratio1, ratio2);
+        };
+
+        userTopics.sort(ratioComparator);
+
+        List<MostPointTopicResponse> mostPointTopicResponses = new ArrayList<>();
+
+        for(UserTopic us : userTopics){
+            Topic topic = topicRepository.findById(us.getTopicId()).orElseThrow(() -> new CustomException(ErrorCode.TOPIC_NOT_EXIST));
+
+            mostPointTopicResponses.add(new MostPointTopicResponse(topic, us.getUserPoints()));
+        }
+
+        return mostPointTopicResponses;
     }
 }

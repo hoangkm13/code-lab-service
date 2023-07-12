@@ -2,6 +2,7 @@ package com.example.codelabsvc.controller;
 
 import com.example.codelabsvc.controller.request.topic.TopicDTO;
 import com.example.codelabsvc.controller.response.topic.ListTopicsPercentResponse;
+import com.example.codelabsvc.controller.response.topic.MostPointTopicResponse;
 import com.example.codelabsvc.entity.Topic;
 import com.example.codelabsvc.entity.User;
 import com.example.codelabsvc.entity.UserTopic;
@@ -64,5 +65,10 @@ public class TopicController {
     public ApiResponse<List<ListTopicsPercentResponse>> getAllTopicsWithPoint() throws CustomException{
         List<ListTopicsPercentResponse> topics = topicService.getAllTopicWithPoint();
         return ApiResponse.successWithResult(topics);
+    }
+
+    @GetMapping(value = "/most-point", produces = "application/json")
+    public ApiResponse<List<MostPointTopicResponse>> getMostPointTopics() throws CustomException {
+        return ApiResponse.successWithResult(topicService.getMostPointTopics());
     }
 }
