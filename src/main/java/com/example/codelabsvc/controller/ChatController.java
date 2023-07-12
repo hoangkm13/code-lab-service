@@ -10,6 +10,7 @@ import reactor.core.publisher.Mono;
 
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1/chat")
@@ -25,6 +26,11 @@ public class ChatController {
     @GetMapping(value = "{chatId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<Chat> getMessages(@PathVariable Integer chatId) {
         return chatService.getMessages(chatId);
+    }
+
+    @GetMapping()
+    public List<Integer> getAllChatIds() {
+        return chatService.getAllChatIds();
     }
 
     @PostMapping
