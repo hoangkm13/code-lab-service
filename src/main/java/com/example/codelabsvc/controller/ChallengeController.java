@@ -75,16 +75,16 @@ public class ChallengeController {
         return ApiResponse.successWithResult(challengeService.filterChallenge(filterChallengeRequest));
     }
 
-    @PostMapping(value = "/bookmarked", produces = "application/json")
-    public ApiResponse<BookmarkedChallenge> changeBookmarkedChallenge(@RequestParam String challengeId) throws CustomException {
+    @PostMapping(value = "/bookmarked/{challengeId}", produces = "application/json")
+    public ApiResponse<BookmarkedChallenge> changeBookmarkedChallenge(@PathVariable String challengeId) throws CustomException {
         BookmarkedChallenge bookmarkedChallenge = challengeService.changeBookmarkStatus(challengeId);
         return ApiResponse.successWithResult(bookmarkedChallenge);
     }
 
     @GetMapping(value = "/bookmarked", produces = "application/json")
-    public ApiResponse<Page<Challenge>> listAllBookmarkedChallenges(@RequestParam(defaultValue = "0", required = false) int page,
+    public ApiResponse<Page<ChallengeResponseDTO>> listAllBookmarkedChallenges(@RequestParam(defaultValue = "1", required = false) int page,
                                                                     @RequestParam(defaultValue = "5", required = false) int size) throws CustomException {
-        Page<Challenge> challenges = challengeService.listAllBookmarkChallenge(page, size);
+        Page<ChallengeResponseDTO> challenges = challengeService.listAllBookmarkChallenge(page, size);
         return ApiResponse.successWithResult(challenges);
     }
 

@@ -69,6 +69,17 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    public List<Notification> markAsReadAll() {
+        User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+
+        List<Notification> notificationList = notificationRepository.getAllByUserId(authentication.getId());
+
+        notificationList.forEach(notification -> notification.setIsSeen(true));
+
+        return notificationRepository.saveAll(notificationList);
+    }
+
+    @Override
     public Notification deleteNotification(String notificationId) throws CustomException {
         Notification notification = notificationRepository.findNotificationById(notificationId);
 

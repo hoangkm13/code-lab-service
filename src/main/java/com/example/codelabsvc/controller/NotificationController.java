@@ -31,6 +31,11 @@ public class NotificationController {
         return ApiResponse.successWithResult(notificationService.updateNotification(notificationId));
     }
 
+    @PutMapping("")
+    public ApiResponse<List<Notification>> markAsReadAll(){
+        return ApiResponse.successWithResult(notificationService.markAsReadAll());
+    }
+
     @GetMapping("")
     public ApiResponse<Page<NotificationResponse>> getAllNotification(@RequestParam(required = false, defaultValue = "1") int page,
                                                                       @RequestParam(required = false, defaultValue = "5") int size) {

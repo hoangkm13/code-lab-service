@@ -12,7 +12,6 @@ import com.example.codelabsvc.exception.CustomException;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public interface ChallengeService {
@@ -30,7 +29,7 @@ public interface ChallengeService {
 
     BookmarkedChallenge changeBookmarkStatus(String id) throws CustomException;
 
-    Page<Challenge> listAllBookmarkChallenge(int page, int size) throws CustomException;
+    Page<ChallengeResponseDTO> listAllBookmarkChallenge(int page, int size) throws CustomException;
 
     Challenge updateChallenge(UpdateChallengeDTO updateChallengeDTO) throws CustomException;
 
