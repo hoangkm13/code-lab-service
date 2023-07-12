@@ -13,6 +13,6 @@ public interface ChatService {
 
     Flux<Chat> findChatByUser(String user);
 
-    List<Integer> getAllChatIds(String sender);
+    List<Chat> getAllChatIds(String sender);
 
 }
