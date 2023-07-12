@@ -11,6 +11,7 @@ public class CommentResponseDTO {
     private String createdAt;
     private String text;
     private String code;
+    private Boolean isParent;
 
     public CommentResponseDTO(String id, String username, String createdAt, String text, String code) {
         this.id = id;
