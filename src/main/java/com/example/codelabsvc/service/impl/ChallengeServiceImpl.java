@@ -303,7 +303,7 @@ public class ChallengeServiceImpl implements ChallengeService {
     }
 
     @Override
-    public Page<Challenge> listAllBookmarkChallenge(int page, int size) throws CustomException {
+    public Page<ChallengeResponseDTO> listAllBookmarkChallenge(int page, int size) throws CustomException {
         Pageable pageable = PageRequest.of(page, size);
 
         User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
@@ -318,7 +318,26 @@ public class ChallengeServiceImpl implements ChallengeService {
             challenges.add(challenge);
         }
 
-        return new PageImpl<>(ListUtils.getPage(challenges, page, size), pageable, challenges.size());
+
+        List<ChallengeResponseDTO> challengeResponseDTOS = new ArrayList<>();
+
+        List<String> challengeIds = getSolvedChallengeIds(authentication.getId());
+
+        for (Challenge challenge : challenges) {
+            ChallengeResponseDTO challengeResponseDTO = new ChallengeResponseDTO();
+            if (challengeIds.contains(challenge.getId())) {
+                challengeResponseDTO.setStatus(Status.SOLVED);
+            } else {
+                challengeResponseDTO.setStatus(Status.UNSOLVED);
+            }
+            challengeResponseDTO.setChallenge(challenge);
+            challengeResponseDTOS.add(challengeResponseDTO);
+        }
+
+        return new PageImpl<>(ListUtils.getPage(challengeResponseDTOS
+                .stream()
+                .sorted(Comparator.comparing(ChallengeResponseDTO::getStatus).reversed())
+                .collect(Collectors.toList()), page, size));
     }
 
     @Override
