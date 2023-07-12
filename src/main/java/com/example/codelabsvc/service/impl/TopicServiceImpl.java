@@ -47,36 +47,43 @@ public class TopicServiceImpl implements TopicService {
 
         var topic = topicRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.TOPIC_NOT_EXIST));
 
-        var listChallenges = this.challengeRepository.findChallengesByChallengeIds(topic.getChallengeIds());
-        if (listChallenges.size() != topic.getChallengeIds().size()) {
-            throw new CustomException(ErrorCode.CHALLENGE_NOT_EXISTED_OR_INVALID);
-        }
-
         int totalPoints = 0;
-        for (Challenge challenge : listChallenges) {
-            totalPoints = totalPoints + challenge.getPoints();
-        }
-
-        topic.setTotalPoints(totalPoints);
-
-        this.topicRepository.save(topic);
-
-        var userChallenges = this.userChallengeRepository.findSolvedUserChallenges(userId, topic.getChallengeIds());
-        List<String> userChallengeId = new ArrayList<>();
-        for (UserChallenge challenge : userChallenges) {
-            userChallengeId.add(challenge.getChallengeId());
-        }
-
-        var challenges = this.challengeRepository.findChallengesByChallengeIds(userChallengeId);
         int userPoints = 0;
-        for (Challenge challenge : challenges) {
-            userPoints = userPoints + challenge.getPoints();
-        }
+        if (CollectionUtils.isNotEmpty(topic.getChallengeIds())) {
+            var listChallenges = this.challengeRepository.findChallengesByChallengeIds(topic.getChallengeIds());
+            if (listChallenges.size() != topic.getChallengeIds().size()) {
+                throw new CustomException(ErrorCode.CHALLENGE_NOT_EXISTED_OR_INVALID);
+            }
 
+
+            for (Challenge challenge : listChallenges) {
+                totalPoints = totalPoints + challenge.getPoints();
+            }
+
+            topic.setTotalPoints(totalPoints);
+
+            this.topicRepository.save(topic);
+
+            var userChallenges = this.userChallengeRepository.findSolvedUserChallenges(userId, topic.getChallengeIds());
+            List<String> userChallengeId = new ArrayList<>();
+            for (UserChallenge challenge : userChallenges) {
+                userChallengeId.add(challenge.getChallengeId());
+            }
+
+            var challenges = this.challengeRepository.findChallengesByChallengeIds(userChallengeId);
+
+            for (Challenge challenge : challenges) {
+                userPoints = userPoints + challenge.getPoints();
+            }
+
+
+        }
         var userTopic = this.userTopicRepository.findUserTopicByUserIdAndTopicId(userId, id);
         userTopic.setTotalPoints(totalPoints);
         userTopic.setUserPoints(userPoints);
         this.userTopicRepository.save(userTopic);
+
+
         return userTopic;
     }
 
@@ -106,7 +113,6 @@ public class TopicServiceImpl implements TopicService {
 
         topic.setCreatedBy(authentication.getUsername());
         topic.setCreatedAt(LocalDate.now().toString());
-        topic.setTotalPoints(0);
         UserTopic userTopic = new UserTopic();
         userTopic.setUserId(authentication.getId());
         userTopic.setTopicId(topic.getId());
