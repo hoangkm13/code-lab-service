@@ -89,6 +89,7 @@ public class CommentServiceImpl implements CommentService {
             dto.setCreatedAt(comment.getCreatedAt());
             dto.setText(comment.getText());
             dto.setCode(comment.getCode());
+            dto.setIsParent(comment.getIsParent());
             return dto;
         });
     }

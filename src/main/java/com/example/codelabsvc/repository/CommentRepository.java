@@ -18,7 +18,7 @@ public interface CommentRepository extends MongoRepository<Comment, String> {
     Comment findCommentById(String id);
 
     void deleteCommentById(String id);
-
+    @Query( "{ 'challengeId' : ?0, 'isParent' : true }")
     Page<Comment> getAllByChallengeId(String id, Pageable pageable);
 
     @Query("{'_id' : { $in : ?0 } }")
