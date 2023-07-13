@@ -36,15 +36,17 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthUtils authUtils;
+    private final FileConfig fileConfig;
 
     private final NotificationRepository notificationRepository;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthUtils authUtils, NotificationRepository notificationRepository) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthUtils authUtils, NotificationRepository notificationRepository, FileConfig fileConfig) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authUtils = authUtils;
         this.notificationRepository = notificationRepository;
+        this.fileConfig = fileConfig;
     }
 
     @Override
