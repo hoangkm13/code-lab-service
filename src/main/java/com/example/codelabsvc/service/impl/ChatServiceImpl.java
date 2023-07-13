@@ -35,8 +35,6 @@ public class ChatServiceImpl implements ChatService {
 
 
     public Mono<Chat> newMessage(Chat chat) {
-        User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
-        chat.setSender(authentication.getUsername());
         chat.setCreatedAt(LocalDateTime.now());
         return chatRepository.save(chat);
     }

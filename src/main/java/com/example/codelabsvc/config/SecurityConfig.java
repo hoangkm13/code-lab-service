@@ -23,7 +23,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final String[] publicEndpoints = {
-            "/api-docs", "/swagger-ui-custom.html", "/api-docs.yaml", "/v1/auth/login", "/v1/auth/register"
+            "/api-docs", "/swagger-ui-custom.html", "/api-docs.yaml", "/v1/auth/login", "/v1/auth/register","/v1/chat/**"
     };
 
     @Bean

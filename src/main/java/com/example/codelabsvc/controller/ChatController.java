@@ -2,8 +2,10 @@ package com.example.codelabsvc.controller;
 
 import com.example.codelabsvc.entity.Chat;
 
+import com.example.codelabsvc.entity.User;
 import com.example.codelabsvc.service.ChatService;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -36,7 +38,6 @@ public class ChatController {
 
     @PostMapping
     public Mono<Chat> newMessage(@RequestBody Chat chat) {
-        chat.setCreatedAt(LocalDateTime.now());
         return chatService.newMessage(chat);
     }
     @GetMapping(value = "/test/{user}",produces = MediaType.TEXT_EVENT_STREAM_VALUE)
