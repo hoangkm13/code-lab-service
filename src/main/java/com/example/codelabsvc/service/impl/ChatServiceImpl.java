@@ -35,8 +35,6 @@ public class ChatServiceImpl implements ChatService {
 
 
     public Mono<Chat> newMessage(Chat chat) {
-        User authentication = (User) SecurityContextHolder.getContext().getAuthentication().getCredentials();
-        chat.setSender(authentication.getUsername());
         chat.setCreatedAt(LocalDateTime.now());
         return chatRepository.save(chat);
     }
@@ -47,7 +45,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public List<Integer> getAllChatIds(String sender) {
+    public List<Chat> getAllChatIds(String sender) {
 
         return this.chatCustomRepository.getAllChatIds(sender);
     }
