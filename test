@@ -1,100 +1,98 @@
 <div class="sign-in-container">
-  <div class="logo-container">
-    <img src="assets/logo.png" alt="Logo">
-  </div>
-  <div class="form-container">
-    <form>
-      <div class="form-group">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
-      </div>
-
-      <div class="form-group">
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-      </div>
-
-      <button type="submit">Sign In</button>
-    </form>
-  </div>
+  <h2>Sign In</h2>
+  <form (ngSubmit)="signIn()" #signInForm="ngForm">
+    <div class="form-group">
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" [(ngModel)]="username" required>
+    </div>
+    <div class="form-group">
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" [(ngModel)]="password" required>
+    </div>
+    <button type="submit" [disabled]="!signInForm.valid">Sign In</button>
+  </form>
 </div>
 
 
 
 
-
 .sign-in-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-}
-
-.logo-container {
-  margin-bottom: 20px;
-}
-
-img {
-  max-width: 200px;
-  max-height: 100%;
-}
-
-form {
-  display: flex;
-  flex-direction: column;
   max-width: 300px;
-  width: 100%;
+  margin: auto;
   padding: 20px;
-  background-color: #fff;
-  border-radius: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+  h2 {
+    text-align: center;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+
+    .form-group {
+      margin-bottom: 15px;
+
+      label {
+        margin-bottom: 5px;
+        display: block;
+        font-weight: bold;
+      }
+
+      input {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+    }
+
+    button {
+      background-color: #4caf50;
+      color: #fff;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+
+      &:disabled {
+        background-color: #ddd;
+        cursor: not-allowed;
+      }
+    }
+  }
 }
 
-.form-group {
-  margin-bottom: 16px;
-}
+import { Component } from '@angular/core';
 
-label {
-  font-size: 14px;
-  font-weight: bold;
-  color: #333;
-}
+@Component({
+  selector: 'app-sign-in',
+  templateUrl: './sign-in.component.html',
+  styleUrls: ['./sign-in.component.scss']
+})
+export class SignInComponent {
+  username: string = '';
+  password: string = '';
 
-input {
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-button {
-  padding: 12px;
-  font-size: 16px;
-  color: #fff;
-  background-color: #007bff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-button:hover {
-  background-color: #0056b3;
+  signIn() {
+    // Implement your sign-in logic here
+    console.log('Signing in...', this.username, this.password);
+  }
 }
 
 
 
 
-import { SignInComponent } from './sign-in/sign-in.component';
-
-// ...
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
-  declarations: [
-    // other components
-    SignInComponent
+  imports: [
+    // other imports
+    FormsModule,
   ],
-  // ...
+  // other configurations
 })
-export class AppModule { }
+
