@@ -93,6 +93,13 @@
       }
     }
   }
+
+  // Media queries for responsiveness
+  @media (max-width: 768px) {
+    .content {
+      max-width: 100%;
+    }
+  }
 }
 
 
