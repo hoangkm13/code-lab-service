@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background-color: blue; /* Add blue background color */
+  background-color: blue; /* Add blue background color to fill the entire screen */
 
   .logo {
     margin-bottom: 20px;
@@ -101,6 +101,7 @@
     }
   }
 }
+
 
 
 <div id="app">
