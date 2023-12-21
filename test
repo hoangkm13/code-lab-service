@@ -1,113 +1,7 @@
-#app {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background-color: blue; /* Add blue background color to fill the entire screen */
-
-  .logo {
-    margin-bottom: 20px;
-
-    a {
-      img {
-        max-width: 100%;
-        height: auto;
-      }
-    }
-  }
-
-  .content {
-    width: 100%;
-    max-width: 400px;
-    padding: 20px;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-sizing: border-box;
-
-    .login-form {
-      .form-title {
-        font-size: 20px;
-        text-align: center;
-        margin-bottom: 20px;
-      }
-
-      .form-group {
-        margin-bottom: 20px;
-
-        label {
-          display: block;
-          margin-bottom: 5px;
-        }
-
-        .input-icon {
-          position: relative;
-
-          em {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            left: 10px;
-          }
-
-          input {
-            width: 100%;
-            padding-left: 30px;
-          }
-        }
-
-        .help-block {
-          display: none;
-        }
-      }
-
-      .form-actions {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        margin-top: 20px;
-
-        .rememberme {
-          margin-bottom: 10px;
-
-          input {
-            margin-right: 5px;
-          }
-        }
-
-        .login-btn {
-          background-color: green;
-          color: #fff;
-        }
-      }
-
-      .forget-password {
-        text-align: center;
-        margin-top: 10px;
-
-        a {
-          color: #337ab7;
-        }
-      }
-    }
-  }
-
-  // Media queries for responsiveness
-  @media (max-width: 768px) {
-    .content {
-      max-width: 100%;
-    }
-  }
-}
-
-
-
 <div id="app">
   <div class="logo"><a href="/"><img src="https://public.cyberbot.vn/images/logo.svg" alt=""></a></div>
   <div class="content" style="min-height: 382px;">
-    <form role="form" method="POST" action="javascript:;" data-vv-scope="loginForm" class="login-form"><input
+    <form [formGroup]="loginForm" role="form" method="POST" action="javascript:;" data-vv-scope="loginForm" class="login-form"><input
       type="hidden" name="_token" value="YavBEGzfrTvyLKlfqXtLwbmk9gqMG3JI0X3pZ9xf">
       <h3 class="form-title">Đăng nhập tài khoản</h3>
       <div class="form-group"><label class="control-label visible-ie8 visible-ie9">Tên đăng nhập</label>
@@ -131,7 +25,7 @@
       <div class="form-actions login-flex"><label class="rememberme mt-checkbox mt-checkbox-outline"><input
         type="checkbox" name="remember" value="1"> Giữ tôi luôn đăng nhập
         <span></span></label>
-        <button type="submit" class="btn green-seagreen pull-right login-btn">
+        <button class="btn green-seagreen pull-right login-btn" (click)="login()">
           Đăng nhập
         </button>
       </div>
