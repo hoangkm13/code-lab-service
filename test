@@ -1,68 +1,160 @@
-<div class="login-container">
-  <div class="login-content">
-    <p class="login-heading">LOGIN FORM</p>
-    <form [formGroup]="formGroup" class="login-form">
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input
-          name="email"
-          type="email"
-          class="form-control"
-          formControlName="email"
-          placeholder="Your email"
-        />
-      </div>
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input
-          name="password"
-          type="password"
-          class="form-control"
-          placeholder="Password"
-          formControlName="password"
-        />
-      </div>
-      <div class="login-button">
-        <button mat-raised-button class="btn btn-primary" (click)="login()">
-          Log in
-        </button>
-      </div>
-    </form>
+// banner.component.ts
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-banner',
+  templateUrl: './banner.component.html',
+  styleUrls: ['./banner.component.css']
+})
+export class BannerComponent {
+  // You can add properties or methods as needed
+}
+
+
+<!-- banner.component.html -->
+<div class="banner">
+  <div class="left-section">Channel Management</div>
+  <div class="center-section">
+    <input type="text" placeholder="Search">
+  </div>
+  <div class="right-section">
+    <button>Import Channels</button>
+    <button>Export Channels</button>
   </div>
 </div>
 
 
-.login-container {
+// table.component.ts
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-table',
+  templateUrl: './table.component.html',
+  styleUrls: ['./table.component.css']
+})
+export class TableComponent {
+  channels: any[] = []; // Populate this array with your channel data
+  // You can add properties or methods as needed
+}
+
+
+<!-- table.component.html -->
+<table>
+  <thead>
+    <tr>
+      <th>Channel Name</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let channel of channels">
+      <td>{{ channel.name }}</td>
+      <td>
+        <button (click)="editChannel(channel)">Edit</button>
+        <button (click)="deleteChannel(channel)">Delete</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="pagination">
+  <!-- Pagination controls go here -->
+</div>
+
+
+/* banner.component.css */
+.banner {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: #f0f0f0;
 }
 
-.login-content {
-  width: 400px;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  background-color: #fff;
-}
-
-.login-heading {
-  font-size: 25px;
-  text-align: center;
-}
-
-.login-form {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-.login-button {
+/* table.component.css */
+table {
+  width: 100%;
+  border-collapse: collapse;
   margin-top: 20px;
-  text-align: center;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+.pagination {
+  margin-top: 10px;
+}
+
+
+/* banner.component.scss */
+.banner {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: #f0f0f0;
+
+  .left-section {
+    /* Add styles for the left section */
+  }
+
+  .center-section {
+    /* Add styles for the center section */
+    input {
+      width: 200px; /* Adjust the width as needed */
+      padding: 5px;
+    }
+  }
+
+  .right-section {
+    /* Add styles for the right section */
+    button {
+      margin-left: 10px; /* Adjust the margin as needed */
+    }
+  }
+}
+
+
+/* table.component.scss */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+
+  th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+
+  th {
+    background-color: #f2f2f2;
+  }
+
+  tbody {
+    tr {
+      td {
+        &:first-child {
+          /* Styles for the first column (Channel Name) */
+        }
+
+        &:last-child {
+          /* Styles for the last column (Actions) */
+          button {
+            margin-right: 5px; /* Adjust the margin as needed */
+          }
+        }
+      }
+    }
+  }
+}
+
+.pagination {
+  margin-top: 10px;
+  /* Add styles for pagination controls */
 }
