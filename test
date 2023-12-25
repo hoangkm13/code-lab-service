@@ -1,6 +1,6 @@
 <div class="box-title clearfix">
-  <h3 class="caption pull-left">Quản lý thực thể</h3>
-  <div class="button-container pull-right">
+  <h3 class="caption">Quản lý thực thể</h3>
+  <div class="button-container">
     <form id="example-form" method="post" enctype="multipart/form-data">
       <input type="hidden" name="_token" value="WLWcsHFqLGM9QzSvrT8kiEtrPyaq0ruP0g5faAe4">
     </form>
@@ -18,22 +18,24 @@
 
 .box-title {
   background-color: #007bff;
-  overflow: hidden; /* Add this to contain floated elements */
+  overflow: hidden;
 
   h3.caption {
-    float: left;
-    margin-right: 20px; /* Add margin to separate "Quản lý thực thể" from other elements */
-    color: #fff; /* Text color */
+    margin: 0; /* Remove default margin */
+    color: #fff;
   }
 
   .button-container {
-    float: right;
-    display: flex; /* Use flexbox for easier alignment */
-    align-items: center; /* Align items vertically in the center */
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; /* Align items to the end (right) */
+    gap: 10px; /* Adjust the gap between items */
+    margin-right: 20px; /* Add margin for spacing on the right side */
   }
 
   form {
-    margin-right: 10px; /* Adjust margin for spacing between the buttons and the search input */
+    /* Adjust margin for spacing between the buttons and the search input */
+    margin-right: 10px;
   }
 
   input.form-control.input-text.searchWidthShow {
@@ -42,19 +44,18 @@
 
   button.btn.blue-meadow,
   button.ladda-button.btn.blue-meadow {
-    padding: 10px 15px; /* Adjust padding for button size */
-    margin-left: 5px;
-
+    padding: 10px 15px;
+    margin: 0; /* Remove default margin */
     &:hover {
-      // Add hover styles if needed
+      /* Add hover styles if needed */
     }
 
     span.ladda-label em.fa-download {
-      // Add styles for the download icon if needed
+      /* Add styles for the download icon if needed */
     }
 
     span.ladda-spinner {
-      // Add styles for the spinner if needed
+      /* Add styles for the spinner if needed */
     }
   }
 }
