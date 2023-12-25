@@ -3,26 +3,33 @@
   <form id="example-form" method="post" enctype="multipart/form-data">
     <input type="hidden" name="_token" value="WLWcsHFqLGM9QzSvrT8kiEtrPyaq0ruP0g5faAe4">
   </form>
-  <button class="btn blue-meadow pull-right" style="margin-left: 5px;" (click)="importEntities()">
-    <em class="fa fa-upload i-margin-right"></em> Nhập thực thể
-  </button>
+  <input type="text" placeholder="Nhập vào từ khóa cần tìm..." class="form-control input-text pull-right searchWidthShow">
   <button data-spinner-color="#ffffff" data-style="zoom-in" type="button" class="ladda-button btn blue-meadow pull-right" (click)="exportEntities()">
     <span class="ladda-label"><em class="fa fa-download"></em> Xuất thực thể</span>
     <span class="ladda-spinner"></span>
   </button>
-  <input type="text" placeholder="Nhập vào từ khóa cần tìm..." class="form-control input-text pull-right searchWidthShow">
+  <button class="btn blue-meadow pull-right" style="margin-left: 5px;" (click)="importEntities()">
+    <em class="fa fa-upload i-margin-right"></em> Nhập thực thể
+  </button>
 </div>
 
 
 .box-title {
+  background-color: #007bff; /* Add your desired blue color code */
+
   // Your existing styles...
 
-  button.btn.blue-meadow.pull-right {
-    margin-left: 5px;
+  h3.caption {
+    float: left;
+  }
 
-    &:hover {
-      // Add hover styles if needed
-    }
+  form {
+    float: left; /* Adjust the positioning as needed */
+  }
+
+  input.form-control.input-text.pull-right.searchWidthShow {
+    // Add styles for the search input if needed
+    float: right;
   }
 
   button.ladda-button.btn.blue-meadow.pull-right {
@@ -43,27 +50,11 @@
     }
   }
 
-  input.form-control.input-text.pull-right.searchWidthShow {
-    // Add styles for the search input if needed
-  }
-}
+  button.btn.blue-meadow.pull-right {
+    margin-left: 5px;
 
-
-import { Component } from '@angular/core';
-
-@Component({
-  selector: 'app-your-component',
-  templateUrl: 'your-component.component.html',
-  styleUrls: ['your-component.component.scss'],
-})
-export class YourComponent {
-  importEntities() {
-    // Add your import logic here
-    console.log('Import button clicked');
-  }
-
-  exportEntities() {
-    // Add your export logic here
-    console.log('Export button clicked');
+    &:hover {
+      // Add hover styles if needed
+    }
   }
 }
