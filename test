@@ -28,25 +28,21 @@
 
   .button-container {
     float: right;
+    display: flex; /* Use flexbox for easier alignment */
+    align-items: center; /* Align items vertically in the center */
   }
 
   form {
-    float: left; /* Adjust the positioning as needed */
+    margin-right: 10px; /* Adjust margin for spacing between the buttons and the search input */
   }
 
   input.form-control.input-text.searchWidthShow {
     float: right;
   }
 
-  button.btn.blue-meadow {
-    margin-left: 5px;
-
-    &:hover {
-      // Add hover styles if needed
-    }
-  }
-
+  button.btn.blue-meadow,
   button.ladda-button.btn.blue-meadow {
+    padding: 10px 15px; /* Adjust padding for button size */
     margin-left: 5px;
 
     &:hover {
