@@ -1,160 +1,69 @@
-// banner.component.ts
-import { Component } from '@angular/core';
-
-@Component({
-  selector: 'app-banner',
-  templateUrl: './banner.component.html',
-  styleUrls: ['./banner.component.css']
-})
-export class BannerComponent {
-  // You can add properties or methods as needed
-}
-
-
-<!-- banner.component.html -->
-<div class="banner">
-  <div class="left-section">Channel Management</div>
-  <div class="center-section">
-    <input type="text" placeholder="Search">
-  </div>
-  <div class="right-section">
-    <button>Import Channels</button>
-    <button>Export Channels</button>
-  </div>
+<div class="box-title clearfix">
+  <h3 class="caption pull-left">Quản lý thực thể</h3>
+  <form id="example-form" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="_token" value="WLWcsHFqLGM9QzSvrT8kiEtrPyaq0ruP0g5faAe4">
+  </form>
+  <button class="btn blue-meadow pull-right" style="margin-left: 5px;" (click)="importEntities()">
+    <em class="fa fa-upload i-margin-right"></em> Nhập thực thể
+  </button>
+  <button data-spinner-color="#ffffff" data-style="zoom-in" type="button" class="ladda-button btn blue-meadow pull-right" (click)="exportEntities()">
+    <span class="ladda-label"><em class="fa fa-download"></em> Xuất thực thể</span>
+    <span class="ladda-spinner"></span>
+  </button>
+  <input type="text" placeholder="Nhập vào từ khóa cần tìm..." class="form-control input-text pull-right searchWidthShow">
 </div>
 
 
-// table.component.ts
-import { Component } from '@angular/core';
+.box-title {
+  // Your existing styles...
 
-@Component({
-  selector: 'app-table',
-  templateUrl: './table.component.html',
-  styleUrls: ['./table.component.css']
-})
-export class TableComponent {
-  channels: any[] = []; // Populate this array with your channel data
-  // You can add properties or methods as needed
-}
+  button.btn.blue-meadow.pull-right {
+    margin-left: 5px;
 
-
-<!-- table.component.html -->
-<table>
-  <thead>
-    <tr>
-      <th>Channel Name</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let channel of channels">
-      <td>{{ channel.name }}</td>
-      <td>
-        <button (click)="editChannel(channel)">Edit</button>
-        <button (click)="deleteChannel(channel)">Delete</button>
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-<div class="pagination">
-  <!-- Pagination controls go here -->
-</div>
-
-
-/* banner.component.css */
-.banner {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px;
-  background-color: #f0f0f0;
-}
-
-/* table.component.css */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-th, td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
-}
-
-th {
-  background-color: #f2f2f2;
-}
-
-.pagination {
-  margin-top: 10px;
-}
-
-
-/* banner.component.scss */
-.banner {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px;
-  background-color: #f0f0f0;
-
-  .left-section {
-    /* Add styles for the left section */
-  }
-
-  .center-section {
-    /* Add styles for the center section */
-    input {
-      width: 200px; /* Adjust the width as needed */
-      padding: 5px;
+    &:hover {
+      // Add hover styles if needed
     }
   }
 
-  .right-section {
-    /* Add styles for the right section */
-    button {
-      margin-left: 10px; /* Adjust the margin as needed */
+  button.ladda-button.btn.blue-meadow.pull-right {
+    margin-left: 5px;
+
+    &:hover {
+      // Add hover styles if needed
     }
-  }
-}
 
-
-/* table.component.scss */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-
-  th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-  }
-
-  th {
-    background-color: #f2f2f2;
-  }
-
-  tbody {
-    tr {
-      td {
-        &:first-child {
-          /* Styles for the first column (Channel Name) */
-        }
-
-        &:last-child {
-          /* Styles for the last column (Actions) */
-          button {
-            margin-right: 5px; /* Adjust the margin as needed */
-          }
-        }
+    span.ladda-label {
+      em.fa-download {
+        // Add styles for the download icon if needed
       }
     }
+
+    span.ladda-spinner {
+      // Add styles for the spinner if needed
+    }
+  }
+
+  input.form-control.input-text.pull-right.searchWidthShow {
+    // Add styles for the search input if needed
   }
 }
 
-.pagination {
-  margin-top: 10px;
-  /* Add styles for pagination controls */
+
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-your-component',
+  templateUrl: 'your-component.component.html',
+  styleUrls: ['your-component.component.scss'],
+})
+export class YourComponent {
+  importEntities() {
+    // Add your import logic here
+    console.log('Import button clicked');
+  }
+
+  exportEntities() {
+    // Add your export logic here
+    console.log('Export button clicked');
+  }
 }
