@@ -1,60 +1,64 @@
 <div class="box-title clearfix">
   <h3 class="caption pull-left">Quản lý thực thể</h3>
-  <form id="example-form" method="post" enctype="multipart/form-data">
-    <input type="hidden" name="_token" value="WLWcsHFqLGM9QzSvrT8kiEtrPyaq0ruP0g5faAe4">
-  </form>
-  <input type="text" placeholder="Nhập vào từ khóa cần tìm..." class="form-control input-text pull-right searchWidthShow">
-  <button data-spinner-color="#ffffff" data-style="zoom-in" type="button" class="ladda-button btn blue-meadow pull-right" (click)="exportEntities()">
-    <span class="ladda-label"><em class="fa fa-download"></em> Xuất thực thể</span>
-    <span class="ladda-spinner"></span>
-  </button>
-  <button class="btn blue-meadow pull-right" style="margin-left: 5px;" (click)="importEntities()">
-    <em class="fa fa-upload i-margin-right"></em> Nhập thực thể
-  </button>
+  <div class="button-container pull-right">
+    <form id="example-form" method="post" enctype="multipart/form-data">
+      <input type="hidden" name="_token" value="WLWcsHFqLGM9QzSvrT8kiEtrPyaq0ruP0g5faAe4">
+    </form>
+    <button class="btn blue-meadow" (click)="importEntities()">
+      <em class="fa fa-upload i-margin-right"></em> Nhập thực thể
+    </button>
+    <button data-spinner-color="#ffffff" data-style="zoom-in" type="button" class="ladda-button btn blue-meadow" (click)="exportEntities()">
+      <span class="ladda-label"><em class="fa fa-download"></em> Xuất thực thể</span>
+      <span class="ladda-spinner"></span>
+    </button>
+    <input type="text" placeholder="Nhập vào từ khóa cần tìm..." class="form-control input-text searchWidthShow">
+  </div>
 </div>
 
 
 .box-title {
-  background-color: #007bff; /* Add your desired blue color code */
-
-  // Your existing styles...
+  background-color: #007bff;
+  overflow: hidden; /* Add this to contain floated elements */
 
   h3.caption {
     float: left;
+    margin-right: 20px; /* Add margin to separate "Quản lý thực thể" from other elements */
+    color: #fff; /* Text color */
+  }
+
+  .button-container {
+    float: right;
   }
 
   form {
     float: left; /* Adjust the positioning as needed */
   }
 
-  input.form-control.input-text.pull-right.searchWidthShow {
-    // Add styles for the search input if needed
+  input.form-control.input-text.searchWidthShow {
     float: right;
   }
 
-  button.ladda-button.btn.blue-meadow.pull-right {
+  button.btn.blue-meadow {
+    margin-left: 5px;
+
+    &:hover {
+      // Add hover styles if needed
+    }
+  }
+
+  button.ladda-button.btn.blue-meadow {
     margin-left: 5px;
 
     &:hover {
       // Add hover styles if needed
     }
 
-    span.ladda-label {
-      em.fa-download {
-        // Add styles for the download icon if needed
-      }
+    span.ladda-label em.fa-download {
+      // Add styles for the download icon if needed
     }
 
     span.ladda-spinner {
       // Add styles for the spinner if needed
-    }
-  }
-
-  button.btn.blue-meadow.pull-right {
-    margin-left: 5px;
-
-    &:hover {
-      // Add hover styles if needed
     }
   }
 }
