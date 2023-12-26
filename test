@@ -1,61 +1,49 @@
-<div class="box-title clearfix">
-  <h3 class="caption">Quản lý thực thể</h3>
-  <div class="button-container">
-    <form id="example-form" method="post" enctype="multipart/form-data">
-      <input type="hidden" name="_token" value="WLWcsHFqLGM9QzSvrT8kiEtrPyaq0ruP0g5faAe4">
-    </form>
-    <button class="btn blue-meadow" (click)="importEntities()">
-      <em class="fa fa-upload i-margin-right"></em> Nhập thực thể
-    </button>
-    <button data-spinner-color="#ffffff" data-style="zoom-in" type="button" class="ladda-button btn blue-meadow" (click)="exportEntities()">
-      <span class="ladda-label"><em class="fa fa-download"></em> Xuất thực thể</span>
-      <span class="ladda-spinner"></span>
-    </button>
-    <input type="text" placeholder="Nhập vào từ khóa cần tìm..." class="form-control input-text searchWidthShow">
-  </div>
-</div>
+/* your-component.styles.scss */
 
-
-.box-title {
-  background-color: #007bff;
-  overflow: hidden;
-
-  h3.caption {
-    margin: 0; /* Remove default margin */
-    color: #fff;
-  }
-
-  .button-container {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end; /* Align items to the end (right) */
-    gap: 10px; /* Adjust the gap between items */
-    margin-right: 20px; /* Add margin for spacing on the right side */
-  }
-
-  form {
-    /* Adjust margin for spacing between the buttons and the search input */
-    margin-right: 10px;
-  }
-
-  input.form-control.input-text.searchWidthShow {
-    float: right;
-  }
-
-  button.btn.blue-meadow,
-  button.ladda-button.btn.blue-meadow {
-    padding: 10px 15px;
-    margin: 0; /* Remove default margin */
-    &:hover {
-      /* Add hover styles if needed */
-    }
-
-    span.ladda-label em.fa-download {
-      /* Add styles for the download icon if needed */
-    }
-
-    span.ladda-spinner {
-      /* Add styles for the spinner if needed */
-    }
-  }
+.mat-elevation-z8 {
+  border-collapse: collapse;
+  width: 100%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
 }
+
+th, td {
+  padding: 12px;
+  text-align: left;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+td {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn {
+  display: inline-block;
+  padding: 8px 16px;
+  text-align: center;
+  text-decoration: none;
+  background-color: #4caf50;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-danger {
+  background-color: #f44336;
+}
+
+.action-delete {
+  margin-left: 8px;
+}
+
+/* Add any additional styles as needed */
