@@ -1,49 +1,109 @@
-/* your-component.styles.scss */
+<!-- edit-record-dialog.component.html -->
 
-.mat-elevation-z8 {
-  border-collapse: collapse;
+<h1 mat-dialog-title>Edit Record</h1>
+<div mat-dialog-content>
+  <!-- Your edit record form goes here -->
+  <!-- For simplicity, a basic input field is shown -->
+  <mat-form-field>
+    <input matInput placeholder="Edit Record" [(ngModel)]="recordDataToEdit" />
+  </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onCancelClick()">Cancel</button>
+  <button mat-button color="primary" (click)="onSaveClick()">Save</button>
+</div>
+
+// edit-record-dialog.component.scss
+
+/* Add your custom styling for the dialog here */
+
+mat-form-field {
   width: 100%;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
-th, td {
-  padding: 12px;
-  text-align: left;
+/* Add more styling as needed */
+
+// edit-record-dialog.component.ts
+
+import { Component, Inject } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+
+@Component({
+  selector: 'app-edit-record-dialog',
+  templateUrl: './edit-record-dialog.component.html',
+  styleUrls: ['./edit-record-dialog.component.scss'],
+})
+export class EditRecordDialogComponent {
+  recordDataToEdit: string;
+
+  constructor(
+    public dialogRef: MatDialogRef<EditRecordDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {
+    // Initialize data to edit (if needed)
+    this.recordDataToEdit = data.recordData;
+  }
+
+  onCancelClick(): void {
+    this.dialogRef.close();
+  }
+
+  onSaveClick(): void {
+    // Handle save logic here
+    // You can pass back the updated data to the parent component if needed
+    this.dialogRef.close(this.recordDataToEdit);
+  }
 }
 
-th {
-  background-color: #f2f2f2;
+
+// edit-record-dialog.service.ts
+
+import { Injectable } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { EditRecordDialogComponent } from './edit-record-dialog/edit-record-dialog.component';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class EditRecordDialogService {
+  constructor(private dialog: MatDialog) {}
+
+  openEditDialog(recordData: string): void {
+    const dialogRef = this.dialog.open(EditRecordDialogComponent, {
+      width: '400px',
+      data: { recordData }, // Pass data to the dialog
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      // Handle result (if needed)
+      console.log('Dialog closed with result:', result);
+    });
+  }
 }
 
-td {
-  border-bottom: 1px solid #e0e0e0;
-}
+<!-- your-parent.component.html -->
 
-img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
 
-.btn {
-  display: inline-block;
-  padding: 8px 16px;
-  text-align: center;
-  text-decoration: none;
-  background-color: #4caf50;
-  color: #fff;
-  border-radius: 4px;
-  cursor: pointer;
-}
 
-.btn-danger {
-  background-color: #f44336;
-}
+<button mat-button (click)="openEditDialog()">Edit Record</button>
 
-.action-delete {
-  margin-left: 8px;
-}
 
-/* Add any additional styles as needed */
+
+// your-parent.component.ts
+
+import { Component } from '@angular/core';
+import { EditRecordDialogService } from './edit-record-dialog.service';
+
+@Component({
+  selector: 'app-your-parent-component',
+  templateUrl: './your-parent.component.html',
+  styleUrls: ['./your-parent.component.scss'],
+})
+export class YourParentComponent {
+  constructor(private editDialogService: EditRecordDialogService) {}
+
+  openEditDialog(): void {
+    this.editDialogService.openEditDialog('Initial Record Data');
+  }
+}
