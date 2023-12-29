@@ -50,3 +50,19 @@ import { AppComponent } from './app.component';
 })
 export class AppModule {}
 
+
+
+/* tag-editor.component.css */
+
+.tag-editor {
+  list-style: none;
+  padding: 0;
+}
+
+.tag-editor-tag {
+  display: inline-block;
+  background-color: #ccc;
+  padding: 5px;
+  margin: 5px;
+}
+
