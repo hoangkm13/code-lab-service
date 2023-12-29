@@ -1,58 +1,19 @@
-// tag-editor.component.ts
+// tag-editor.component.scss
 
-import { Component, Input } from '@angular/core';
-
-@Component({
-  selector: 'app-tag-editor',
-  template: `
-    <ul class="tag-editor ui-sortable">
-      <li style="width:1px" class="ui-sortable-handle">&nbsp;</li>
-      <li *ngFor="let tag of tags" class="ui-sortable-handle">
-        <div class="tag-editor-spacer">&nbsp;;</div>
-        <div class="tag-editor-tag">{{ tag }}</div>
-        <div class="tag-editor-delete"><i></i></div>
-      </li>
-    </ul>
-  `,
-  styleUrls: ['./tag-editor.component.css']
-})
-export class TagEditorComponent {
-  @Input() tags: string[] = [];
+.tag-editor {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
 }
 
-// app.component.ts
-
-import { Component } from '@angular/core';
-
-@Component({
-  selector: 'app-root',
-  template: `
-    <app-tag-editor [tags]="tagList"></app-tag-editor>
-  `,
-  styleUrls: ['./app.component.css']
-})
-export class AppComponent {
-  tagList: string[] = ['Cửu Long', 'CLTV', 'truyền hình cửu long', 'đài cửu long', '900'];
+.tag-editor li {
+  display: flex;
+  align-items: center;
 }
 
-
-// app.module.ts
-
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { TagEditorComponent } from './tag-editor/tag-editor.component';
-import { AppComponent } from './app.component';
-
-@NgModule({
-  declarations: [AppComponent, TagEditorComponent],
-  imports: [BrowserModule],
-  bootstrap: [AppComponent]
-})
-export class AppModule {}
-
-
-
-/* tag.component.css */
+.tag-editor-spacer {
+  flex-grow: 1;
+}
 
 .tag-editor-tag {
   display: inline-block;
@@ -61,3 +22,20 @@ export class AppModule {}
   padding: 5px;
   margin: 5px;
 }
+
+.tag-editor-delete {
+  cursor: pointer;
+  margin-left: 5px;
+
+  i {
+    /* Define styles for the delete icon */
+  }
+}
+
+// app.component.scss
+
+// Add any specific styles for the app component here if needed
+
+// app.module.scss
+
+// Add any specific styles for the app module here if needed
