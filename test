@@ -22,3 +22,9 @@ label:hover {
   margin-top: 10px;
   font-weight: bold;
 }
+
+/* Change color of "No file chosen" text */
+input[type="file"] + label::after {
+  content: 'No file chosen';
+  color: #7f8c8d; /* Gray color */
+}
