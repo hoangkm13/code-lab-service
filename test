@@ -1,48 +1,52 @@
-<!-- edit-record-dialog.component.html -->
+// tag-editor.component.ts
 
-<h1 mat-dialog-title>Edit Record</h1>
-<div mat-dialog-content>
-  <div class="field-container">
-    <div class="field-header">
-      <h2>Field 1</h2>
-      <p>Enter value for Field 1:</p>
-    </div>
-    <mat-form-field>
-      <input matInput placeholder="Field 1" [(ngModel)]="field1" />
-    </mat-form-field>
-  </div>
+import { Component, Input } from '@angular/core';
 
-  <div class="field-container">
-    <div class="field-header">
-      <h2>Field 2</h2>
-      <p>Enter value for Field 2:</p>
-    </div>
-    <mat-form-field>
-      <input matInput placeholder="Field 2" [(ngModel)]="field2" />
-    </mat-form-field>
-  </div>
+@Component({
+  selector: 'app-tag-editor',
+  template: `
+    <ul class="tag-editor ui-sortable">
+      <li style="width:1px" class="ui-sortable-handle">&nbsp;</li>
+      <li *ngFor="let tag of tags" class="ui-sortable-handle">
+        <div class="tag-editor-spacer">&nbsp;;</div>
+        <div class="tag-editor-tag">{{ tag }}</div>
+        <div class="tag-editor-delete"><i></i></div>
+      </li>
+    </ul>
+  `,
+  styleUrls: ['./tag-editor.component.css']
+})
+export class TagEditorComponent {
+  @Input() tags: string[] = [];
+}
 
-  <div class="field-container">
-    <div class="field-header">
-      <h2>Field 3</h2>
-      <p>Enter value for Field 3:</p>
-    </div>
-    <mat-form-field>
-      <input matInput placeholder="Field 3" [(ngModel)]="field3" />
-    </mat-form-field>
-  </div>
+// app.component.ts
 
-  <div class="field-container">
-    <div class="field-header">
-      <h2>Field 4</h2>
-      <p>Enter value for Field 4:</p>
-    </div>
-    <mat-form-field>
-      <input matInput placeholder="Field 4" [(ngModel)]="field4" />
-    </mat-form-field>
-  </div>
-</div>
-<div mat-dialog-actions>
-  <button mat-button (click)="onCancelClick()">Cancel</button>
-  <button mat-button color="primary" (click)="onSaveClick()">Save</button>
-</div>
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  template: `
+    <app-tag-editor [tags]="tagList"></app-tag-editor>
+  `,
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  tagList: string[] = ['Cửu Long', 'CLTV', 'truyền hình cửu long', 'đài cửu long', '900'];
+}
+
+
+// app.module.ts
+
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { TagEditorComponent } from './tag-editor/tag-editor.component';
+import { AppComponent } from './app.component';
+
+@NgModule({
+  declarations: [AppComponent, TagEditorComponent],
+  imports: [BrowserModule],
+  bootstrap: [AppComponent]
+})
+export class AppModule {}
+
