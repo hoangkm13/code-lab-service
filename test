@@ -1,9 +1,22 @@
+<!-- tag-editor.component.ts -->
+
+<ul class="tag-editor ui-sortable">
+  <li style="width:1px" class="ui-sortable-handle">&nbsp;</li>
+  <li *ngFor="let tag of tags" class="ui-sortable-handle">
+    <div class="tag-editor-tag">{{ tag }}</div>
+    <div class="tag-editor-delete"><i></i></div>
+  </li>
+</ul>
+
+
+
 // tag-editor.component.scss
 
 .tag-editor {
   list-style-type: none;
   padding: 0;
   margin: 0;
+  display: flex; /* Display the tags in a horizontal row */
 }
 
 .tag-editor li {
@@ -11,14 +24,10 @@
   align-items: center;
 }
 
-.tag-editor-spacer {
-  flex-grow: 1;
-}
-
 .tag-editor-tag {
   display: inline-block;
-  background-color: #3498db; /* Adjust the color as needed */
-  color: #fff; /* Set the text color to white or a contrasting color */
+  background-color: #3498db;
+  color: #fff;
   padding: 5px;
   margin: 5px;
 }
@@ -31,11 +40,3 @@
     /* Define styles for the delete icon */
   }
 }
-
-// app.component.scss
-
-// Add any specific styles for the app component here if needed
-
-// app.module.scss
-
-// Add any specific styles for the app module here if needed
