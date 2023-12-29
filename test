@@ -52,17 +52,12 @@ export class AppModule {}
 
 
 
-/* tag-editor.component.css */
-
-.tag-editor {
-  list-style: none;
-  padding: 0;
-}
+/* tag.component.css */
 
 .tag-editor-tag {
   display: inline-block;
-  background-color: #ccc;
+  background-color: #3498db; /* Adjust the color as needed */
+  color: #fff; /* Set the text color to white or a contrasting color */
   padding: 5px;
   margin: 5px;
 }
-
