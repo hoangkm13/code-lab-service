@@ -1,49 +1,59 @@
-Certainly! Here's the equivalent Java code using `List` instead of arrays:
+Certainly! Here's a full example using Quarkus Panache with a composite primary key:
 
 ```java
-import java.util.List;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
 
-public class Forecast {
-    public static double forecast(double x, List<Double> ky, List<Double> kx) {
-        int i = 0;
-        double nr = 0, dr = 0, ax = 0, ay = 0, a = 0, b = 0;
+@Entity
+@IdClass(YourCompositeKeyClass.class)
+public class YourEntity extends PanacheEntityBase {
 
-        // Calculate average for kx
-        double sumKx = 0;
-        for (Double value : kx) {
-            sumKx += value;
-        }
-        ax = sumKx / kx.size();
+    @Id
+    @Column(name = "first_key")
+    public String firstKey;
 
-        // Calculate average for ky
-        double sumKy = 0;
-        for (Double value : ky) {
-            sumKy += value;
-        }
-        ay = sumKy / ky.size();
+    @Id
+    @Column(name = "second_key")
+    public String secondKey;
 
-        // Calculate forecast
-        for (i = 0; i < kx.size(); i++) {
-            nr += ((kx.get(i) - ax) * (ky.get(i) - ay));
-            dr += Math.pow((kx.get(i) - ax), 2);
-        }
+    // Other fields and methods...
 
-        b = nr / dr;
-        a = ay - b * ax;
-
-        return (a + b * x);
-    }
-
-    public static void main(String[] args) {
-        // Example usage
-        List<Double> kx = List.of(/* Insert your values here */);
-        List<Double> ky = List.of(/* Insert your values here */);
-        double x = /* Insert your value here */;
-
-        double result = forecast(x, ky, kx);
-        System.out.println("Forecast: " + result);
+    public static YourEntity findByIds(String firstKey, String secondKey) {
+        return find("firstKey = ?1 and secondKey = ?2", firstKey, secondKey).firstResult();
     }
 }
 ```
 
-This code uses `List` from the Java Collections framework. Replace the placeholders with your actual data when using this code.
+And the composite key class:
+
+```java
+import java.io.Serializable;
+import java.util.Objects;
+
+public class YourCompositeKeyClass implements Serializable {
+
+    private String firstKey;
+    private String secondKey;
+
+    // Constructors, getters, setters...
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        YourCompositeKeyClass that = (YourCompositeKeyClass) o;
+        return Objects.equals(firstKey, that.firstKey) &&
+               Objects.equals(secondKey, that.secondKey);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(firstKey, secondKey);
+    }
+}
+```
+
+This example shows an entity `YourEntity` with a composite primary key consisting of two columns (`firstKey` and `secondKey`). You can use the `findByIds` method to query by these composite keys. Ensure your database schema supports composite keys for this to work seamlessly.
