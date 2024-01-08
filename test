@@ -1,28 +1,31 @@
-Here's the equivalent Java code for the given JavaScript function:
+Certainly! Here's the equivalent Java code using `List` instead of arrays:
 
 ```java
+import java.util.List;
+
 public class Forecast {
-    public static double forecast(double x, double[] ky, double[] kx) {
+    public static double forecast(double x, List<Double> ky, List<Double> kx) {
         int i = 0;
         double nr = 0, dr = 0, ax = 0, ay = 0, a = 0, b = 0;
 
-        // Calculate average
-        double sum = 0;
-        for (i = 0; i < kx.length; i++) {
-            sum += kx[i];
+        // Calculate average for kx
+        double sumKx = 0;
+        for (Double value : kx) {
+            sumKx += value;
         }
-        ax = sum / kx.length;
+        ax = sumKx / kx.size();
 
-        sum = 0;
-        for (i = 0; i < ky.length; i++) {
-            sum += ky[i];
+        // Calculate average for ky
+        double sumKy = 0;
+        for (Double value : ky) {
+            sumKy += value;
         }
-        ay = sum / ky.length;
+        ay = sumKy / ky.size();
 
         // Calculate forecast
-        for (i = 0; i < kx.length; i++) {
-            nr += ((kx[i] - ax) * (ky[i] - ay));
-            dr += Math.pow((kx[i] - ax), 2);
+        for (i = 0; i < kx.size(); i++) {
+            nr += ((kx.get(i) - ax) * (ky.get(i) - ay));
+            dr += Math.pow((kx.get(i) - ax), 2);
         }
 
         b = nr / dr;
@@ -33,8 +36,8 @@ public class Forecast {
 
     public static void main(String[] args) {
         // Example usage
-        double[] kx = { /* Insert your values here */ };
-        double[] ky = { /* Insert your values here */ };
+        List<Double> kx = List.of(/* Insert your values here */);
+        List<Double> ky = List.of(/* Insert your values here */);
         double x = /* Insert your value here */;
 
         double result = forecast(x, ky, kx);
@@ -43,4 +46,4 @@ public class Forecast {
 }
 ```
 
-Replace the placeholders with your actual data when using this code.
+This code uses `List` from the Java Collections framework. Replace the placeholders with your actual data when using this code.
