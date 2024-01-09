@@ -1,79 +1,78 @@
-To implement this in Spring Boot, you can use `@PreAuthorize` along with a custom `OncePerRequestFilter` to check permissions stored in a MySQL database. Here's a basic outline:
+In Spring Security, you can achieve hierarchical permissions using the `@PreAuthorize` annotation along with a custom `PermissionEvaluator`. Here's an example of how you can configure it:
 
-1. Define your custom filter:
+1. **Custom PermissionEvaluator:**
+   Create a class that implements `PermissionEvaluator` to handle hierarchical permissions.
 
-```java
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.filter.OncePerRequestFilter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+   ```java
+   import org.springframework.security.core.Authentication;
+   import org.springframework.security.core.GrantedAuthority;
+   import org.springframework.security.core.userdetails.User;
 
-public class CustomAuthorizationFilter extends OncePerRequestFilter {
+   public class CustomPermissionEvaluator implements PermissionEvaluator {
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-        
-        // Your logic to extract permissions from the token
-        String tokenPermissions = extractTokenPermissions(request);
+       @Override
+       public boolean hasPermission(
+               Authentication authentication, Object targetDomainObject, Object permission) {
 
-        // Your logic to fetch permissions from the database based on the user
-        String databasePermissions = fetchPermissionsFromDatabase(getUserId());
+           if (authentication == null || !authentication.isAuthenticated()) {
+               return false;
+           }
 
-        // Your logic to check if token permissions match database permissions
-        if (hasPermission(tokenPermissions, databasePermissions)) {
-            filterChain.doFilter(request, response);
-        } else {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        }
-    }
+           User user = (User) authentication.getPrincipal();
+           String userPermission = permission.toString();
 
-    // Implement methods for extracting token permissions, fetching user ID, and checking permissions
-}
-```
+           for (GrantedAuthority authority : user.getAuthorities()) {
+               if (authority.getAuthority().equals(userPermission) || authority.getAuthority().startsWith(userPermission + "/")) {
+                   return true;
+               }
+           }
 
-2. Create a configuration class:
+           return false;
+       }
 
-```java
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+       // Implement the other method if needed
+   }
+   ```
 
-@Configuration
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+2. **Security Configuration:**
+   In your security configuration, register the custom `PermissionEvaluator`.
 
-    @Bean
-    public CustomAuthorizationFilter customAuthorizationFilter() {
-        return new CustomAuthorizationFilter();
-    }
+   ```java
+   import org.springframework.context.annotation.Bean;
+   import org.springframework.context.annotation.Configuration;
+   import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+   import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http.addFilterBefore(customAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
-            // Other security configurations...
-    }
-}
-```
+   @Configuration
+   public class SecurityConfig {
 
-3. Use `@PreAuthorize` in your controller:
+       @Bean
+       public MethodSecurityExpressionHandler methodSecurityExpressionHandler() {
+           DefaultMethodSecurityExpressionHandler expressionHandler =
+                   new DefaultMethodSecurityExpressionHandler();
+           expressionHandler.setPermissionEvaluator(new CustomPermissionEvaluator());
+           return expressionHandler;
+       }
+   }
+   ```
 
-```java
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+3. **Usage in Controller:**
+   Use `@PreAuthorize` with the hierarchical permission.
 
-@RestController
-public class YourController {
+   ```java
+   import org.springframework.security.access.prepost.PreAuthorize;
+   import org.springframework.web.bind.annotation.GetMapping;
+   import org.springframework.web.bind.annotation.RestController;
 
-    @GetMapping("/api/your-endpoint")
-    @PreAuthorize("hasPermission('permissionLevel1/permissionLevel2')")
-    public String yourEndpoint() {
-        return "Authorized!";
-    }
-}
-```
+   @RestController
+   public class MyController {
 
-Make sure to adjust the code according to your actual implementation details and customize the methods for extracting token permissions, fetching user ID, and checking permissions based on your database schema.
+       @GetMapping("/secure")
+       @PreAuthorize("hasPermission('test', 'read')")
+       public String secureEndpoint() {
+           return "This is a secure endpoint.";
+       }
+   }
+   ```
+
+Now, when a user has the "test" permission, they can access endpoints annotated with `@PreAuthorize("hasPermission('test', '...')")`, including those with the "test/test1" hierarchy. Adjust the permission strings and logic according to your specific requirements.
