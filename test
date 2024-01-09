@@ -1,59 +1,107 @@
-Certainly! Here's a full example using Quarkus Panache with a composite primary key:
+Certainly! In a Spring Boot application, you can use `@PreAuthorize` along with method security expressions to control access based on permissions stored in a MySQL database. Here's a brief example:
+
+1. Define a `Permission` entity:
 
 ```java
-import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-
 @Entity
-@IdClass(YourCompositeKeyClass.class)
-public class YourEntity extends PanacheEntityBase {
-
+public class Permission {
     @Id
-    @Column(name = "first_key")
-    public String firstKey;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Id
-    @Column(name = "second_key")
-    public String secondKey;
+    private String permissionName;
 
-    // Other fields and methods...
-
-    public static YourEntity findByIds(String firstKey, String secondKey) {
-        return find("firstKey = ?1 and secondKey = ?2", firstKey, secondKey).firstResult();
-    }
+    // Getter and Setter methods
 }
 ```
 
-And the composite key class:
+2. Create a repository for handling database operations:
 
 ```java
-import java.io.Serializable;
-import java.util.Objects;
+public interface PermissionRepository extends JpaRepository<Permission, Long> {
+    Optional<Permission> findByPermissionName(String permissionName);
+}
+```
 
-public class YourCompositeKeyClass implements Serializable {
+3. Extend your user entity or UserDetails implementation to include a collection of permissions:
 
-    private String firstKey;
-    private String secondKey;
+```java
+public class CustomUserDetails extends org.springframework.security.core.userdetails.User {
+    private Collection<Permission> permissions;
 
-    // Constructors, getters, setters...
+    // Constructor and getter methods
+}
+```
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        YourCompositeKeyClass that = (YourCompositeKeyClass) o;
-        return Objects.equals(firstKey, that.firstKey) &&
-               Objects.equals(secondKey, that.secondKey);
-    }
+4. Configure security using `@EnableGlobalMethodSecurity`:
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(firstKey, secondKey);
+```java
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+public class SecurityConfig extends GlobalMethodSecurityConfiguration {
+    // Other security configurations
+}
+```
+
+5. Use `@PreAuthorize` in your controllers or services:
+
+```java
+@RestController
+@RequestMapping("/api")
+public class YourController {
+
+    @Autowired
+    private PermissionRepository permissionRepository;
+
+    @PreAuthorize("hasPermission('permissionLevel1/permissionLevel2')")
+    @GetMapping("/example")
+    public ResponseEntity<String> exampleEndpoint() {
+        // Your endpoint logic
+        return ResponseEntity.ok("Authorized");
     }
 }
 ```
 
-This example shows an entity `YourEntity` with a composite primary key consisting of two columns (`firstKey` and `secondKey`). You can use the `findByIds` method to query by these composite keys. Ensure your database schema supports composite keys for this to work seamlessly.
+6. Implement a custom `PermissionEvaluator`:
+
+```java
+@Configuration
+public class CustomMethodSecurityConfig extends GlobalMethodSecurityConfiguration {
+
+    @Autowired
+    private PermissionRepository permissionRepository;
+
+    @Override
+    protected MethodSecurityExpressionHandler createExpressionHandler() {
+        DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
+        expressionHandler.setPermissionEvaluator(new CustomPermissionEvaluator(permissionRepository));
+        return expressionHandler;
+    }
+}
+```
+
+7. Implement the `CustomPermissionEvaluator`:
+
+```java
+public class CustomPermissionEvaluator implements PermissionEvaluator {
+
+    private final PermissionRepository permissionRepository;
+
+    public CustomPermissionEvaluator(PermissionRepository permissionRepository) {
+        this.permissionRepository = permissionRepository;
+    }
+
+    @Override
+    public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
+        // Your logic to check permission
+        return false;
+    }
+
+    @Override
+    public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
+        // Your logic to check permission
+        return false;
+    }
+}
+```
+
+This example provides a basic structure for handling permissions stored in a MySQL database and using them with `@PreAuthorize` in Spring Boot. You may need to adapt it based on your specific requirements and database structure.
