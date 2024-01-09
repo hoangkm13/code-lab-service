@@ -1,78 +1,25 @@
-In Spring Security, you can achieve hierarchical permissions using the `@PreAuthorize` annotation along with a custom `PermissionEvaluator`. Here's an example of how you can configure it:
+Certainly! Below is the full code for the `ErrorDialogComponent`:
 
-1. **Custom PermissionEvaluator:**
-   Create a class that implements `PermissionEvaluator` to handle hierarchical permissions.
+```typescript
+// error-dialog.component.ts
+import { Component, Inject } from '@angular/core';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-   ```java
-   import org.springframework.security.core.Authentication;
-   import org.springframework.security.core.GrantedAuthority;
-   import org.springframework.security.core.userdetails.User;
+@Component({
+  selector: 'app-error-dialog',
+  template: `
+    <h2>Error</h2>
+    <p>{{ errorMessage }}</p>
+    <button mat-button [mat-dialog-close]="'close'">Close</button>
+  `,
+})
+export class ErrorDialogComponent {
+  constructor(@Inject(MAT_DIALOG_DATA) public data: { message: string }) {}
 
-   public class CustomPermissionEvaluator implements PermissionEvaluator {
+  get errorMessage(): string {
+    return this.data.message;
+  }
+}
+```
 
-       @Override
-       public boolean hasPermission(
-               Authentication authentication, Object targetDomainObject, Object permission) {
-
-           if (authentication == null || !authentication.isAuthenticated()) {
-               return false;
-           }
-
-           User user = (User) authentication.getPrincipal();
-           String userPermission = permission.toString();
-
-           for (GrantedAuthority authority : user.getAuthorities()) {
-               if (authority.getAuthority().equals(userPermission) || authority.getAuthority().startsWith(userPermission + "/")) {
-                   return true;
-               }
-           }
-
-           return false;
-       }
-
-       // Implement the other method if needed
-   }
-   ```
-
-2. **Security Configuration:**
-   In your security configuration, register the custom `PermissionEvaluator`.
-
-   ```java
-   import org.springframework.context.annotation.Bean;
-   import org.springframework.context.annotation.Configuration;
-   import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
-   import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
-
-   @Configuration
-   public class SecurityConfig {
-
-       @Bean
-       public MethodSecurityExpressionHandler methodSecurityExpressionHandler() {
-           DefaultMethodSecurityExpressionHandler expressionHandler =
-                   new DefaultMethodSecurityExpressionHandler();
-           expressionHandler.setPermissionEvaluator(new CustomPermissionEvaluator());
-           return expressionHandler;
-       }
-   }
-   ```
-
-3. **Usage in Controller:**
-   Use `@PreAuthorize` with the hierarchical permission.
-
-   ```java
-   import org.springframework.security.access.prepost.PreAuthorize;
-   import org.springframework.web.bind.annotation.GetMapping;
-   import org.springframework.web.bind.annotation.RestController;
-
-   @RestController
-   public class MyController {
-
-       @GetMapping("/secure")
-       @PreAuthorize("hasPermission('test', 'read')")
-       public String secureEndpoint() {
-           return "This is a secure endpoint.";
-       }
-   }
-   ```
-
-Now, when a user has the "test" permission, they can access endpoints annotated with `@PreAuthorize("hasPermission('test', '...')")`, including those with the "test/test1" hierarchy. Adjust the permission strings and logic according to your specific requirements.
+Make sure to include this component in your module declarations and import the necessary Angular Material modules in your application module. Also, adjust the styling and structure based on your application's needs.
