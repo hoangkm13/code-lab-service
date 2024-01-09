@@ -1,107 +1,70 @@
-Certainly! In a Spring Boot application, you can use `@PreAuthorize` along with method security expressions to control access based on permissions stored in a MySQL database. Here's a brief example:
+Certainly! Here's a more complete and organized code snippet incorporating the custom filter into a Spring Boot application:
 
-1. Define a `Permission` entity:
-
+1. **Custom Authorization Filter:**
 ```java
-@Entity
-public class Permission {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.filter.OncePerRequestFilter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
-    private String permissionName;
+public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
-    // Getter and Setter methods
-}
-```
+    @Override
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
+        String authToken = request.getHeader("Authorization");
+        if (isValidAuthToken(authToken)) {
+            Authentication authentication = // Create an Authentication object based on your logic
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
 
-2. Create a repository for handling database operations:
+        filterChain.doFilter(request, response);
+    }
 
-```java
-public interface PermissionRepository extends JpaRepository<Permission, Long> {
-    Optional<Permission> findByPermissionName(String permissionName);
-}
-```
-
-3. Extend your user entity or UserDetails implementation to include a collection of permissions:
-
-```java
-public class CustomUserDetails extends org.springframework.security.core.userdetails.User {
-    private Collection<Permission> permissions;
-
-    // Constructor and getter methods
-}
-```
-
-4. Configure security using `@EnableGlobalMethodSecurity`:
-
-```java
-@EnableGlobalMethodSecurity(prePostEnabled = true)
-public class SecurityConfig extends GlobalMethodSecurityConfiguration {
-    // Other security configurations
-}
-```
-
-5. Use `@PreAuthorize` in your controllers or services:
-
-```java
-@RestController
-@RequestMapping("/api")
-public class YourController {
-
-    @Autowired
-    private PermissionRepository permissionRepository;
-
-    @PreAuthorize("hasPermission('permissionLevel1/permissionLevel2')")
-    @GetMapping("/example")
-    public ResponseEntity<String> exampleEndpoint() {
-        // Your endpoint logic
-        return ResponseEntity.ok("Authorized");
+    private boolean isValidAuthToken(String authToken) {
+        return authToken != null && authToken.startsWith("Bearer ");
     }
 }
 ```
 
-6. Implement a custom `PermissionEvaluator`:
-
+2. **Security Configuration:**
 ```java
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+
 @Configuration
-public class CustomMethodSecurityConfig extends GlobalMethodSecurityConfiguration {
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    private PermissionRepository permissionRepository;
+    @Bean
+    public CustomAuthorizationFilter customAuthorizationFilter() {
+        return new CustomAuthorizationFilter();
+    }
 
     @Override
-    protected MethodSecurityExpressionHandler createExpressionHandler() {
-        DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
-        expressionHandler.setPermissionEvaluator(new CustomPermissionEvaluator(permissionRepository));
-        return expressionHandler;
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            .addFilterBefore(customAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
+            .authorizeRequests()
+                .antMatchers("/api/example").authenticated()
+                .and()
+            .httpBasic()
+                .and()
+            .csrf().disable(); // Disable CSRF for simplicity, consider enabling it in a production environment
     }
 }
 ```
 
-7. Implement the `CustomPermissionEvaluator`:
+This example assumes a simple scenario where you're checking the presence of a "Bearer" token in the "Authorization" header. You'll need to customize the `isValidAuthToken` method and the creation of the `Authentication` object based on your specific authentication logic.
 
-```java
-public class CustomPermissionEvaluator implements PermissionEvaluator {
-
-    private final PermissionRepository permissionRepository;
-
-    public CustomPermissionEvaluator(PermissionRepository permissionRepository) {
-        this.permissionRepository = permissionRepository;
-    }
-
-    @Override
-    public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
-        // Your logic to check permission
-        return false;
-    }
-
-    @Override
-    public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
-        // Your logic to check permission
-        return false;
-    }
-}
-```
-
-This example provides a basic structure for handling permissions stored in a MySQL database and using them with `@PreAuthorize` in Spring Boot. You may need to adapt it based on your specific requirements and database structure.
+Remember to adapt the code according to your actual authentication and authorization requirements.
