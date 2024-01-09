@@ -1,8 +1,8 @@
-Certainly! Here's a more complete and organized code snippet incorporating the custom filter into a Spring Boot application:
+To implement this in Spring Boot, you can use `@PreAuthorize` along with a custom `OncePerRequestFilter` to check permissions stored in a MySQL database. Here's a basic outline:
 
-1. **Custom Authorization Filter:**
+1. Define your custom filter:
+
 ```java
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import javax.servlet.FilterChain;
@@ -14,36 +14,35 @@ import java.io.IOException;
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
-        String authToken = request.getHeader("Authorization");
-        if (isValidAuthToken(authToken)) {
-            Authentication authentication = // Create an Authentication object based on your logic
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+        
+        // Your logic to extract permissions from the token
+        String tokenPermissions = extractTokenPermissions(request);
+
+        // Your logic to fetch permissions from the database based on the user
+        String databasePermissions = fetchPermissionsFromDatabase(getUserId());
+
+        // Your logic to check if token permissions match database permissions
+        if (hasPermission(tokenPermissions, databasePermissions)) {
+            filterChain.doFilter(request, response);
+        } else {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         }
-
-        filterChain.doFilter(request, response);
     }
 
-    private boolean isValidAuthToken(String authToken) {
-        return authToken != null && authToken.startsWith("Bearer ");
-    }
+    // Implement methods for extracting token permissions, fetching user ID, and checking permissions
 }
 ```
 
-2. **Security Configuration:**
+2. Create a configuration class:
+
 ```java
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
@@ -53,18 +52,28 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
-            .addFilterBefore(customAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
-            .authorizeRequests()
-                .antMatchers("/api/example").authenticated()
-                .and()
-            .httpBasic()
-                .and()
-            .csrf().disable(); // Disable CSRF for simplicity, consider enabling it in a production environment
+        http.addFilterBefore(customAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
+            // Other security configurations...
     }
 }
 ```
 
-This example assumes a simple scenario where you're checking the presence of a "Bearer" token in the "Authorization" header. You'll need to customize the `isValidAuthToken` method and the creation of the `Authentication` object based on your specific authentication logic.
+3. Use `@PreAuthorize` in your controller:
 
-Remember to adapt the code according to your actual authentication and authorization requirements.
+```java
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class YourController {
+
+    @GetMapping("/api/your-endpoint")
+    @PreAuthorize("hasPermission('permissionLevel1/permissionLevel2')")
+    public String yourEndpoint() {
+        return "Authorized!";
+    }
+}
+```
+
+Make sure to adjust the code according to your actual implementation details and customize the methods for extracting token permissions, fetching user ID, and checking permissions based on your database schema.
