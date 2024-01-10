@@ -1,68 +1,26 @@
-To implement logout functionality in an Angular application, you typically need to clear the user authentication state and navigate to the login page. Here's a basic example:
+Certainly! You can style your logout button using SCSS by adding some CSS rules. Here's an example:
 
-1. **Create a Logout Service (logout.service.ts):**
-   
-   ```typescript
-   import { Injectable } from '@angular/core';
-   import { Router } from '@angular/router';
+Assuming you have a button in your component's template (e.g., app.component.html):
 
-   @Injectable({
-     providedIn: 'root'
-   })
-   export class LogoutService {
-     constructor(private router: Router) {}
+```html
+<button class="logout-button" (click)="logout()">Logout</button>
+```
 
-     logout(): void {
-       // Perform any additional logout logic (e.g., clearing local storage, API calls)
-       
-       // Navigate to the login page
-       this.router.navigate(['/login']);
-     }
-   }
-   ```
+Now, in your component's SCSS file (e.g., app.component.scss), you can add styling:
 
-2. **Use the Logout Service in your Component (e.g., app.component.ts):**
+```scss
+.logout-button {
+  background-color: #dc3545;  // Red color (you can customize)
+  color: #fff;               // White text (you can customize)
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
 
-   ```typescript
-   import { Component } from '@angular/core';
-   import { LogoutService } from './logout.service';
+  &:hover {
+    background-color: #c82333;  // Darker red on hover (you can customize)
+  }
+}
+```
 
-   @Component({
-     selector: 'app-root',
-     template: `
-       <!-- Your app content here -->
-       <button (click)="logout()">Logout</button>
-     `
-   })
-   export class AppComponent {
-     constructor(private logoutService: LogoutService) {}
-
-     logout(): void {
-       this.logoutService.logout();
-     }
-   }
-   ```
-
-3. **Update your Routes (app-routing.module.ts):**
-
-   ```typescript
-   import { NgModule } from '@angular/core';
-   import { RouterModule, Routes } from '@angular/router';
-   import { LoginComponent } from './login/login.component'; // Import your login component
-
-   const routes: Routes = [
-     // Other routes
-     { path: 'login', component: LoginComponent },
-     // Other routes
-   ];
-
-   @NgModule({
-     imports: [RouterModule.forRoot(routes)],
-     exports: [RouterModule]
-   })
-   export class AppRoutingModule {}
-   ```
-
-Ensure that you have a LoginComponent created and properly configured.
-
-Remember, this is a basic example, and you might need to adapt it based on your authentication mechanism and application structure.
+This is a simple example, and you can customize the styles based on your application's design. Adjust the colors, padding, and other properties to fit your desired button appearance.
