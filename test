@@ -1,66 +1,68 @@
-Certainly! Here's the full code for the `ErrorDialogComponent` with the included SCSS:
+To implement logout functionality in an Angular application, you typically need to clear the user authentication state and navigate to the login page. Here's a basic example:
 
-```typescript
-// error-dialog.component.ts
-import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+1. **Create a Logout Service (logout.service.ts):**
+   
+   ```typescript
+   import { Injectable } from '@angular/core';
+   import { Router } from '@angular/router';
 
-@Component({
-  selector: 'app-error-dialog',
-  template: `
-    <div class="error-dialog">
-      <h2>Error</h2>
-      <p>{{ errorMessage }}</p>
-      <button mat-button [mat-dialog-close]="'close'">Close</button>
-    </div>
-  `,
-  styleUrls: ['./error-dialog.component.scss'],
-})
-export class ErrorDialogComponent {
-  constructor(@Inject(MAT_DIALOG_DATA) public data: { message: string }) {}
+   @Injectable({
+     providedIn: 'root'
+   })
+   export class LogoutService {
+     constructor(private router: Router) {}
 
-  get errorMessage(): string {
-    return this.data.message;
-  }
-}
-```
+     logout(): void {
+       // Perform any additional logout logic (e.g., clearing local storage, API calls)
+       
+       // Navigate to the login page
+       this.router.navigate(['/login']);
+     }
+   }
+   ```
 
-```scss
-// error-dialog.component.scss
-.error-dialog {
-  display: block;
-  max-width: 400px;
-  margin: 0 auto;
-  text-align: center;
-  padding: 16px;
-  background-color: #fff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+2. **Use the Logout Service in your Component (e.g., app.component.ts):**
 
-  h2 {
-    color: #ff3547;
-    margin-bottom: 12px;
-  }
+   ```typescript
+   import { Component } from '@angular/core';
+   import { LogoutService } from './logout.service';
 
-  p {
-    color: #333;
-    margin-bottom: 20px;
-  }
+   @Component({
+     selector: 'app-root',
+     template: `
+       <!-- Your app content here -->
+       <button (click)="logout()">Logout</button>
+     `
+   })
+   export class AppComponent {
+     constructor(private logoutService: LogoutService) {}
 
-  button {
-    color: #fff;
-    background-color: #ff3547;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+     logout(): void {
+       this.logoutService.logout();
+     }
+   }
+   ```
 
-    &:hover {
-      background-color: #e02433;
-    }
-  }
-}
-```
+3. **Update your Routes (app-routing.module.ts):**
 
-Ensure that you have the necessary Angular Material modules imported in your application module and that the `ErrorDialogComponent` is declared in the appropriate module. Adjust the styles and structure based on your application's design preferences.
+   ```typescript
+   import { NgModule } from '@angular/core';
+   import { RouterModule, Routes } from '@angular/router';
+   import { LoginComponent } from './login/login.component'; // Import your login component
+
+   const routes: Routes = [
+     // Other routes
+     { path: 'login', component: LoginComponent },
+     // Other routes
+   ];
+
+   @NgModule({
+     imports: [RouterModule.forRoot(routes)],
+     exports: [RouterModule]
+   })
+   export class AppRoutingModule {}
+   ```
+
+Ensure that you have a LoginComponent created and properly configured.
+
+Remember, this is a basic example, and you might need to adapt it based on your authentication mechanism and application structure.
