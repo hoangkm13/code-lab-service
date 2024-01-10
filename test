@@ -1,9 +1,33 @@
+Certainly! Here's the full code for the `ErrorDialogComponent` with the included SCSS:
 
-Certainly! Here's an example of an SCSS file for the `ErrorDialogComponent` to add some styling:
+```typescript
+// error-dialog.component.ts
+import { Component, Inject } from '@angular/core';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+
+@Component({
+  selector: 'app-error-dialog',
+  template: `
+    <div class="error-dialog">
+      <h2>Error</h2>
+      <p>{{ errorMessage }}</p>
+      <button mat-button [mat-dialog-close]="'close'">Close</button>
+    </div>
+  `,
+  styleUrls: ['./error-dialog.component.scss'],
+})
+export class ErrorDialogComponent {
+  constructor(@Inject(MAT_DIALOG_DATA) public data: { message: string }) {}
+
+  get errorMessage(): string {
+    return this.data.message;
+  }
+}
+```
 
 ```scss
 // error-dialog.component.scss
-:host {
+.error-dialog {
   display: block;
   max-width: 400px;
   margin: 0 auto;
@@ -39,4 +63,4 @@ Certainly! Here's an example of an SCSS file for the `ErrorDialogComponent` to a
 }
 ```
 
-Remember to import this SCSS file in your `ErrorDialogComponent` if you are using Angular CLI or a similar build system. Adjust the colors, fonts, and other styles to match your application's design.
+Ensure that you have the necessary Angular Material modules imported in your application module and that the `ErrorDialogComponent` is declared in the appropriate module. Adjust the styles and structure based on your application's design preferences.
