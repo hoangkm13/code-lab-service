@@ -1,4 +1,4 @@
-I see, if you're dealing with version numbers where each part is treated as a decimal and you want to find the maximum version correctly, you should consider splitting the version string and comparing each part numerically. Here's an adjusted example for your scenario:
+I apologize for the confusion. It seems like the ordering approach may not work as expected in this case. If you're still facing issues, you can try the following alternative approach:
 
 ```java
 import org.springframework.data.jpa.repository.Query;
@@ -7,13 +7,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface YourEntityRepository extends JpaRepository<YourEntity, Long> {
 
-    @Query("SELECT e " +
+    @Query("SELECT e.columnName " +
            "FROM YourEntity e " +
-           "ORDER BY CAST(SUBSTRING_INDEX(e.columnName, '.', 1) AS UNSIGNED) DESC, " +
-           "         CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(e.columnName, '.', -2), '.', 1) AS UNSIGNED) DESC, " +
-           "         CAST(SUBSTRING_INDEX(e.columnName, '.', -1) AS UNSIGNED) DESC")
-    YourEntity findMaxXYZPattern();
+           "ORDER BY " +
+           "  CAST(SUBSTRING_INDEX(e.columnName, '.', 1) AS UNSIGNED) DESC, " +
+           "  CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(e.columnName, '.', -2), '.', 1) AS UNSIGNED) DESC, " +
+           "  CAST(SUBSTRING_INDEX(e.columnName, '.', -1) AS UNSIGNED) DESC " +
+           "LIMIT 1")
+    String findMaxXYZPattern();
 }
 ```
 
-This query orders the results in descending order based on each part of the version number, ensuring that you get the row with the highest version first. Adjust the column and entity names accordingly based on your actual setup.
+This query selects only the `columnName` and uses `LIMIT 1` to retrieve only the top result, which should be the maximum version. Ensure that you replace `YourEntity` with your actual entity class name and adjust the column names based on your specific case.
