@@ -1,0 +1,84 @@
+Certainly! You can modify the shared service to hold a list of objects and have the child component send an object to the service, which then pushes it to the list. The parent component can subscribe to the list. Here's an example:
+
+```typescript
+// data.service.ts
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class DataService {
+  private objectList: Array<object> = [];
+  private sharedObjectList = new BehaviorSubject<Array<object>>([]);
+  currentObjectList = this.sharedObjectList.asObservable();
+
+  addObjectToList(data: object) {
+    this.objectList.push(data);
+    this.sharedObjectList.next([...this.objectList]); // Emit a new copy of the list
+  }
+}
+```
+
+Then, in your components:
+
+1. **Parent Component:**
+   ```typescript
+   // parent.component.ts
+   import { Component, OnInit } from '@angular/core';
+   import { DataService } from '../data.service';
+
+   @Component({
+     selector: 'app-parent',
+     templateUrl: './parent.component.html',
+     styleUrls: ['./parent.component.css'],
+   })
+   export class ParentComponent implements OnInit {
+     objectList: Array<object> = [];
+
+     constructor(private dataService: DataService) {}
+
+     ngOnInit() {
+       this.dataService.currentObjectList.subscribe((list) => {
+         this.objectList = list;
+       });
+     }
+   }
+   ```
+   ```html
+   <!-- parent.component.html -->
+   <div *ngFor="let item of objectList">
+     {{ item | json }}
+   </div>
+   ```
+
+2. **Child Component:**
+   ```typescript
+   // child.component.ts
+   import { Component } from '@angular/core';
+   import { DataService } from '../data.service';
+
+   @Component({
+     selector: 'app-child',
+     templateUrl: './child.component.html',
+     styleUrls: ['./child.component.css'],
+   })
+   export class ChildComponent {
+     constructor(private dataService: DataService) {}
+
+     sendDataToList() {
+       const newObject: object = {
+         key1: 'value1',
+         key2: 'value2',
+         // Add more key-value pairs as needed
+       };
+       this.dataService.addObjectToList(newObject);
+     }
+   }
+   ```
+   ```html
+   <!-- child.component.html -->
+   <button (click)="sendDataToList()">Send Data to List</button>
+   ```
+
+Now, when the `sendDataToList` function is triggered in the child component, it sends an object to the shared service, and the service adds it to the list. The parent component automatically reflects the changes through the subscription to the `currentObjectList` observable.
