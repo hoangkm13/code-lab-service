@@ -1,4 +1,4 @@
-I apologize for the confusion. It seems like the ordering approach may not work as expected in this case. If you're still facing issues, you can try the following alternative approach:
+I apologize for the oversight. It appears that the `LIMIT` clause might not be supported directly in JPQL (Java Persistence Query Language). In that case, you can try using the `setMaxResults` method in your repository method:
 
 ```java
 import org.springframework.data.jpa.repository.Query;
@@ -12,10 +12,14 @@ public interface YourEntityRepository extends JpaRepository<YourEntity, Long> {
            "ORDER BY " +
            "  CAST(SUBSTRING_INDEX(e.columnName, '.', 1) AS UNSIGNED) DESC, " +
            "  CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(e.columnName, '.', -2), '.', 1) AS UNSIGNED) DESC, " +
-           "  CAST(SUBSTRING_INDEX(e.columnName, '.', -1) AS UNSIGNED) DESC " +
-           "LIMIT 1")
-    String findMaxXYZPattern();
+           "  CAST(SUBSTRING_INDEX(e.columnName, '.', -1) AS UNSIGNED) DESC")
+    List<String> findMaxXYZPattern();
+
+    default String findTopXYZPattern() {
+        List<String> results = findMaxXYZPattern();
+        return results.isEmpty() ? null : results.get(0);
+    }
 }
 ```
 
-This query selects only the `columnName` and uses `LIMIT 1` to retrieve only the top result, which should be the maximum version. Ensure that you replace `YourEntity` with your actual entity class name and adjust the column names based on your specific case.
+This modification introduces a default method `findTopXYZPattern` that uses `findMaxXYZPattern` to get a list of results and returns the first element, effectively achieving the same result as `LIMIT 1`. Adjust the method name and return type according to your needs.
