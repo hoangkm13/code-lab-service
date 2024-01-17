@@ -1,25 +1,64 @@
-I apologize for the oversight. It appears that the `LIMIT` clause might not be supported directly in JPQL (Java Persistence Query Language). In that case, you can try using the `setMaxResults` method in your repository method:
+are
+Improve this answer
+Follow
+edited Jan 3, 2013 at 17:21
+answered Jan 3, 2013 at 17:12
+Has QUIT--Anony-Mousse's user avatar
+Has QUIT--Anony-Mousse
+76.5k1414 gold badges139139 silver badges195195 bronze badges
+Add a comment
+3
 
-```java
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.data.jpa.repository.JpaRepository;
+This is basically Anny-Mousse's answer in code: The restriction is, there are only digits and dots allowed in a version number.
 
-public interface YourEntityRepository extends JpaRepository<YourEntity, Long> {
+public class Version implements Comparable<Version> {
 
-    @Query("SELECT e.columnName " +
-           "FROM YourEntity e " +
-           "ORDER BY " +
-           "  CAST(SUBSTRING_INDEX(e.columnName, '.', 1) AS UNSIGNED) DESC, " +
-           "  CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(e.columnName, '.', -2), '.', 1) AS UNSIGNED) DESC, " +
-           "  CAST(SUBSTRING_INDEX(e.columnName, '.', -1) AS UNSIGNED) DESC")
-    List<String> findMaxXYZPattern();
+    private int[] version;
 
-    default String findTopXYZPattern() {
-        List<String> results = findMaxXYZPattern();
-        return results.isEmpty() ? null : results.get(0);
+    public Version(String str) {
+        if (!str.matches("\\d+[.\\d]*?\\d")) {
+            throw new IllegalArgumentException(
+                    "Version must start and end with digit and"
+                    + "only contain digits and dots."
+                    + " You provided '" + str + "'");
+        }
+        String[] tokens = str.split("\\.");
+        version = new int[tokens.length];
+        for (int i = 0; i < tokens.length; i++) {
+            version[i] = Integer.parseInt(tokens[i], 10);
+        }
+    }
+
+    @Override
+    public int compareTo(Version other) {
+        Version shorterOne =
+                this.version.length < other.version.length ?
+                this : other;
+        int min = shorterOne.version.length;
+        for (int i = 0; i < min; i++) {
+            if (this.version[i] != other.version[i]) {
+                return this.version[i] - other.version[i];
+            }
+        }
+        return this.version.length - other.version.length;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder str = new StringBuilder(2 * version.length);
+        for (Integer i : version) {
+            str.append(i).append('.');
+        }
+        return str.deleteCharAt(str.length() - 1).toString();
+    }
+
+    public static void main(String[] args) {
+        String[] s = {"1.4","1.3","0.4","0.5","0.2","2.7","1.8","2.9","0.1"};
+        List<Version> list = new ArrayList<>(s.length);
+        for (String str : s) {
+            list.add(new Version(str));
+        }
+        Version max = Collections.max(list);
+        System.out.println(max);
     }
 }
-```
-
-This modification introduces a default method `findTopXYZPattern` that uses `findMaxXYZPattern` to get a list of results and returns the first element, effectively achieving the same result as `LIMIT 1`. Adjust the method name and return type according to your needs.
