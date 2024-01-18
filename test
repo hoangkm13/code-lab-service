@@ -1,4 +1,4 @@
-In TypeScript, you don't have a built-in `Comparable` interface like in Java. However, you can achieve similar functionality by implementing a custom comparison method within your class. Here's the modified TypeScript code:
+I apologize for the oversight. If you want to compare versions directly within the `Version` class without using `other.version`, you can make the `compare` method accept another `Version` instance as a parameter. Here's the modified TypeScript code:
 
 ```typescript
 import { Component, OnInit } from '@angular/core';
@@ -48,4 +48,4 @@ export class VersionComponent implements OnInit {
 }
 ```
 
-This code adjusts the comparison method to use `compare` instead of `compareTo`. The main point is to provide a custom comparison function within your class to determine the order of objects.
+Now, the `compare` method compares the current `Version` instance with another `Version` instance directly, without referencing `other.version`.
