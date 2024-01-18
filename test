@@ -1,64 +1,51 @@
-are
-Improve this answer
-Follow
-edited Jan 3, 2013 at 17:21
-answered Jan 3, 2013 at 17:12
-Has QUIT--Anony-Mousse's user avatar
-Has QUIT--Anony-Mousse
-76.5k1414 gold badges139139 silver badges195195 bronze badges
-Add a comment
-3
+Angular is a JavaScript framework, and TypeScript is a superset of JavaScript, so you can adapt the logic to TypeScript in an Angular component. Here's a simplified example:
 
-This is basically Anny-Mousse's answer in code: The restriction is, there are only digits and dots allowed in a version number.
+```typescript
+import { Component, OnInit } from '@angular/core';
 
-public class Version implements Comparable<Version> {
+class Version implements Comparable<Version> {
+  private version: number[];
 
-    private int[] version;
+  constructor(str: string) {
+    if (!str.match(/\d+[.\d]*?\d/)) {
+      throw new Error(`Version must start and end with a digit and only contain digits and dots. You provided '${str}'`);
+    }
+    const tokens = str.split('.');
+    this.version = tokens.map(token => parseInt(token, 10));
+  }
 
-    public Version(String str) {
-        if (!str.matches("\\d+[.\\d]*?\\d")) {
-            throw new IllegalArgumentException(
-                    "Version must start and end with digit and"
-                    + "only contain digits and dots."
-                    + " You provided '" + str + "'");
-        }
-        String[] tokens = str.split("\\.");
-        version = new int[tokens.length];
-        for (int i = 0; i < tokens.length; i++) {
-            version[i] = Integer.parseInt(tokens[i], 10);
-        }
+  compareTo(other: Version): number {
+    const shorterOne = this.version.length < other.version.length ? this : other;
+    const min = shorterOne.version.length;
+
+    for (let i = 0; i < min; i++) {
+      if (this.version[i] !== other.version[i]) {
+        return this.version[i] - other.version[i];
+      }
     }
 
-    @Override
-    public int compareTo(Version other) {
-        Version shorterOne =
-                this.version.length < other.version.length ?
-                this : other;
-        int min = shorterOne.version.length;
-        for (int i = 0; i < min; i++) {
-            if (this.version[i] != other.version[i]) {
-                return this.version[i] - other.version[i];
-            }
-        }
-        return this.version.length - other.version.length;
-    }
+    return this.version.length - other.version.length;
+  }
 
-    @Override
-    public String toString() {
-        StringBuilder str = new StringBuilder(2 * version.length);
-        for (Integer i : version) {
-            str.append(i).append('.');
-        }
-        return str.deleteCharAt(str.length() - 1).toString();
-    }
-
-    public static void main(String[] args) {
-        String[] s = {"1.4","1.3","0.4","0.5","0.2","2.7","1.8","2.9","0.1"};
-        List<Version> list = new ArrayList<>(s.length);
-        for (String str : s) {
-            list.add(new Version(str));
-        }
-        Version max = Collections.max(list);
-        System.out.println(max);
-    }
+  toString(): string {
+    return this.version.join('.');
+  }
 }
+
+@Component({
+  selector: 'app-version',
+  template: '{{ maxVersion }}',
+})
+export class VersionComponent implements OnInit {
+  maxVersion: string;
+
+  ngOnInit(): void {
+    const versions = ["1.4", "1.3", "0.4", "0.5", "0.2", "2.7", "1.8", "2.9", "0.1"];
+    const versionObjects = versions.map(version => new Version(version));
+    const max = versionObjects.reduce((prev, current) => prev.compareTo(current) > 0 ? prev : current);
+    this.maxVersion = max.toString();
+  }
+}
+```
+
+Remember to adjust this example based on your Angular project structure and any specific requirements.
