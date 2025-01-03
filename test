@@ -1,187 +1,108 @@
-Certainly! Here's a full code example for an Angular project with Angular Material and HttpClientModule using Angular 17:
+package com.example.googleassistantc2c.entity;
 
-First, let's create a new Angular project:
+import com.google.gson.annotations.SerializedName;
+import lombok.Data;
 
-```bash
-ng new angular-permission-management
-cd angular-permission-management
-```
+import java.util.List;
 
-Then, create a service to fetch permissions:
+@Data
+public class TvSeriesFeed {
+    @SerializedName("@context")
+    private Object[] context;
 
-```bash
-ng generate service permission
-```
+    @SerializedName("@type")
+    private String type;
 
-Now, let's implement the service to fetch permissions:
+    @SerializedName("@id")
+    private String id;
 
-```typescript
-// permission.service.ts
+    private String url;
+    private String name;
+    private PotentialAction potentialAction;
+    private String sameAs;
+    private PublicationEvent releasedEvent;
+    private PopularityScoreSpecification popularityScore;
+    private String description;
+    private String contentRating;
+    private List<Person> actor;
+    private List<PropertyValue> identifier;
 
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+    @Data
+    public static class PotentialAction {
+        @SerializedName("@type")
+        private String type;
+        private Target target;
+        private ActionAccessSpecification actionAccessibilityRequirement;
+    }
 
-@Injectable({
-  providedIn: 'root'
-})
-export class PermissionService {
-  private apiUrl = 'api/permissions'; // Your backend API URL for fetching permissions
+    @Data
+    public static class Target {
+        @SerializedName("@type")
+        private String type;
+        private String urlTemplate;
+        private String inLanguage;
+        private List<String> actionPlatform;
+    }
 
-  constructor(private http: HttpClient) { }
+    @Data
+    public static class ActionAccessSpecification {
+        @SerializedName("@type")
+        private String type;
+        private String category;
+        private MediaSubscription requiresSubscription;
+        private String availabilityStarts;
+        private String availabilityEnds;
+        private List<Country> eligibleRegion;
+    }
 
-  getPermissions(): Observable<any> {
-    return this.http.get<any>(this.apiUrl);
-  }
+    @Data
+    public static class MediaSubscription {
+        @SerializedName("@type")
+        private String type;
+        private String name;
+        private boolean commonTier;
+        @SerializedName("@id")
+        private String id;
+    }
+
+    @Data
+    public static class Country {
+        @SerializedName("@type")
+        private String type;
+        private String name;
+    }
+
+    @Data
+    public static class PublicationEvent {
+        @SerializedName("@type")
+        private String type;
+        private String startDate;
+        private Country location;
+    }
+
+    @Data
+    public static class PopularityScoreSpecification {
+        @SerializedName("@type")
+        private String type;
+        private double value;
+        private List<Country> eligibleRegion;
+    }
+
+    @Data
+    public static class Person {
+        @SerializedName("@type")
+        private String type;
+        @SerializedName("@id")
+        private String id;
+        private String name;
+        private String sameAs;
+    }
+
+    @Data
+    public static class PropertyValue {
+        @SerializedName("@type")
+        private String type;
+        private String propertyID;
+        private String value;
+    }
 }
-```
-
-Next, let's generate a new component for the permission tree:
-
-```bash
-ng generate component permission-tree
-```
-
-Now, implement the component:
-
-```typescript
-// permission-tree.component.ts
-
-import { Component, OnInit } from '@angular/core';
-import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
-import { BehaviorSubject } from 'rxjs';
-import { PermissionService } from '../permission.service';
-
-interface PermissionNode {
-  name: string;
-  children?: PermissionNode[];
-}
-
-interface FlatPermissionNode {
-  expandable: boolean;
-  name: string;
-  level: number;
-}
-
-@Component({
-  selector: 'app-permission-tree',
-  templateUrl: './permission-tree.component.html',
-  styleUrls: ['./permission-tree.component.css']
-})
-export class PermissionTreeComponent implements OnInit {
-  private transformer = (node: PermissionNode, level: number) => {
-    return {
-      expandable: !!node.children && node.children.length > 0,
-      name: node.name,
-      level: level,
-    };
-  }
-
-  treeControl = new BehaviorSubject<FlatPermissionNode[]>([]);
-  treeFlattener = new MatTreeFlattener(
-    this.transformer,
-    node => node.level,
-    node => node.expandable,
-    node => node.children
-  );
-  dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
-
-  constructor(private permissionService: PermissionService) { }
-
-  ngOnInit(): void {
-    this.permissionService.getPermissions().subscribe(permissions => {
-      const nodes = this.buildPermissionTree(permissions);
-      this.treeControl.next(nodes);
-      this.dataSource.data = nodes;
-    });
-  }
-
-  hasChild = (_: number, node: FlatPermissionNode) => node.expandable;
-
-  private buildPermissionTree(permissions: any): FlatPermissionNode[] {
-    const nodes: FlatPermissionNode[] = [];
-    permissions.forEach(permission => {
-      const flatNode: FlatPermissionNode = {
-        expandable: !!permission.children && permission.children.length > 0,
-        name: permission.name,
-        level: 0
-      };
-      nodes.push(flatNode);
-      if (flatNode.expandable) {
-        permission.children.forEach(child => {
-          nodes.push({
-            expandable: false,
-            name: child.name,
-            level: 1
-          });
-        });
-      }
-    });
-    return nodes;
-  }
-}
-```
-
-Now, let's create a mock data file to simulate the permissions:
-
-```typescript
-// mock-permissions.ts
-
-export const MOCK_PERMISSIONS = [
-  {
-    name: 'admin',
-    children: [
-      { name: 'createUser' },
-      { name: 'deleteUser' }
-    ]
-  },
-  {
-    name: 'user',
-    children: [
-      { name: 'changeDayOfBirth' },
-      { name: 'changePassword' }
-    ]
-  },
-  {
-    name: 'employee',
-    children: [
-      { name: 'uploadFile' },
-      { name: 'viewReports' }
-    ]
-  }
-];
-```
-
-Finally, implement the HTML template for the permission tree component:
-
-```html
-<!-- permission-tree.component.html -->
-
-<mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
-  <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
-    <li class="mat-tree-node">
-      <button mat-icon-button disabled></button>
-      {{node.name}}
-    </li>
-  </mat-tree-node>
-
-  <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
-    <li>
-      <div class="mat-tree-node">
-        <button mat-icon-button matTreeNodeToggle
-                [attr.aria-label]="'toggle ' + node.name">
-          <mat-icon class="mat-icon-rtl-mirror">
-            {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
-          </mat-icon>
-        </button>
-        {{node.name}}
-      </div>
-      <ul [class.mat-tree-node] [class.mat-tree-node-level]="node.level">
-        <ng-container matTreeNodeOutlet></ng-container>
-      </ul>
-    </li>
-  </mat-nested-tree-node>
-</mat-tree>
-```
-
-This should give you a basic setup for an Angular application with permission management using Angular Material and HttpClientModule. Adjust the code as needed based on your specific requirements and backend API.
